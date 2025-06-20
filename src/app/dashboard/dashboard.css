@@ -1,0 +1,94 @@
+.student-dashboard {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding-top: 160px;
+  padding: 5%;
+}
+
+.text-center{
+  padding-top: 25px;
+}
+.student-dashboard h2 {
+  background-color: #6a1b9a;
+  color: white;
+}
+
+.student-btn {
+  background-color: #6a1b9a;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.student-btn:hover {
+ color: #ffeb3b !important;  /* Bright yellow hover */
+  background-color: #2c2c2c;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+
+.list-group-item {
+  background-color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 15px;
+}
+
+.list-group-item:hover {
+  color: #2c2c2c !important;  /* Bright yellow hover */
+  background-color: #dec5ed;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+} 
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center;
+}
+.hod-dashboard .student-btn {
+    background-color: #6a1b9a;
+    color: #fff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+  .hod-dashboard .student-btn:hover {
+    background-color: #4a0c70;
+  }
+  .table {
+    border: 1px solid #dee2e6;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+  }
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .table {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  background-color: #6a1b9a !important;
+  color: #fff;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+

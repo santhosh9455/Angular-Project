@@ -1,0 +1,46 @@
+<app-navbar></app-navbar>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+    <h3 class="text-center mb-4" style="color: #6a1b9a;">SRS App Login</h3>
+
+    <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" novalidate>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          id="username"
+          class="form-control"
+          formControlName="username"
+          placeholder="Enter username"
+        />
+        <div class="text-danger" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')">
+          Username is required
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="Enter password"
+        />
+        <div class="text-danger" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')">
+          Password is required
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <button class="btn login-btn text-white" type="submit" [disabled]="loginForm.invalid">
+          Login
+        </button>
+      </div>
+
+      <div *ngIf="errorMessage" class="text-danger mt-3 text-center">
+        {{ errorMessage }}
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<app-navbar></app-navbar>
+<div class="container d-flex justify-content-center align-items-center mt-5 mb-5">
+  <div class="card shadow p-4" style="width: 100%; max-width: 600px;">
+    <h3 class="text-center mb-4" style="color: #6a1b9a;">Student Registration</h3>
+
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data" novalidate>
+      
+       <!-- Success Alert -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Error Alert -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+      
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" formControlName="name" />
+          <div class="text-danger"
+            *ngIf="registrationForm.get('name')?.touched && registrationForm.get('name')?.hasError('required')">
+            Name is required
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control" formControlName="age" />
+          <div class="text-danger" *ngIf="registrationForm.get('age')?.touched">
+            <div *ngIf="registrationForm.get('age')?.hasError('required')">Age is required</div>
+            <div *ngIf="registrationForm.get('age')?.hasError('min')">Minimum age is 18</div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Gender</label>
+          <select class="form-select" formControlName="gender">
+            <option value="">-- Select Gender --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <div class="text-danger"
+            *ngIf="registrationForm.get('gender')?.touched && registrationForm.get('gender')?.hasError('required')">
+            Gender is required
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Phone Number</label>
+          <input type="text" class="form-control" formControlName="phoneNumber" />
+          <div class="text-danger" *ngIf="registrationForm.get('phoneNumber')?.touched">
+            <div *ngIf="registrationForm.get('phoneNumber')?.hasError('required')">Phone number is required</div>
+            <div *ngIf="registrationForm.get('phoneNumber')?.hasError('pattern')">Phone number must be 10 digits</div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email" />
+          <div class="text-danger" *ngIf="registrationForm.get('email')?.touched">
+            <div *ngIf="registrationForm.get('email')?.hasError('required')">Email is required</div>
+            <div *ngIf="registrationForm.get('email')?.hasError('email')">Invalid email format</div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Department</label>
+          <select class="form-select" formControlName="departmentId">
+            <option value="">-- Select Department --</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
+          </select>
+          <div class="text-danger"
+            *ngIf="registrationForm.get('departmentId')?.touched && registrationForm.get('departmentId')?.hasError('required')">
+            Department is required
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Profile Image</label>
+          <input type="file" (change)="onFileChange($event, 'profileImage')" class="form-control" />
+          <div class="text-danger"
+            *ngIf="registrationForm.get('profileImage')?.touched && registrationForm.get('profileImage')?.hasError('required')">
+            Profile image is required
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Marksheet Image</label>
+          <input type="file" (change)="onFileChange($event, 'marksheetImage')" class="form-control" />
+          <div class="text-danger"
+            *ngIf="registrationForm.get('marksheetImage')?.touched && registrationForm.get('marksheetImage')?.hasError('required')">
+            Marksheet image is required
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button class="btn register-btn w-100 text-white" type="submit">
+          Register
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

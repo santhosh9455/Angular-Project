@@ -1,0 +1,26 @@
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 15px;
+  color: white;
+  z-index: 9999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.toast-container.success {
+  background-color: #388e3c; /* green */
+}
+
+.toast-container.error {
+  background-color: #d32f2f; /* red */
+}
+
+.toast-container.info {
+  background-color: #6a1b9a; /* your theme violet */
+}

@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ToastComponent } from './components/toast/toast';
+import { Navbar } from './navbar/navbar';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet, ReactiveFormsModule, Navbar, ToastComponent], 
+  styleUrls: ['./app.css'], 
+  templateUrl: './app.html'
 })
 export class App {
-  protected title = 'srsapp';
+  protected title = 'srsApp';
 }
