@@ -6,8 +6,6 @@ import { jwtDecode } from 'jwt-decode';
 import { ToastService } from './toast.service';
 
 
-
-
 interface LoginResponse {
   token?: string;
   message?: string;
@@ -108,16 +106,16 @@ postWithAuth<T>(url: string, body: any) {
 
 
   storeToken(token: string): void {
-    localStorage.setItem('authToken', token);
+    sessionStorage.setItem('authToken', token);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('authToken');
+    return sessionStorage.getItem('authToken');
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
-    this.toast.showSuccess("Logout Successfully")
+    sessionStorage.removeItem('authToken');
+    this.toast.showSuccess("Logout Successfully");
     this.router.navigate(['/login']); // navigate to login
   }
 

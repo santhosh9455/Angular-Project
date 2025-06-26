@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { Navbar } from "../navbar/navbar";
 import { ToastService } from '../services/toast.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registration',
@@ -30,6 +31,16 @@ export class RegistrationComponent {
   departments: any[] = []; // Load from backend
   successMessage = '';
   errorMessage = '';
+
+
+showSwal(typeIcon: 'success' | 'error' | 'warning' | 'info' | 'question' = 'success', title: string, text: string = '') {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: typeIcon,
+      confirmButtonText: 'Cool'
+    });
+  }
 
   onFileChange(event: any, field: 'profileImage' | 'marksheetImage') {
     const file = event.target.files[0];
@@ -70,12 +81,13 @@ ngOnInit(): void {
 
       this.http.post('http://localhost:8080/api/students/registerRequest', formData).subscribe({
         next: () => {
-          this.toast.showSuccess("Registration successfully!");
+          this.showSwal('success','Registration successfully!','Your Registration successfully sent to HOD plaese wait...')
           this.registrationForm.reset();
         },
         error: (err) => {
           console.error('Registration failed:', err);
-          this.toast.showError('Registration failed:', err);
+          this.showSwal('error','Registration failed:',err),
+          this.registrationForm.reset();
         }
       });
     }

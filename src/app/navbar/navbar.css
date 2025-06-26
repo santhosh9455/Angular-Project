@@ -17,3 +17,12 @@
   padding: 6px 12px;
   transition:  0.3s ease-in-out;
 }
+.toggle-sidebar-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+

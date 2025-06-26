@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth';
+import { CommonModule } from "@angular/common";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Navbar } from "../navbar/navbar";
-import { ToastService } from '../services/toast.service';
+import { Component, inject } from "@angular/core";
+import { ToastService } from "../services/toast.service";
+import { AuthService } from "../services/auth";
+import { Router } from "@angular/router";
 
 @Component({
   standalone: true,
@@ -18,7 +18,9 @@ export class LoginComponent {
   router = inject(Router);
   authService = inject(AuthService);
 
-  constructor(private toast: ToastService) {
+  constructor(private toast: ToastService) {}
+
+  ngOnInit() {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
     }
@@ -40,13 +42,14 @@ export class LoginComponent {
           console.log("method calling", res);
           if (res.token) {
             this.authService.storeToken(res.token); // store token
-             this.toast.showSuccess("Login successfully!");
+            this.toast.showSuccess("Login successfully!");
             this.router.navigate(['/dashboard']);   // redirect
           } else {
             this.errorMessage = 'Invalid response from server';
           }
         },
         error: () => {
+          this.toast.showError('Invalid username or password');
           this.errorMessage = 'Invalid username or password';
         }
       });

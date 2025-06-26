@@ -3,6 +3,7 @@
   border-radius: 10px;
   padding-top: 160px;
   padding: 5%;
+  margin-left: 12%;
 }
 
 .text-center{
@@ -77,6 +78,12 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+.card{
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 .table th {
   background-color: #6a1b9a !important;
   color: #fff;
@@ -91,4 +98,48 @@
   overflow: hidden;
   margin-bottom: 2rem;
 }
+body{
+  margin: 0;
+  padding: 0;
+ 
+}
+.dashboard-container {
+  display: inline-block;
+}
 
+app-sidebar {
+  width: 240px;
+  transition: width 0.3s ease;
+}
+
+.dashboard-container.sidebar-collapsed app-sidebar {
+  width: 60px; /* or 0 if you want to hide completely */
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  margin-left: 240px; /* default sidebar width */
+}
+
+.dashboard-container.sidebar-collapsed .main-content {
+  margin-left: 60px; /* match collapsed width */
+}
+
+.img-thumbnail{
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.profile-thumbnail {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.card {
+  border-radius: 0.75rem;
+}

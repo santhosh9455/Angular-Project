@@ -2,28 +2,49 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Navbar } from "../navbar/navbar";
 import { AuthService } from '../services/auth';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ToastService } from '../services/toast.service';
-import { jwtDecode } from 'jwt-decode';
+import { ToastComponent } from "../components/toast/toast";
+import { SidebarComponent } from '../components/sidebar/sidebar';
+import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
+import { from } from 'rxjs';
+
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Navbar, CommonModule],
+  imports: [Navbar, CommonModule, ToastComponent, SidebarComponent, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
+
+
 export class Dashboard implements OnInit {
+
+
+
+  sidebarCollapsed: boolean = false;
+
+
+
+  toggleSidebar() {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  sectionChange: any;
   constructor(
     private toast: ToastService,
   ) {
-    
+
   }
   userRoles: string[] = [];
   username: string = 'Guest';
   viewSection: string | null = null;
+
 
   // Student role states
   studentProfile: any;
@@ -45,42 +66,171 @@ export class Dashboard implements OnInit {
   hodSubjects: any[] = [];
   hodStaff: any[] = [];
   hodCourses: any[] = [];
+  newStaff = {
+    name: '',
+    age: null,
+    gender: '',
+    email: '',
+    phoneNumber: '',
+    subjectId: null,
+    courseName: ''
+  };
+
+  selectedStaff: any = null;
+  updatedStaff: any = {
+    name: '',
+    email: '',
+    age: '',
+    gender: '',
+    phoneNumber: '',
+    subjectNme: '',
+    courseName: ''
+  };
+  selectedStudentId: number | null = null;
+  selectedStudent: any = null;
+  studentEdit: {
+    active: string;
+    subjectId: number | null;
+    courseId: number | null;
+    departmentId: number | null;
+    courseStatus: string;
+    name: string;
+    age: number | null;
+    gender: string;
+    email: string;
+    phoneNumber: string;
+    profileImage: File | null;
+    marksheetImage: File | null;
+  } = {
+      name: '',
+      age: null,
+      gender: '',
+      email: '',
+      phoneNumber: '',
+      profileImage: null,
+      marksheetImage: null,
+      active: '',
+      subjectId: null,
+      courseId: null,
+      departmentId: null,
+      courseStatus: '',
+    };
+
+
+  selectedSubjectId: number | null = null;
+  newSubjectName: string = '';
+  updatedSubjectName: string = '';
+  newCourseName: string = ''
 
   studentMessage: string = '';
 
-  // ngOnInit() {
-  //   this.userRoles = this.authService.getUserRole();
-  //   console.log('User Roles:', this.userRoles);
-  //   const name = this.authService.getUsername();
+  //Admin role states
+  newHod = { name: '', email: '', phoneNumber: '', gender: '', age: null, departmentId: null };
+  newUser = { username: '', password: '', roleId: null };
+  allUsers: any[] = [];
+  roles: any[] = [];
+  UsersProfile: any[] = [];
+  roleAssign = { username: '', userId: null };
+  roleAssignStud = { username: '', studId: null };
+  assignSubject = { departmentId: null, subjectId: null };
+  adminUserId?: number;
+  editUser: any = {
+    id: null,
+    username: '',
+    password: '',
+    roleId: null
+  };
 
-  //   if (name) {
-  //     this.username = name.toUpperCase();
-  //   }
-  //   console.log('Logged in as:', this.username);
-  // }
+  studentsCount: number | null = null;
+  adminUsername?: string;
+  selectedUserProfile: any = null;
+  selectedUserId: number | null = null;
+  departments: any[] = []; // Load from backend
+  subjects: any[] = []; // Load from backend
 
-  // hasRole(role: string): boolean {
-  //   return this.authService.getUserRole().includes(role);
-  // }
+  // Show success message after staff creation
+  showSwal(typeIcon: 'success' | 'error' | 'warning' | 'info' | 'question' = 'success', title: string, text: string = '') {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: typeIcon,
+      confirmButtonText: 'Cool'
+    });
+  }
+  // Confirm action for student approval/rejection
+  confirmCourseEnroll(courseId: number) {
+    Swal.fire({
+      title: 'Enroll this Course?',
+      text: 'Are you sure you want to enroll this course?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, enroll it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.registerCourse(courseId);
+      }
+    });
+  }
+  confirmStudentAction(studentId: number, action: 'approve' | 'reject' | 'approveByStaff' | 'rejectByStaff') {
+    const actionText = action === 'approve' ? 'Approve' : 'Reject';
+    const confirmText = action === 'approve' ? 'Yes, approve it!' : 'Yes, reject it!';
+
+
+    Swal.fire({
+      title: `${actionText} this student?`,
+      text: `Are you sure you want to ${actionText.toLowerCase()} this student?`,
+      icon: action === 'approve' ? 'success' : 'question',
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (action === 'approve') {
+          this.approveHodStudent(studentId);
+        } else if (action === 'reject') {
+          this.rejectHodStudent(studentId);
+        }
+        else if (action === 'approveByStaff') {
+          this.approveStudentByStaff(studentId);
+        }
+        else if (action === 'rejectByStaff') {
+          this.rejectStudentByStaff(studentId);
+        }
+      }
+    });
+  }
+
+
 
   ngOnInit() {
-  this.userRoles = this.authService.getUserRole();
-  console.log('User Roles:', this.userRoles);
+    this.userRoles = this.authService.getUserRole();
+    console.log('User Roles:', this.userRoles);
 
-  const name = this.authService.getUsername();
-  if (name) {
-    this.username = name.toUpperCase();
+    this.viewSection = 'dashboard';
+    if (this.hasRole("ROLE_HOD")) {
+      this.fetchUserProfiles();
+      this.fetchAllUsers();
+      this.loadAllStudents();
+
+    }
+
+
+    const name = this.authService.getUsername();
+    if (name) {
+      this.username = name.toUpperCase();
+    }
+
+    console.log('Logged in as:', this.username);
+    if (this.hasRole('ROLE_STAFF')) {
+      this.fetchPenddingStudent();
+      console.log('Staff role matched. Staff dashboard will be visible.');
+    }
   }
 
-  console.log('Logged in as:', this.username);
-  if (this.hasRole('ROLE_STAFF')) {
-    console.log('✅ Staff role matched. Staff dashboard will be visible.');
+  hasRole(role: string): boolean {
+    return this.userRoles.includes(role);
   }
-}
-
-hasRole(role: string): boolean {
-  return this.userRoles.includes(role);
-}
 
 
   toggleSection(section: string) {
@@ -88,6 +238,7 @@ hasRole(role: string): boolean {
 
     // Trigger data loading only when shown
     // For student API's
+
     if (this.viewSection === 'profile' && !this.studentProfile) {
       this.fetchStudentProfile();
     } else if (this.viewSection === 'courses' && this.courseList.length === 0) {
@@ -114,7 +265,7 @@ hasRole(role: string): boolean {
       this.fetchAllStudents();
     }
 
-    // Toggle section handler
+    // Hod API's
     else if (this.viewSection === 'hodRequested') {
       this.fetchHodRequested();
     } else if (this.viewSection === 'hodApproved') {
@@ -124,12 +275,39 @@ hasRole(role: string): boolean {
     } else if (this.viewSection === 'hodSubjects') {
       this.fetchHodSubjects();
     } else if (this.viewSection === 'hodStaff') {
-      this.fetchHodStaff();
+      this.fetchHodToStaff();
+
     } else if (this.viewSection === 'hodCourses') {
       this.fetchHodCourses();
     }
-
+    else if (this.viewSection === 'hodCreateStaff') {
+      this.fetchHodCourses();
+      this.fetchHodSubjects();
+    }
+    //Admin API's
+    else if (this.viewSection === 'adminAllUsers') {
+      this.fetchAllUsers();
+    }
+    else if (this.viewSection === 'adminAllStudents') {
+      this.loadAllStudents();
+    }
+    else if (this.viewSection === 'adminCreateHod') {
+      this.fetchAdminDepartments();
+    }
+    else if (this.viewSection === 'adminCreateUser') {
+      this.fetchRoles();
+    }
+    else if (this.viewSection === 'adminAssignRole') {
+    }
+    else if (this.viewSection === 'adminAssignSubject') {
+      this.fetchAdminDepartments();
+      this.fetchSubjects();
+    }
+    else if (this.viewSection === 'adminAllStaffHod') {
+      this.fetchUserProfiles();
+    }
   }
+
 
   // Staff API's
   fetchApprovedStudent() {
@@ -160,43 +338,76 @@ hasRole(role: string): boolean {
 
   }
   fetchPenddingStudent() {
-    this.http.get<any>('http://localhost:8080/staff/getPendingStudent', this.authService.getAuthHeaders())
+    this.http.get<any>('http://localhost:8080/staff/getRequestedStudent', this.authService.getAuthHeaders())
       .subscribe({
         next: (res: any) => {
           this.pendingStudents = res;
           console.log(this.pendingStudents);
-        },
-        error: (err: any) => {
-          console.error('Student List error:', err);
-          this.studentMessage = 'Failed to load Student List.';
-        }
-      });
-
-  }
-
-  // Approve student
-  approveStudent(studentId: number) {
-    console.log("Approving student ID:", studentId);
-    this.http.post(`http://localhost:8080/staff/approveStudent/${studentId}`, {}, this.authService.getAuthHeaders())
-      .subscribe({
-        next: () => {
-          console.log("calling approve api")
-          this.fetchPenddingStudent();
           this.fetchApprovedStudent();
         },
-        error: (err) => console.error('Approval failed:', err)
+        error: (err: any) => {
+          const errorMessage = err?.error?.message || 'Something went wrong';
+          console.error('Student List error:', errorMessage);
+
+          this.showSwal('warning', 'Fetch Failed', errorMessage);
+          this.studentMessage = errorMessage;
+        }
       });
   }
 
+
+  // Approve student
+  approveStudentByStaff(studentId: number) {
+    const student = this.pendingStudents.find(s => s.id === studentId);
+
+    if (student?.status === 'APPROVED') {
+      console.error('STUDENT ALREADY APPROVED');
+      this.toast.showError('Student already approved.');
+      return;
+    }
+
+    console.log("Approving student ID:", studentId);
+
+    this.http.post(`http://localhost:8080/staff/approveStudent/${studentId}`, {}, this.authService.getAuthHeaders())
+      .subscribe({
+        next: (response: any) => {
+          console.log('Approval API response:', response);
+
+          try {
+            this.fetchPenddingStudent();
+            this.fetchApprovedStudent();
+            this.toast.showSuccess('Student Approved...');
+          } catch (err) {
+            console.error('Error after approval success:', err);
+            this.toast.showError('Student approved, but failed to refresh data.');
+          }
+        },
+        error: (err) => {
+          console.error('Approval failed:', err);
+          this.toast.showError('Approval failed: Due to some server error');
+        }
+      });
+  }
+
+
   // Reject student
-  rejectStudent(studentId: number) {
+  rejectStudentByStaff(studentId: number) {
+    if (this.pendingStudents.find(student => student.id === studentId)?.status === 'REJECTED') {
+      console.error('STUDENT ALREADY APPROVED');
+      this.toast.showError('Student already approved.');
+      return;
+    }
     this.http.post(`http://localhost:8080/staff/RejectStudent/${studentId}`, {}, this.authService.getAuthHeaders())
       .subscribe({
         next: () => {
           this.fetchPenddingStudent();
           this.fetchRejectedStudent();
+          this.toast.showSuccess("Student Rejected...")
         },
-        error: (err) => console.error('Rejection failed:', err)
+        error: (err) => {
+          console.error('Rejection failed:', err)
+          this.toast.showError("Rejection fail due to server error")
+        }
       });
   }
 
@@ -223,8 +434,10 @@ hasRole(role: string): boolean {
         error: err => this.toast.showError('Failed to load all students.')
       });
   }
+  //---------------------------------------------------Staff Completed---------------------------------------------------------------//
 
-  // HOD APIs
+  // HOD get APIs------>
+
   fetchHodRequested() {
     this.http.get<any[]>('http://localhost:8080/hod/requested/studentList', this.authService.getAuthHeaders())
       .subscribe({
@@ -263,10 +476,14 @@ hasRole(role: string): boolean {
       });
   }
 
-  fetchHodStaff() {
+  fetchHodToStaff() {
     this.http.get<any[]>('http://localhost:8080/hod/getAllStaff', this.authService.getAuthHeaders())
       .subscribe({
-        next: res => this.hodStaff = res,
+        next: res => {
+          this.hodStaff = res;
+          this.fetchHodCourses();
+          this.fetchHodSubjects();
+        },
         error: err => this.toast.showError('Failed to load staff list.')
       });
   }
@@ -281,7 +498,7 @@ hasRole(role: string): boolean {
 
   approveHodStudent(studentId: number) {
     if (this.hodRequested.find(student => student.id === studentId)?.status === 'APPROVED') {
-      console.error('sTUDENT ALREADY APPROVED');
+      console.error('STUDENT ALREADY APPROVED');
       this.toast.showError('Student already approved.');
       return;
     }
@@ -294,7 +511,8 @@ hasRole(role: string): boolean {
         },
         error: (err) => {
           console.error('Approval failed:', err);
-          this.toast.showError('Failed to approve student.');
+          const errorMessage = err?.error?.message || 'Something went wrong';
+          this.toast.showError('Failed to approve student.', errorMessage);
         }
       });
   }
@@ -314,19 +532,326 @@ hasRole(role: string): boolean {
         },
         error: (err) => {
           console.error('Rejection failed:', err);
-          this.toast.showError('Failed to reject student.');
+          const errorMessage = err?.error?.message || 'Something went wrong';
+          this.toast.showError('Failed to reject student.', errorMessage);
+        }
+      });
+  }
+
+  // HOD CRUD API Methods
+
+  submitCreateStaff() {
+    this.http.post('http://localhost:8080/hod/createStaff', this.newStaff, this.authService.getAuthHeaders())
+      .subscribe({
+        next: () => {
+          this.newStaff = {
+            name: '',
+            age: null,
+            gender: '',
+            email: '',
+            phoneNumber: '',
+            subjectId: null,
+            courseName: ''
+          };
+          this.fetchHodToStaff(); // Assuming this method reloads the staff list
+          this.showSwal('success', "Staff Created Successfully", "Ask Admin To Create Login Credentials"); // Show success message
+        },
+        error: (err) => {
+          console.error('Create staff error:', err);
+          const errorMessage = err?.error?.message || 'Something went wrong';
+          this.showSwal('error', "Failed to create staff", errorMessage); // Show error message
+        }
+      });
+  }
+
+  submitCreateSubject() {
+    const params = new HttpParams().set('subjectName', this.newSubjectName);
+    this.http.post('http://localhost:8080/hod/createSubject', null, {
+      headers: this.authService.getAuthHeaders().headers,
+      params
+    }).subscribe(() => {
+      this.toast.showSuccess('Subject created');
+      this.newSubjectName = '';
+      this.fetchHodSubjects();
+    });
+  }
+
+  submitCreateCourse() {
+    const params = new HttpParams().set('courseName', this.newCourseName);
+    this.http.post('http://localhost:8080/hod/createCourse', null, {
+      headers: this.authService.getAuthHeaders().headers,
+      params
+    }).subscribe(() => {
+      this.toast.showSuccess('Course created');
+      this.newCourseName = '';
+      this.fetchHodCourses();
+    });
+  }
+
+
+  openSubjectEditModal(subjectId: number, currentName: string) {
+    this.selectedSubjectId = subjectId;
+    this.updatedSubjectName = currentName;
+
+    const modal = new (window as any).bootstrap.Modal(
+      document.getElementById('editSubjectModal')
+    );
+    modal.show();
+  }
+
+  closeSubjectEditModal() {
+    const modal = (window as any).bootstrap.Modal.getInstance(
+      document.getElementById('editSubjectModal')
+    );
+    modal.hide();
+  }
+
+
+
+  UpdateHodSubject() {
+    if (!this.selectedSubjectId || !this.updatedSubjectName.trim()) {
+      this.toast.showError('Subject name cannot be empty.');
+      return;
+    }
+
+    const params = new HttpParams().set('newSubjectName', this.updatedSubjectName.trim());
+
+    this.http.patch(`http://localhost:8080/hod/updateSubject/${this.selectedSubjectId}`, null, {
+      headers: this.authService.getAuthHeaders().headers,
+      params
+    }).subscribe({
+      next: () => {
+        this.toast.showSuccess('Subject updated successfully!');
+        this.fetchHodSubjects();
+        this.closeSubjectEditModal(); // close Bootstrap modal after success
+      },
+      error: (err) => {
+        console.error('Subject update error:', err);
+        this.toast.showError('Failed to update subject.');
+      }
+    });
+  }
+
+  openUpdateStaffModal(staff: any) {
+    this.selectedStaff = staff;
+    this.updatedStaff = { ...staff };  // clone current values into the form
+
+    const modalElement = document.getElementById('editStaffModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      this.fetchCourses();
+      this.fetchHodSubjects();
+      modal.show();
+    } else {
+      console.error('Staff modal element not found');
+    }
+  }
+
+  saveUpdatedStaff() {
+    if (!this.selectedStaff?.id) return;
+
+    this.http.patch(`http://localhost:8080/hod/staffUpdate/${this.selectedStaff.id}`, this.updatedStaff, this.authService.getAuthHeaders())
+      .subscribe({
+        next: () => {
+          this.toast.showSuccess('Staff updated successfully');
+          this.fetchHodToStaff(); // refresh list
+          this.selectedStaff = null;
+
+          const modal = bootstrap.Modal.getInstance(document.getElementById('editStaffModal'));
+          modal?.hide();
+        },
+        error: (err) => {
+          console.error('Staff update failed:', err);
+          this.showSwal('error', 'Failed to update staff', err.message || 'Unknown error');
+        }
+      });
+  }
+
+  openEditStudentModal(student: any) {
+    console.log('Editing student:', student); // Debug log
+
+    if (!student || !student.id) {
+      this.toast.showError('Invalid student selected.');
+      return;
+    }
+
+    this.selectedStudentId = student.id;
+
+    this.studentEdit = {
+      name: student.name || '',
+      age: student.age || null,
+      gender: student.gender || '',
+      email: student.email || '',
+      phoneNumber: student.phoneNumber || '',
+      profileImage: null,
+      marksheetImage: null,
+      active: student.active || '',
+      subjectId: student.subjectId ?? null,
+      courseId: student.courseId ?? null,
+      departmentId: student.departmentId ?? null,
+      courseStatus: student.courseStatus || '',
+    };
+
+    const modalElement = document.getElementById('editStudentModal');
+    if (modalElement) {
+      const modal = new (window as any).bootstrap.Modal(modalElement);
+      this.fetchHodCourses(); // Load courses for dropdown
+      this.fetchAdminDepartments(); // Load departments for dropdown
+      this.fetchSubjects();
+      modal.show();
+    }
+  }
+
+  openEditUserModel(user: any) {
+    this.fetchRoles();
+    if (!user || !user.id) {
+      this.toast.showError('Invalid user selected.');
+      return;
+    }
+    this.selectedUserId = user.id;
+    this.editUser = {
+      id: user.id || null,
+      username: user.username || '',
+      password: user.password || '',
+      roleid: user.id || null
+
+    };
+    const modalUser = document.getElementById('editUserModal');
+    if (modalUser) {
+      const modal = new bootstrap.Modal(modalUser);
+      modal.show();
+    }
+  }
+  fetchSubjects() {
+    this.http.get<any[]>('http://localhost:8080/admin/getAllSubjects', this.authService.getAuthHeaders())
+      .subscribe({
+        next: (data) => this.subjects = data,
+        error: () => this.toast.showError('Failed to load subjects')
+      });
+  }
+  fetchAdminDepartments() {
+    this.http.get<any[]>('http://localhost:8080/dept/AllDept')
+      .subscribe({
+        next: (data) => this.departments = data,
+        error: () => this.toast.showError('Failed to load departments')
+      });
+  }
+
+  fetchRoles() {
+    this.http.get<any[]>('http://localhost:8080/admin/getRoles')
+      .subscribe({
+        next: (data) => {
+          this.roles = data;
+        },
+        error: (err) => {
+          this.toast.showError("Error in loading Roles")
         }
       });
   }
 
 
+  onProfileImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.studentEdit.profileImage = file;
+      console.log('Profile image selected:', file.name);
+    }
+  }
+
+  onMarksheetImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.studentEdit.marksheetImage = file;
+      console.log('Marksheet image selected:', file.name);
+    }
+  }
+
+
+
+  submitUpdateStudent() {
+    if (!this.selectedStudentId) {
+      this.toast.showError('No student selected for update.');
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Append only fields that are present and non-empty
+    if (this.studentEdit.name) formData.append('name', this.studentEdit.name);
+    if (this.studentEdit.age) formData.append('age', this.studentEdit.age.toString());
+    if (this.studentEdit.gender) formData.append('gender', this.studentEdit.gender);
+    if (this.studentEdit.email) formData.append('email', this.studentEdit.email);
+    if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
+    if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
+    if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
+    if (this.studentEdit.subjectId) formData.append('subjectId', this.studentEdit.subjectId.toString());
+    if (this.studentEdit.active) formData.append('status', this.studentEdit.active);
+    if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
+    if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
+    if (this.studentEdit.marksheetImage) formData.append('marksheetImage', this.studentEdit.marksheetImage);
+
+    this.http.patch(
+      `http://localhost:8080/hod/UpdateStudents/${this.selectedStudentId}`,
+      formData,
+      { headers: this.authService.getAuthHeaders().headers }
+    ).subscribe({
+      next: () => {
+        this.toast.showSuccess('Student updated successfully');
+        this.fetchHodApproved();
+        const modalEl = document.getElementById('editStudentModal');
+        if (modalEl) {
+          const modalInstance = (window as any).bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+        }
+      },
+      error: (err) => {
+        console.error('Update student error:', err);
+        this.toast.showError('Failed to update student');
+      }
+    });
+  }
+
+
+  handleFileChange(event: any, field: 'profileImage' | 'marksheetImage') {
+    const file = event.target.files[0];
+    if (file) {
+      this.studentEdit[field] = file;
+    }
+  }
+
+
+  deleteSubject(id: number) {
+    this.http.delete(`http://localhost:8080/hod/deleteSubject/${id}`, this.authService.getAuthHeaders())
+      .subscribe(() => {
+        this.toast.showSuccess('Subject deleted');
+        this.fetchHodSubjects();
+      });
+  }
+
+  deleteStaff(id: number) {
+    this.http.delete(`http://localhost:8080/hod/deleteStaff/${id}`, this.authService.getAuthHeaders())
+      .subscribe(() => {
+        this.toast.showSuccess('Staff deleted');
+        this.fetchHodToStaff();
+      });
+  }
+
+  deleteCourse(id: number) {
+    this.http.delete(`http://localhost:8080/hod/deleteCourse/${id}`, this.authService.getAuthHeaders())
+      .subscribe(() => {
+        this.toast.showSuccess('Course deleted');
+        this.fetchCourses();
+      });
+  }
+  //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
   fetchStudentProfile() {
     this.http.get<any>('http://localhost:8080/api/students/getStudent', this.authService.getAuthHeaders())
       .subscribe({
         next: (res: any) => {
           this.studentProfile = res;
-          this.toast.showSuccess("Profile loaded successfully!");
           this.studentMessage = '';
         },
         error: (err: any) => {
@@ -351,19 +876,32 @@ hasRole(role: string): boolean {
   }
 
   registerCourse(courseId: number) {
-    this.http.post(`http://localhost:8080/api/students/registerCourse/${courseId}`, {}, {
-      headers: {
-        Authorization: `Bearer ${this.authService.getToken()}`
-      }
-    }).subscribe({
-      next: () => {
-        this.toast.showSuccess('Your course registration was successful.')
-      },
-      error: (err) => {
-        console.error('Enrollment failed:', err);
-        this.toast.showError('Your course registration enrollment was failed.')
-      }
-    });
+    this.http.get<any>('http://localhost:8080/api/students/getStudent', this.authService.getAuthHeaders())
+      .subscribe({
+        next: (studentProfile) => {
+          if (studentProfile && (studentProfile.courseStatus === "APPROVED" || studentProfile.courseStatus === "PENDING")) {
+            this.showSwal('warning', 'Warning', 'You have already requested this course');
+            return;
+          }
+          this.http.post(`http://localhost:8080/api/students/registerCourse/${courseId}`, {}, {
+            headers: {
+              Authorization: `Bearer ${this.authService.getToken()}`
+            }
+          }).subscribe({
+            next: () => {
+              this.toast.showSuccess('Your course registration was successful.')
+            },
+            error: (err) => {
+              console.error('Enrollment failed:', err);
+              this.toast.showError('Your course registration enrollment was failed.')
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to fetch student profile:', err);
+          this.toast.showError('Could not verify course status.');
+        }
+      });
   }
 
   loadDepartmentInfo() {
@@ -379,5 +917,252 @@ hasRole(role: string): boolean {
         console.error('Failed to load department info:', err);
       }
     });
+  }
+  //--------------------------------------Student Completed------------------------------------------------------------------//
+
+  //Admin Api's
+
+  fetchAllUsers() {
+    this.http.get<any>('http://localhost:8080/admin/getAllUsers', {
+      headers: {
+        Authorization: `Bearer ${this.authService.getToken()}`
+      }
+    }).subscribe({
+      next: (res) => {
+        this.allUsers = res;
+      },
+      error: (err) => {
+        console.error('Failed to load users:', err);
+      }
+    });
+  }
+
+  loadAllStudents() {
+    this.http.get<any[]>('http://localhost:8080/admin/gellAllStud', {
+      headers: {
+        Authorization: `Bearer ${this.authService.getToken()}`
+      }
+    }).subscribe({
+      next: (res: any[]) => {
+        this.allStudents = res;
+      },
+      error: (err) => {
+        console.error('Failed to load students:', err);
+      }
+    });
+  }
+  viewStudentProfile(student: any): void {
+    if (!student) return;
+
+    this.selectedStudent = student;
+
+    // Show modal (using Bootstrap 5 modal JS API)
+    const modalEl = document.getElementById('viewStudentModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+  viewUsersProfile(user: any): void {
+    if (!user) return;
+
+    this.selectedUserProfile = user;
+
+    // Show modal (using Bootstrap 5 modal JS API)
+    const modalEl = document.getElementById('viewUserProModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  AdminsubmitUpdateStudent() {
+    if (!this.selectedStudentId) {
+      this.toast.showError('No student selected for update.');
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Append only fields that are present and non-empty
+    if (this.studentEdit.name) formData.append('name', this.studentEdit.name);
+    if (this.studentEdit.age) formData.append('age', this.studentEdit.age.toString());
+    if (this.studentEdit.gender) formData.append('gender', this.studentEdit.gender);
+    if (this.studentEdit.email) formData.append('email', this.studentEdit.email);
+    if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
+    if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
+    if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
+    if (this.studentEdit.subjectId) formData.append('studentSubject', this.studentEdit.subjectId.toString());
+    if (this.studentEdit.active) formData.append('studentStatus', this.studentEdit.active);
+    if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
+    if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
+    if (this.studentEdit.marksheetImage) formData.append('marksheetImage', this.studentEdit.marksheetImage);
+    console.log('Updating student with data:', this.studentEdit)
+    this.http.patch(
+      `http://localhost:8080/admin/UpdateStudents/${this.selectedStudentId}`,
+      formData,
+      { headers: this.authService.getAuthHeaders().headers }
+    ).subscribe({
+      next: () => {
+        this.toast.showSuccess('Student updated successfully');
+        this.loadAllStudents();
+        const modalEl = document.getElementById('editStudentModal');
+        if (modalEl) {
+          const modalInstance = (window as any).bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+        }
+      },
+      error: (err) => {
+        console.error('Update student error:', err);
+        this.toast.showError('Failed to update student');
+      }
+    });
+  }
+
+  submitUserUpdate() {
+    const userId: number = this.editUser.id;
+
+    const updatedUser = {
+      username: this.editUser.username,
+      password: this.editUser.password,
+      roleId: this.editUser.roleId
+    };
+
+    console.log('Updating user with data:', updatedUser);
+
+    this.http.patch(`http://localhost:8080/admin/updateUsers/${userId}`, updatedUser).subscribe({
+      next: () => {
+        Swal.fire('Success', 'User updated successfully', 'success');
+        this.fetchAllUsers(); // refresh the table
+        bootstrap.Modal.getInstance(document.getElementById('editUserModal'))?.hide();
+      },
+      error: err => {
+        console.error(err);
+        Swal.fire('Error', err.error?.message || 'Failed to update user', 'error');
+      }
+    });
+  }
+
+  submitAssignSubject() {
+    if (!this.assignSubject.departmentId || !this.assignSubject.subjectId) {
+      Swal.fire('Error', 'Please select both department and subject.', 'error');
+      return;
+    }
+
+    const params = new HttpParams()
+      .set('departmentId', this.assignSubject.departmentId)
+      .set('subjectId', this.assignSubject.subjectId);
+
+    this.http.post('http://localhost:8080/admin/assign-subject-to-students', null, { params }).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', 'Subject successfully assigned to all students in selected department.', 'success');
+      },
+      error: err => {
+        Swal.fire('Error', err.error?.message || 'Failed to assign subject', 'error');
+      }
+    });
+  }
+
+
+  submitAssignRole() {
+    if (!this.roleAssign.username || !this.roleAssign.userId) {
+      Swal.fire('Error', 'Please select both username and role.', 'error');
+      return;
+    }
+
+    const params = new HttpParams()
+      .set('username', this.roleAssign.username)
+      .set('targetId', this.roleAssign.userId);
+
+    this.http.post('http://localhost:8080/admin/assignAuthUsers', null, { params }).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', 'Role successfully assigned to user.', 'success');
+      },
+      error: err => {
+        Swal.fire('Error', err.error?.message || 'Failed to assign Role', 'error');
+      }
+    });
+  }
+
+  submitCreateUser() {
+    if (!this.newUser.username || !this.newUser.password || !this.newUser.roleId) {
+      Swal.fire('Error', 'Please fill in all fields.', 'error');
+      return;
+    }
+
+    this.http.post('http://localhost:8080/admin/createUsers', this.newUser).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', 'User created successfully.', 'success');
+        this.newUser = { username: '', password: '', roleId: null }; // reset form if needed
+      },
+      error: err => {
+        Swal.fire('Error', err.error?.message || 'Failed to create user', 'error');
+      }
+    });
+  }
+
+  submitAssignStud() {
+    if (!this.roleAssignStud.username || !this.roleAssignStud.studId) {
+      Swal.fire('Error', 'Please select both username and role.', 'error');
+      return;
+    }
+
+    const params = new HttpParams()
+      .set('username', this.roleAssignStud.username)
+      .set('studId', this.roleAssignStud.studId);
+
+    console.log(this.roleAssignStud);
+
+    this.http.post('http://localhost:8080/admin/assignAuthStud', null, { params }).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', 'Role successfully assigned to student.', 'success');
+      },
+      error: err => {
+        Swal.fire('Error', err.error?.message || 'Failed to assign Role', 'error');
+      }
+    });
+  }
+
+  submitCreateHod() {
+    if (!this.newHod.name || !this.newHod.email || !this.newHod.phoneNumber || !this.newHod.gender || !this.newHod.age || !this.newHod.departmentId) {
+      Swal.fire('Error', 'Please fill in all fields.', 'error');
+      return;
+    }
+
+    console.log(this.newHod);
+    this.http.post('http://localhost:8080/admin/createHod', this.newHod).subscribe({
+      next: (res: any) => {
+        Swal.fire('Success', 'HOD created successfully.', 'success');
+        this.newHod = { name: '', email: '', phoneNumber: '', gender: '', age: null, departmentId: null }; // reset form if needed
+      },
+      error: err => {
+        Swal.fire('Error', err.error?.message || 'Failed to create HOD', 'error');
+      }
+    });
+  }
+
+  fetchUserProfiles() {
+    this.http.get<any>('http://localhost:8080/admin/getAllStaffHod', {
+      headers: {
+        Authorization: `Bearer ${this.authService.getToken()}`
+      }
+    }).subscribe({
+      next: (res) => {
+        this.UsersProfile = res;
+      },
+      error: (err) => {
+        this.toast.showError('Failed to load users Profile');
+        console.error('Failed to load users Profile:', err);
+      }
+    });
+  }
+
+  viewUserProfile(user: any) {
+    console.log('Viewing user profile:', user);
+    // Implement the logic to view user profile
+  }
+  openEditUserModal(user: any) {
+    console.log('Opening edit user modal for:', user);
+    // Implement the logic to open edit user modal
   }
 }
