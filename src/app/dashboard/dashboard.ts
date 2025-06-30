@@ -9,6 +9,9 @@ import { SidebarComponent } from '../components/sidebar/sidebar';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { from } from 'rxjs';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration } from 'chart.js';
+import { ActivatedRoute } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -16,7 +19,7 @@ declare var bootstrap: any;
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Navbar, CommonModule, ToastComponent, SidebarComponent, FormsModule],
+  imports: [Navbar, CommonModule, ToastComponent, SidebarComponent, FormsModule, BaseChartDirective],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -25,6 +28,31 @@ declare var bootstrap: any;
 export class Dashboard implements OnInit {
 
 
+  constructor(private route: ActivatedRoute, private toast: ToastService) {
+
+  }
+  // Chart.js related properties
+  departmentLabels: string[] = [];
+  studentCounts: number[] = [];
+  barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [{
+      label: 'Student Count',
+      data: [],
+      backgroundColor: []
+    }]
+  };
+
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+      title: {
+        display: true,
+        text: 'Students per Department'
+      }
+    }
+  };
 
   sidebarCollapsed: boolean = false;
 
@@ -36,11 +64,7 @@ export class Dashboard implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   sectionChange: any;
-  constructor(
-    private toast: ToastService,
-  ) {
 
-  }
   userRoles: string[] = [];
   username: string = 'Guest';
   viewSection: string | null = null;
@@ -125,7 +149,17 @@ export class Dashboard implements OnInit {
   studentMessage: string = '';
 
   //Admin role states
-  newHod = { name: '', email: '', phoneNumber: '', gender: '', age: null, departmentId: null };
+  newUserPro = {
+    name: '',
+    email: '',
+    phoneNumber: '',
+    gender: '',
+    dateOfBirth: '',
+    role: '',
+    departmentId: null,
+    subjectId: null,
+    courseId: null
+  };
   newUser = { username: '', password: '', roleId: null };
   allUsers: any[] = [];
   roles: any[] = [];
@@ -140,7 +174,7 @@ export class Dashboard implements OnInit {
     password: '',
     roleId: null
   };
-
+  courses: any[] = [];
   studentsCount: number | null = null;
   adminUsername?: string;
   selectedUserProfile: any = null;
@@ -172,6 +206,50 @@ export class Dashboard implements OnInit {
       }
     });
   }
+  deleteStudentSwal(studentId: number) {
+    Swal.fire({
+      title: 'Delete this student?',
+      text: 'Are you sure you want to delete this student?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteStudent(studentId);
+      }
+    });
+  }
+
+  deleteUserAuthSwal(userAuthId: number) {
+    Swal.fire({
+      title: 'Delete this user?',
+      text: 'Are you sure you want to delete this user?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteUserAuth(userAuthId);
+      }
+    });
+  }
+  deleteUserSwal(userId: number) {
+    Swal.fire({
+      title: 'Delete this user?',
+      text: 'Are you sure you want to delete this user?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteUser(userId);
+      }
+    });
+  }
+
   confirmStudentAction(studentId: number, action: 'approve' | 'reject' | 'approveByStaff' | 'rejectByStaff') {
     const actionText = action === 'approve' ? 'Approve' : 'Reject';
     const confirmText = action === 'approve' ? 'Yes, approve it!' : 'Yes, reject it!';
@@ -201,20 +279,64 @@ export class Dashboard implements OnInit {
     });
   }
 
+  // Chart bar Data loading from back end
+  loadChartData() {
+    this.http.get<any[]>('http://localhost:8080/admin/gellAllStud', this.authService.getAuthHeaders())
+      .subscribe((students) => {
+        const departmentMap = new Map<string, number>();
 
+        students.forEach(s => {
+          departmentMap.set(s.departmentName, (departmentMap.get(s.departmentName) || 0) + 1);
+        });
+
+        this.departmentLabels = Array.from(departmentMap.keys());
+        this.studentCounts = Array.from(departmentMap.values());
+
+        const colors = this.generateColors(this.departmentLabels.length);
+
+        this.barChartData = {
+          labels: this.departmentLabels,
+          datasets: [{
+            label: 'Student Count',
+            data: this.studentCounts,
+            backgroundColor: colors
+          }]
+        };
+      });
+  }
+
+  // Color generation for chart
+  generateColors(count: number): string[] {
+    const palette = [
+      '#6a1b9a', '#1e88e5', '#43a047', '#fbc02d', '#e53935',
+      '#00838f', '#8e24aa', '#f4511e', '#3949ab', '#00acc1'
+    ];
+    const colors: string[] = [];
+
+    for (let i = 0; i < count; i++) {
+      colors.push(palette[i % palette.length]);
+    }
+
+    return colors;
+  }
+
+
+  // Init the method
 
   ngOnInit() {
     this.userRoles = this.authService.getUserRole();
     console.log('User Roles:', this.userRoles);
+    this.fetchAdminDepartments();
+    this.fetchUsers();
 
     this.viewSection = 'dashboard';
-    if (this.hasRole("ROLE_HOD")) {
+    if (this.hasRole("ROLE_ADMIN")) {
+      this.loadChartData();
       this.fetchUserProfiles();
       this.fetchAllUsers();
       this.loadAllStudents();
 
     }
-
 
     const name = this.authService.getUsername();
     if (name) {
@@ -233,10 +355,11 @@ export class Dashboard implements OnInit {
   }
 
 
+  //  // Trigger data loading only when shown
   toggleSection(section: string) {
     this.viewSection = this.viewSection === section ? null : section;
 
-    // Trigger data loading only when shown
+
     // For student API's
 
     if (this.viewSection === 'profile' && !this.studentProfile) {
@@ -305,6 +428,8 @@ export class Dashboard implements OnInit {
     }
     else if (this.viewSection === 'adminAllStaffHod') {
       this.fetchUserProfiles();
+      this.fetchAdminDepartments();
+      this.fetchRoles();
     }
   }
 
@@ -681,7 +806,7 @@ export class Dashboard implements OnInit {
       name: student.name || '',
       age: student.age || null,
       gender: student.gender || '',
-      email: student.email || '',
+      email: '',
       phoneNumber: student.phoneNumber || '',
       profileImage: null,
       marksheetImage: null,
@@ -1004,8 +1129,11 @@ export class Dashboard implements OnInit {
       { headers: this.authService.getAuthHeaders().headers }
     ).subscribe({
       next: () => {
+        console.log("Data updated");
+
         this.toast.showSuccess('Student updated successfully');
         this.loadAllStudents();
+        this.loadChartData();
         const modalEl = document.getElementById('editStudentModal');
         if (modalEl) {
           const modalInstance = (window as any).bootstrap.Modal.getInstance(modalEl);
@@ -1014,6 +1142,7 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         console.error('Update student error:', err);
+        this.showSwal('error', 'Inavalid Data', err.error.message)
         this.toast.showError('Failed to update student');
       }
     });
@@ -1123,25 +1252,49 @@ export class Dashboard implements OnInit {
     });
   }
 
-  submitCreateHod() {
-    if (!this.newHod.name || !this.newHod.email || !this.newHod.phoneNumber || !this.newHod.gender || !this.newHod.age || !this.newHod.departmentId) {
-      Swal.fire('Error', 'Please fill in all fields.', 'error');
-      return;
-    }
-
-    console.log(this.newHod);
-    this.http.post('http://localhost:8080/admin/createHod', this.newHod).subscribe({
-      next: (res: any) => {
-        Swal.fire('Success', 'HOD created successfully.', 'success');
-        this.newHod = { name: '', email: '', phoneNumber: '', gender: '', age: null, departmentId: null }; // reset form if needed
+  submitCreateUserPro(): void {
+    this.http.post('http://localhost:8080/admin/createUser', this.newUser).subscribe({
+      next: () => {
+        this.showSwal('success', 'Success', 'User created successfully');
+        this.resetNewUser();
+        this.closeModal();
+        this.fetchAllUsers();
       },
-      error: err => {
-        Swal.fire('Error', err.error?.message || 'Failed to create HOD', 'error');
+      error: (err) => {
+        console.error('Error creating user:', err);
+        this.showSwal('error', 'Failed to create user', err.error?.message || 'Unknown error');
       }
     });
   }
 
+  resetNewUser(): void {
+    this.newUserPro = {
+      name: '',
+      email: '',
+      phoneNumber: '',
+      gender: '',
+      dateOfBirth: '',
+      role: '',
+      departmentId: null,
+      subjectId: null,
+      courseId: null
+    };
+  }
+
+  closeModal(): void {
+    const modal = document.getElementById('createUserModal');
+    const backdrop = document.querySelector('.modal-backdrop');
+    modal?.classList.remove('show');
+    modal?.setAttribute('style', 'display: none;');
+    backdrop?.remove();
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+  }
+
+
   fetchUserProfiles() {
+    console.log('fetchUserProfiles called');
+
     this.http.get<any>('http://localhost:8080/admin/getAllStaffHod', {
       headers: {
         Authorization: `Bearer ${this.authService.getToken()}`
@@ -1157,12 +1310,98 @@ export class Dashboard implements OnInit {
     });
   }
 
-  viewUserProfile(user: any) {
-    console.log('Viewing user profile:', user);
-    // Implement the logic to view user profile
+  deleteStudent(studentId: number) {
+    this.http.delete(`http://localhost:8080/admin/deleteStudent/${studentId}`).subscribe({
+      next: (res) => {
+        Swal.fire('Success', 'Student deleted successfully.', 'success');
+        this.fetchAllStudents(); // Refresh the student list
+      },
+      error: (err) => {
+        Swal.fire('Error', err.error?.message || 'Failed to delete student', 'error');
+      }
+    });
   }
-  openEditUserModal(user: any) {
-    console.log('Opening edit user modal for:', user);
-    // Implement the logic to open edit user modal
+
+  deleteUser(userProId: number) {
+    this.http.delete(`http://localhost:8080/admin//deleteUserPro/${userProId}`).subscribe({
+      next: (res) => {
+        Swal.fire('Success', 'User deleted successfully.', 'success');
+        this.fetchAllUsers(); // Refresh the user list
+      },
+      error: (err) => {
+        Swal.fire('Error', err.error?.message || 'Failed to delete user', 'error');
+      }
+    });
   }
+
+  deleteUserAuth(userId: number) {
+    this.http.delete(`http://localhost:8080/admin/deleteUserAuths/${userId}`).subscribe({
+      next: (res) => {
+        Swal.fire('Success', 'User authorization deleted successfully.', 'success');
+        this.fetchAllUsers(); // Refresh the user list
+      },
+      error: (err) => {
+        Swal.fire('Error', err.error?.message || 'Failed to delete user authorization', 'error');
+      }
+    });
+  }
+
+
+  // Filter parameters
+  searchText: string = '';
+  filterRole: string = '';
+  filterDepartment: string | null = null;
+
+  // Pagination
+  page: number = 0;
+  size: number = 10;
+  totalPages: number = 0;
+  totalElements: number = 0;
+
+
+  fetchUsers(): void {
+    let params = new HttpParams()
+      .set('page', this.page.toString())
+      .set('size', this.size.toString());
+
+    if (this.searchText?.trim()) {
+      params = params.set('search', this.searchText.trim());
+    }
+
+    if (this.filterRole) {
+      params = params.set('role', this.filterRole);
+    }
+
+    if (this.filterDepartment) {
+      params = params.set('departmentId', this.filterDepartment.toString());
+    }
+
+    this.http.get<any>('http://localhost:8080/admin/api/users', { params }).subscribe({
+      next: (res) => {
+        this.UsersProfile = res.content;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+      }
+    });
+  }
+
+  onFilterChange(): void {
+    this.page = 0;
+    this.fetchUsers();
+  }
+
+
+  onPageChange(newPage: number) {
+    this.page = newPage;
+    this.fetchUsers();
+  }
+
+
+  addUser() {
+    // Navigate to add-user form or open modal
+  }
+
 }

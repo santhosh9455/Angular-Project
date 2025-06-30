@@ -81,7 +81,7 @@ ngOnInit(): void {
 
       this.http.post('http://localhost:8080/api/students/registerRequest', formData).subscribe({
         next: () => {
-          this.showSwal('success','Registration successfully!','Your Registration successfully sent to HOD plaese wait...')
+          this.showSwal('success','Registration successfull!','Your Registration successfully sent to HOD...')
           this.registrationForm.reset();
         },
         error: (err) => {

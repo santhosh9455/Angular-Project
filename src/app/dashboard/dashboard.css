@@ -143,3 +143,29 @@ app-sidebar {
 .card {
   border-radius: 0.75rem;
 }
+.violet-card {
+  background: linear-gradient(135deg, #6f42c1, #5e35b1);
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.violet-card:hover {
+  transform: scale(1.01);
+}
+
+.info-card h5 {
+  font-weight: 600;
+}
+
+img.rounded-circle {
+  object-fit: cover;
+  border: 3px solid #fff;
+}
+.badge{
+  background-color: greenyellow;
+}
+.violet-card {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  border-radius: 12px;
+}
