@@ -29,9 +29,6 @@
         <!-- Logged In -->
         <ng-container *ngIf="isLoggedIn()">
           <li class="nav-item me-3">
-            <a class="nav-link " routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-          </li>
-          <li class="nav-item me-3">
             <a class="nav-link" (click)="logout()" style="cursor: pointer;">Logout</a>
           </li>
         </ng-container>

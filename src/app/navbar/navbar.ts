@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./navbar.css']
 })
 export class Navbar {
+navigateToDashboard() {
+ 
+}
   private auth = inject(AuthService);
   private router = inject(Router);
 

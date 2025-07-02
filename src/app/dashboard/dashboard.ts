@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, NgModule, OnInit } from '@angular/core';
 import { Navbar } from "../navbar/navbar";
 import { AuthService } from '../services/auth';
 import { CommonModule } from '@angular/common';
@@ -6,7 +6,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ToastService } from '../services/toast.service';
 import { ToastComponent } from "../components/toast/toast";
 import { SidebarComponent } from '../components/sidebar/sidebar';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { from } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
@@ -28,6 +28,7 @@ declare var bootstrap: any;
 export class Dashboard implements OnInit {
 
 
+
   constructor(private route: ActivatedRoute, private toast: ToastService) {
 
   }
@@ -45,14 +46,71 @@ export class Dashboard implements OnInit {
 
   barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { display: true },
+      legend: {
+        display: true,
+        labels: {
+          color: '#333',
+          font: { size: 14, weight: 'bold' }
+        }
+      },
       title: {
         display: true,
-        text: 'Students per Department'
+        text: '📊 Students per Department',
+        color: '#2c3e50',
+        font: {
+          size: 18,
+          weight: 'bold',
+          family: 'Segoe UI'
+        },
+        padding: {
+          top: 10,
+          bottom: 20
+        }
+      },
+      tooltip: {
+        backgroundColor: '#2c3e50',
+        titleColor: '#fff',
+        bodyColor: '#eee',
+        cornerRadius: 6,
+        padding: 12
       }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#555',
+          font: { size: 12 }
+        },
+        grid: {
+          display: false
+        }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: '#555',
+          font: { size: 12 },
+          stepSize: 1
+        },
+        grid: {
+          color: '#e0e0e0'
+        }
+      }
+    },
+    elements: {
+      bar: {
+        borderRadius: 8,
+        borderSkipped: false
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeOutQuart'
     }
   };
+
 
   sidebarCollapsed: boolean = false;
 
@@ -125,6 +183,7 @@ export class Dashboard implements OnInit {
     phoneNumber: string;
     profileImage: File | null;
     marksheetImage: File | null;
+    username: string;
   } = {
       name: '',
       age: null,
@@ -138,6 +197,7 @@ export class Dashboard implements OnInit {
       courseId: null,
       departmentId: null,
       courseStatus: '',
+      username: ''
     };
 
 
@@ -155,10 +215,10 @@ export class Dashboard implements OnInit {
     phoneNumber: '',
     gender: '',
     dateOfBirth: '',
-    role: '',
+    roleId: null,
     departmentId: null,
     subjectId: null,
-    courseId: null
+    courseId: null,
   };
   newUser = { username: '', password: '', roleId: null };
   allUsers: any[] = [];
@@ -188,7 +248,7 @@ export class Dashboard implements OnInit {
       title: title,
       text: text,
       icon: typeIcon,
-      confirmButtonText: 'Cool'
+      confirmButtonText: 'OK'
     });
   }
   // Confirm action for student approval/rejection
@@ -220,6 +280,7 @@ export class Dashboard implements OnInit {
       }
     });
   }
+
 
   deleteUserAuthSwal(userAuthId: number) {
     Swal.fire({
@@ -327,17 +388,21 @@ export class Dashboard implements OnInit {
     this.userRoles = this.authService.getUserRole();
     console.log('User Roles:', this.userRoles);
     this.fetchAdminDepartments();
-    this.fetchUsers();
 
-    this.viewSection = 'dashboard';
+
     if (this.hasRole("ROLE_ADMIN")) {
+      this.viewSection = 'dashboard';
       this.loadChartData();
-      this.fetchUserProfiles();
+      this.fetchUsers();
       this.fetchAllUsers();
       this.loadAllStudents();
 
     }
 
+    if (this.hasRole("ROLE_HOD")) {
+      this.viewSection = 'hodRequested';
+      this.fetchHodRequested();
+    }
     const name = this.authService.getUsername();
     if (name) {
       this.username = name.toUpperCase();
@@ -409,9 +474,10 @@ export class Dashboard implements OnInit {
     }
     //Admin API's
     else if (this.viewSection === 'adminAllUsers') {
-      this.fetchAllUsers();
+      this.fetchAllAuthUser();
     }
     else if (this.viewSection === 'adminAllStudents') {
+      this.fetchStudents();
       this.loadAllStudents();
     }
     else if (this.viewSection === 'adminCreateHod') {
@@ -427,7 +493,6 @@ export class Dashboard implements OnInit {
       this.fetchSubjects();
     }
     else if (this.viewSection === 'adminAllStaffHod') {
-      this.fetchUserProfiles();
       this.fetchAdminDepartments();
       this.fetchRoles();
     }
@@ -815,6 +880,7 @@ export class Dashboard implements OnInit {
       courseId: student.courseId ?? null,
       departmentId: student.departmentId ?? null,
       courseStatus: student.courseStatus || '',
+      username: student.username || ''
     };
 
     const modalElement = document.getElementById('editStudentModal');
@@ -1133,6 +1199,7 @@ export class Dashboard implements OnInit {
 
         this.toast.showSuccess('Student updated successfully');
         this.loadAllStudents();
+        this.fetchStudents();
         this.loadChartData();
         const modalEl = document.getElementById('editStudentModal');
         if (modalEl) {
@@ -1221,6 +1288,7 @@ export class Dashboard implements OnInit {
 
     this.http.post('http://localhost:8080/admin/createUsers', this.newUser).subscribe({
       next: (res: any) => {
+        this.closeModal('createUserModal', true); // close modal and reset form
         Swal.fire('Success', 'User created successfully.', 'success');
         this.newUser = { username: '', password: '', roleId: null }; // reset form if needed
       },
@@ -1253,7 +1321,7 @@ export class Dashboard implements OnInit {
   }
 
   submitCreateUserPro(): void {
-    this.http.post('http://localhost:8080/admin/createUser', this.newUser).subscribe({
+    this.http.post('http://localhost:8080/admin/createUserPro', this.newUserPro).subscribe({
       next: () => {
         this.showSwal('success', 'Success', 'User created successfully');
         this.resetNewUser();
@@ -1274,22 +1342,31 @@ export class Dashboard implements OnInit {
       phoneNumber: '',
       gender: '',
       dateOfBirth: '',
-      role: '',
+      roleId: null,
       departmentId: null,
       subjectId: null,
-      courseId: null
+      courseId: null,
     };
   }
 
-  closeModal(): void {
-    const modal = document.getElementById('createUserModal');
-    const backdrop = document.querySelector('.modal-backdrop');
-    modal?.classList.remove('show');
-    modal?.setAttribute('style', 'display: none;');
-    backdrop?.remove();
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
+  closeModal(modalId: string = 'createUserProModal', resetForm: boolean = false): void {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+      modalInstance.hide();
+
+      if (resetForm && modalId === 'createUserProModal') {
+        this.resetNewUser();
+      }
+      if (resetForm && modalId === 'editUserProModal') {
+      }
+      if (resetForm && modalId === 'createUserModal') {
+        this.newUser = { username: '', password: '', roleId: null };
+      }
+    }
   }
+
+
 
 
   fetchUserProfiles() {
@@ -1323,10 +1400,10 @@ export class Dashboard implements OnInit {
   }
 
   deleteUser(userProId: number) {
-    this.http.delete(`http://localhost:8080/admin//deleteUserPro/${userProId}`).subscribe({
+    this.http.delete(`http://localhost:8080/admin/deleteUserPro/${userProId}`).subscribe({
       next: (res) => {
         Swal.fire('Success', 'User deleted successfully.', 'success');
-        this.fetchAllUsers(); // Refresh the user list
+        this.fetchUsers(); // Refresh the user list
       },
       error: (err) => {
         Swal.fire('Error', err.error?.message || 'Failed to delete user', 'error');
@@ -1346,11 +1423,21 @@ export class Dashboard implements OnInit {
     });
   }
 
+  Courses: any[] = [];
+  fetchAdminCourses() {
+    this.http.get<any[]>('http://localhost:8080/admin/getAllCourses', this.authService.getAuthHeaders())
+      .subscribe({
+        next: res => this.Courses = res,
+        error: err => this.toast.showError('Failed to load course list.')
+      });
+  }
 
   // Filter parameters
   searchText: string = '';
   filterRole: string = '';
-  filterDepartment: string | null = null;
+  filterStatus = '';
+  filterDepartment: number | null = null;
+  students: any[] = [];
 
   // Pagination
   page: number = 0;
@@ -1373,7 +1460,9 @@ export class Dashboard implements OnInit {
     }
 
     if (this.filterDepartment) {
-      params = params.set('departmentId', this.filterDepartment.toString());
+      params = params.set('departmentId', this.filterDepartment);
+      console.log(" ----", params);
+
     }
 
     this.http.get<any>('http://localhost:8080/admin/api/users', { params }).subscribe({
@@ -1388,20 +1477,255 @@ export class Dashboard implements OnInit {
     });
   }
 
+  fetchStudents(): void {
+    let params = new HttpParams()
+      .set('page', this.page.toString())
+      .set('size', this.size.toString());
+
+    if (this.searchText?.trim()) {
+      params = params.set('search', this.searchText.trim());
+    }
+
+    if (this.filterDepartment !== null) {
+      params = params.set('departmentId', this.filterDepartment.toString());
+    }
+
+    if (this.filterStatus) {
+      params = params.set('status', this.filterStatus);
+    }
+
+    console.log("Data   .." + params);
+
+    this.http.get<any>('http://localhost:8080/admin/api/students', { params }).subscribe({
+      next: (res) => {
+        this.students = res.content;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching students:', err);
+      }
+    });
+  }
+
   onFilterChange(): void {
     this.page = 0;
     this.fetchUsers();
+    this.fetchAllAuthUser();
+    this.fetchStudents();
   }
 
 
   onPageChange(newPage: number) {
-    this.page = newPage;
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.page = newPage;
+      this.fetchStudents();
+      this.fetchAllAuthUser();
+
+    }
     this.fetchUsers();
   }
 
 
-  addUser() {
-    // Navigate to add-user form or open modal
+  openCreateUserProModal(): void {
+    this.fetchRoles();
+    this.fetchAdminDepartments();
+    this.fetchSubjects();
+    this.fetchAdminCourses()
+
+    // Reset form model
+    this.newUserPro = {
+      name: '',
+      email: '',
+      phoneNumber: '',
+      gender: '',
+      dateOfBirth: '',
+      roleId: null,
+      departmentId: null,
+      subjectId: null,
+      courseId: null,
+    };
+
+    const modalElement = document.getElementById('createUserProModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
   }
+
+  editUserPro = {
+    id: null as number | null,
+    name: '' as string,
+    email: '' as string,
+    phoneNumber: '' as string,
+    gender: '' as string,
+    dateOfBirth: '' as string, // use ISO format like 'YYYY-MM-DD'
+
+    departmentId: null as number | null,
+    subjectId: null as number | null,
+    courseId: null as number | null,
+    username: '' as string
+  };
+
+  openEditUserModal(user: any): void {
+    this.editUserPro = {
+      id: user.id,
+      name: user.name || '',
+      email: user.email || '',
+      phoneNumber: user.phoneNumber || '',
+      gender: user.gender || '',
+      dateOfBirth: user.dateOfBirth || '',
+      departmentId: user.departmentId || null,
+      subjectId: user.subjectId || null,
+      courseId: user.courseId || null,
+      username: user.username || null
+    };
+
+    const modalEl = document.getElementById('editUserProModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+
+  updateUserPartial(): void {
+    this.http.patch('http://localhost:8080/admin/updateHod', this.editUserPro).subscribe({      
+      next: () => {
+        this.showSwal('success', 'Updated', 'User updated successfully');
+        this.closeModal('editUserProModal', true);
+        this.fetchUsers();
+      },
+      error: (err) => {
+        this.showSwal('error', 'Update Failed', err || 'Unknown error');
+      }
+    });
+  }
+
+  userFilterRoleId: number | null = null;
+
+  fetchAllAuthUser(): void {
+    let params = new HttpParams()
+      .set('page', this.page.toString())
+      .set('size', this.size.toString());
+    this.fetchRoles();
+
+    if (this.searchText?.trim()) {
+      params = params.set('search', this.searchText.trim());
+    }
+
+    if (this.userFilterRoleId != null) {
+      params = params.set('roleId', this.userFilterRoleId.toString());
+    }
+
+    this.http.get<any>('http://localhost:8080/admin/users', { params }).subscribe({
+      next: (res) => {
+        this.allUsers = res.content;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+      }
+    });
+  }
+
+  openCreateUserModal(): void {
+    this.fetchRoles(); // fetch roles to populate dropdown if not already fetched
+
+    // Reset the form model
+    this.newUser = {
+      username: '',
+      password: '',
+      roleId: null
+    };
+
+    // Show modal
+    const modalElement = document.getElementById('createUserModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+ newStudent: {
+  name: string;
+  age: number | null;
+  gender: string;
+  email: string;
+  phoneNumber: string;
+  departmentId: number | null;  
+  profileImage: File | null;
+  marksheetImage: File | null;
+} = {
+  name: '',
+  age: null,
+  gender: '',
+  email: '',
+  phoneNumber: '',
+  departmentId: null,   
+  profileImage: null,
+  marksheetImage: null,
+};
+
+  createStudentModal() {
+    this.fetchRoles(); // fetch roles to populate dropdown if not already fetched
+
+
+    // Show modal
+    const modalElement = document.getElementById('createStudentModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  onProfileImageSelected2(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.newStudent.profileImage = file;
+      console.log('Profile image selected:', file.name);
+    }
+  }
+
+  onMarksheetImageSelected2(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.newStudent.marksheetImage = file;
+      console.log('Marksheet image selected:', file.name);
+    }
+  }
+
+  AdminSubmitCreateStudent() {
+  const formData = new FormData();
+
+  formData.append('name', this.newStudent.name);
+  formData.append('age', this.newStudent.age?.toString() || '');
+  formData.append('gender', this.newStudent.gender);
+  formData.append('email', this.newStudent.email);
+  formData.append('phoneNumber', this.newStudent.phoneNumber);
+  formData.append('departmentId', this.newStudent.departmentId?.toString() || '');
+
+  if (this.newStudent.profileImage) {
+    formData.append('profileImage', this.newStudent.profileImage);
+  }
+
+  if (this.newStudent.marksheetImage) {
+    formData.append('marksheetImage', this.newStudent.marksheetImage);
+  }
+
+  this.http.post('http://localhost:8080/admin/createStudent', formData).subscribe({
+    next: (res) => {
+      this.showSwal('success', 'Success','Student created successfully');
+      this.closeModal();
+    },
+    error: (err) => {
+      console.error('Error creating user:', err);
+      this.showSwal('error', 'Failed to create user', err.error?.message || 'Unknown error');
+    }
+  });
+}
 
 }

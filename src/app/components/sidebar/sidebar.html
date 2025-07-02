@@ -1,29 +1,20 @@
 <nav class="sidebar" [class.collapsed]="collapsed">
   <ul class="list-unstyled mt-4">
-    <h4 class="sidebar-title" style="margin-left: 25px; margin-top: 40px;" (click)="selectSection('dashboard')">Dashboard</h4>
+   
 
     <!-- ✅ Admin View -->
     <ng-container *ngIf="hasRole('ROLE_ADMIN')">
-      <li (click)="selectSection('adminCreateHod')" [class.selected]="activeSection === 'adminCreateHod'">
-        <i class="bi bi-person-badge-fill me-2 fs-5"></i> Create HOD
-      </li>
-      <li (click)="selectSection('adminCreateUser')" [class.selected]="activeSection === 'adminCreateUser'">
-        <i class="bi bi-person-plus-fill me-2 fs-5"></i> Create User
-      </li>
-      <li (click)="selectSection('adminAssignRole')" [class.selected]="activeSection === 'adminAssignRole'">
-        <i class="bi bi-person-check-fill me-2 fs-5"></i> Assign Roles
-      </li>
-      <li (click)="selectSection('adminAssignSubject')" [class.selected]="activeSection === 'adminAssignSubject'">
-        <i class="bi bi-book-fill me-2 fs-5"></i> Assign Subject
+      <li (click)="selectSection('dashboard')" [class.selected]="activeSection === 'dashboard'">
+        <i class="bi bi-person-fill me-2 fs-5"></i> Dashboard
       </li>
       <li (click)="selectSection('adminAllUsers')" [class.selected]="activeSection === 'adminAllUsers'">
-        <i class="bi bi-people-fill me-2 fs-5"></i> All Users
+        <i class="bi bi-people-fill me-2 fs-5"></i> Users
       </li>
       <li (click)="selectSection('adminAllStudents')" [class.selected]="activeSection === 'adminAllStudents'">
-        <i class="bi bi-mortarboard-fill me-2 fs-5"></i> All Students
+        <i class="bi bi-mortarboard-fill me-2 fs-5"></i> Students
       </li>
       <li (click)="selectSection('adminAllStaffHod')" [class.selected]="activeSection === 'adminAllStaffHod'">
-        <i class="bi bi-person-lines-fill m-2 fs-5"></i>  All Staff & HOD
+        <i class="bi bi-person-lines-fill m-2 fs-5"></i> Staff & HOD
       </li>
     </ng-container>
     <!-- HOD View -->

@@ -4,16 +4,19 @@ import { Navbar } from "../navbar/navbar";
 import { Component, inject } from "@angular/core";
 import { ToastService } from "../services/toast.service";
 import { AuthService } from "../services/auth";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 
 @Component({
   standalone: true,
   selector: 'app-login',
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [CommonModule, ReactiveFormsModule, Navbar]
+  imports: [CommonModule, ReactiveFormsModule, Navbar, RouterLink]
 })
 export class LoginComponent {
+  onRegisterClick() {
+    this.router.navigate(['/register']);
+  }
   fb = inject(FormBuilder);
   router = inject(Router);
   authService = inject(AuthService);

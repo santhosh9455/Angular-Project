@@ -11,132 +11,67 @@
     <!-- Admin Dashboard Views -->
     <div *ngIf="hasRole('ROLE_ADMIN')" class="hod-dashboard py-5">
       <div class="container mt-4" *ngIf="viewSection === 'dashboard'">
-        <div class="row row-cols-1 mt-4 row-cols-md-3 g-4 justify-content-center">
+        <div class="row row-cols-1 mt-4 row-cols-md-3 g-4  w-100 justify-content-center">
 
-          <h2 class="mb-4 text-center text-white w-75 rounded p-4 mt-4"
-            style="background-color: #41B3A2; margin: 250px;">
-            Welcome to 🧑‍💼 Admin Dashboard
-          </h2>
           <!-- Total Students -->
-          <div class="col">
-            <div class="card text-bg-primary mb-3 shadow" style="min-height: 12rem;">
-              <div class="card-header">
-                <i class="bi bi-person-bounding-box me-2"></i> Students
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Total Students</h5>
-                <p class="card-text fs-4">{{ allStudents.length || 0 }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Users -->
-          <div class="col">
-            <div class="card text-bg-success mb-3 shadow" style="min-height: 12rem;">
-              <div class="card-header">
-                <i class="bi bi-person-lines-fill me-2"></i> Users
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Total Users</h5>
-                <p class="card-text fs-4">{{ allUsers.length || 0 }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Staff & HOD -->
-          <div class="col">
-            <div class="card text-bg-info mb-3 shadow" style="min-height: 12rem;">
-              <div class="card-header">
-                <i class="bi bi-people-fill me-2"></i> Staff & HOD
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">Total Staff & HOD</h5>
-                <p class="card-text fs-4">{{ UsersProfile.length || 0 }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card mt-2 w-75 items-center mx-auto">
-          <div class="card-body">
-            <h5 class="card-title text-primary">📊 Department-wise Student Count</h5>
-            <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
-            </canvas>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- Create Staff / HOD Modal -->
-      <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="createUserModalLabel">➕ Create User (HOD / Staff / Admin)</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body: Form -->
-            <div class="modal-body">
-              <form (ngSubmit)="submitCreateUser()" #createUserForm="ngForm">
-                <div class="row g-3">
-
-                  <div class="col-md-6">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-control" [(ngModel)]="newUserPro.name" name="name" required>
+          <div class="row row-cols-1 row-cols-md-3 w-100 g-4">
+            <!-- Total Students -->
+            <div class="col">
+              <div class="card bg-gradient-primary text-white shadow-lg rounded-4 h-100 border-0">
+                <div class="card-body d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-person-bounding-box fs-3 me-3"></i>
+                    <h6 class="mb-0 text-uppercase">Total Students</h6>
                   </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" [(ngModel)]="newUserPro.email" name="email" required>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Phone Number</label>
-                    <input type="text" class="form-control" [(ngModel)]="newUserPro.phoneNumber" name="phoneNumber"
-                      required>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Gender</label>
-                    <select class="form-select" name="gender" [(ngModel)]="newUserPro.gender" required>
-                      <option value="">-- Select Gender --</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-
-
-                  <div class="col-md-6">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" name="role" [(ngModel)]="newUserPro.role" required>
-                      <option value="">-- Select Role --</option>
-                      <option value="HOD">HOD</option>
-                      <option value="STAFF">Staff</option>
-                      <option value="ADMIN">Admin</option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-12" *ngIf="newUserPro.role === 'HOD' || newUserPro.role === 'STAFF'">
-                    <label class="form-label">Department</label>
-                    <select class="form-select" name="departmentId" [(ngModel)]="newUserPro.departmentId" required>
-                      <option value="">-- Select Department --</option>
-                      <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
-                    </select>
-                  </div>
-
+                  <h2 class="fw-bold text-center">{{ allStudents.length || 0 }}</h2>
                 </div>
-
-                <div class="text-end mt-4">
-                  <button type="submit" class="btn btn-success" [disabled]="createUserForm.invalid">
-                    <i class="bi bi-check-circle me-1"></i> Create User
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
 
+            <!-- Total Users -->
+            <div class="col">
+              <div class="card bg-gradient-success text-white shadow-lg rounded-4 h-100 border-0">
+                <div class="card-body d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-person-lines-fill fs-3 me-3"></i>
+                    <h6 class="mb-0 text-uppercase">Total Users</h6>
+                  </div>
+                  <h2 class="fw-bold text-center">{{ allUsers.length || 0 }}</h2>
+                </div>
+              </div>
+            </div>
+
+            <!-- Staff & HOD -->
+            <div class="col">
+              <div class="card bg-gradient-info text-white shadow-lg rounded-4 h-100 border-0">
+                <div class="card-body d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-people-fill fs-3 me-3"></i>
+                    <h6 class="mb-0 text-uppercase">Staff & HOD</h6>
+                  </div>
+                  <h2 class="fw-bold text-center">{{ UsersProfile.length || 0 }}</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="container my-4">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+              <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title text-primary fw-bold mb-3 text-center">
+                    📊 Department-wise Student Count
+                  </h5>
+                  <div class="position-relative" style="height: 400px;">
+                    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+                    </canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,66 +139,93 @@
         </div>
       </div>
 
-      <!-- Assign Roles -->
-      <div *ngIf="viewSection === 'adminAssignRole'" class="card p-3 mb-4">
-        <h5 class="text-primary">🔐 Assign Role and Auth to Users</h5>
-        <form (ngSubmit)="submitAssignRole()">
-          <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-control" [(ngModel)]="roleAssign.username" name="roleUsername" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Target ID (Staff/HOD)</label>
-            <input type="number" class="form-control" [(ngModel)]="roleAssign.userId" name="targetId" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Assign Role</button>
-        </form>
-      </div>
-      <div *ngIf="viewSection === 'adminAssignRole'" class="card p-3 mb-4">
-        <h5 class="text-primary">🔐 Assign Role and Auth to Student</h5>
-        <form (ngSubmit)="submitAssignStud()">
-          <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-control" [(ngModel)]="roleAssignStud.username" name="roleUsername" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Student ID</label>
-            <input type="number" class="form-control" [(ngModel)]="roleAssignStud.studId" name="targetId" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Assign Role</button>
-        </form>
-      </div>
+      <!-- Create User Modal -->
+      <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="createUserModalLabel">➕ Create New User</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <form #form="ngForm" (ngSubmit)="submitCreateUser()" novalidate>
 
+              <div class="modal-body">
+                <div class="row g-3">
+                  <!-- Username -->
+                  <div class="col-md-6">
+                    <label class="form-label">Username</label>
+                    <input #username="ngModel" type="text" class="form-control" [(ngModel)]="newUser.username"
+                      name="username" required />
+                    <div class="text-danger" *ngIf="(form.submitted || username.touched) && username.invalid">
+                      Username is required
+                    </div>
+                  </div>
 
-      <!-- Assign Subject to Department Students -->
-      <div *ngIf="viewSection === 'adminAssignSubject'" class="card p-3 mb-4">
-        <h5 class="text-primary">📘 Assign Subject to Student By Department</h5>
-        <form (ngSubmit)="submitAssignSubject()">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Department Name</label>
-            <select class="form-select" [(ngModel)]="assignSubject.departmentId" name="departmentName">
-              <option value="">-- Select Department --</option>
-              <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
-            </select>
+                  <!-- Password -->
+                  <div class="col-md-6">
+                    <label class="form-label">Password</label>
+                    <input #password="ngModel" type="password" class="form-control" [(ngModel)]="newUser.password"
+                      name="password" required />
+                    <div class="text-danger" *ngIf="(form.submitted || password.touched) && password.invalid">
+                      Password is required
+                    </div>
+
+                  </div>
+
+                  <!-- Role -->
+                  <div class="col-md-6">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" [(ngModel)]="newUser.roleId" name="roleId" required>
+                      <option [ngValue]="null">Select Role</option>
+                      <option *ngFor="let role of roles" [ngValue]="role.id">
+                        {{ role.role.replace('ROLE_', '') }}
+                      </option>
+
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Create User</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+              </div>
+            </form>
           </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Subject Name</label>
-            <select class="form-select" [(ngModel)]="assignSubject.subjectId" name="subjectName">
-              <option value="">-- Select Subject --</option>
-              <option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.subjectName }}</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Assign Subject</button>
-        </form>
+        </div>
       </div>
-
       <!-- All Users -->
-      <div *ngIf="viewSection === 'adminAllUsers'">
-        <h5 class="text-primary fw-bold">👥 All Users Auth</h5>
-        <table class="table table-bordered table-hover">
-          <thead>
+      <div *ngIf="viewSection === 'adminAllUsers'" class="px-3 py-2">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="text-primary fw-bold"> All Users</h5>
+          <button class="btn btn-success" (click)="openCreateUserModal()">
+            <i class="bi bi-person-plus-fill me-1"></i> Add User
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder=" Search username" [(ngModel)]="searchText"
+              (ngModelChange)="onFilterChange()" />
+          </div>
+          <div class="col-md-6">
+            <select class="form-select" [(ngModel)]="userFilterRoleId" (change)="onFilterChange()">
+              <option [ngValue]="null">All Roles</option>
+              <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.role?.startsWith('ROLE_') ?
+                role.role.substring(5) : role.role || 'Unknown' }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <table class="table table-bordered table-hover text-center align-middle">
+          <thead class="table-light">
             <tr>
-              <th>S.NO</th>
+              <th>#</th>
               <th>Username</th>
               <th>Role</th>
               <th>Actions</th>
@@ -271,43 +233,65 @@
           </thead>
           <tbody>
             <tr *ngFor="let user of allUsers; let i = index">
-              <td>{{ i + 1 }}</td>
+              <td>{{ (page * size) + i + 1 }}</td>
               <td>{{ user.username }}</td>
-              <td>{{ user.role?.startsWith('ROLE_') ? user.role.substring(5) : user.role || 'Unknown' }}</td>
               <td>
-                <button class="btn btn-outline-warning ms-3" (click)="openEditUserModel(user)"><i
-                    class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-outline-danger ms-3" (click)="deleteUserAuthSwal(user.id)"><i
-                    class="bi bi-trash"></i>
-                </button>
+                <span class="badge"
+                  [ngClass]="{'bg-primary': user.role === 'ROLE_ADMIN','bg-warning text-dark': user.role === 'ROLE_STAFF','bg-success': user.role === 'ROLE_STUDENT','bg-secondary': user.role === 'ROLE_HOD'}">
+                  {{ user.role.startsWith('ROLE_') ? user.role.substring(5) : user.role || 'Unknown' }}
+                </span>
               </td>
 
+              <td>
+                <button class="btn btn-outline-warning btn-sm " (click)="openEditUserModel(user)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm ms-2" (click)="deleteUserAuthSwal(user.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="allUsers.length === 0">
+              <td colspan="4" class="text-muted">No users found.</td>
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        <nav *ngIf="totalPages > 1">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="page === 0">
+              <a class="page-link" (click)="onPageChange(page - 1)">Previous</a>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
+            </li>
+            <li class="page-item" [class.disabled]="page + 1 >= totalPages">
+              <a class="page-link" (click)="onPageChange(page + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
 
       <!-- All Staff & Hod -->
       <div *ngIf="viewSection === 'adminAllStaffHod'" class="px-2 py-3">
         <!-- Header + Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="text-primary fw-bold mb-0">🎓 All Staff & HOD</h5>
-          <button class="btn btn-success" (click)="submitCreateUserPro()">
-            <i class="bi bi-person-plus-fill me-1"></i> Add User
+          <h5 class="text-primary fw-bold mb-0"> All Staff & HOD</h5>
+          <button class="btn btn-success" (click)="openCreateUserProModal()">
+            <i class="bi bi-person-plus-fill me-1"></i> Add HOD / Staff
           </button>
         </div>
 
         <!-- Filters -->
         <div class="row g-2 mb-3">
           <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="🔍 Search by name or username" [(ngModel)]="searchText"
+            <input type="text" class="form-control" placeholder=" Search by name or username" [(ngModel)]="searchText"
               (input)="onFilterChange()" />
           </div>
           <div class="col-md-4">
             <select class="form-select" [(ngModel)]="filterRole" (change)="onFilterChange()">
               <option value="">All Roles</option>
-              <option value="ROLE_ADMIN">ADMIN</option>
               <option value="ROLE_STAFF">STAFF</option>
               <option value="ROLE_HOD">HOD</option>
             </select>
@@ -315,7 +299,8 @@
           <div class="col-md-4">
             <select class="form-select" [(ngModel)]="filterDepartment" (change)="onFilterChange()">
               <option [ngValue]="null">All Departments</option>
-              <option *ngFor="let dept of departments" [ngValue]="dept.id">{{ dept.departmentName }}</option>
+              <option *ngFor="let dept of departments" [ngValue]="dept.id">{{ dept.departmentName }}
+              </option>
             </select>
           </div>
         </div>
@@ -336,15 +321,24 @@
           <tbody>
             <tr *ngFor="let user of UsersProfile; let i = index">
               <td>{{ i + 1 + (page * size) }}</td>
-              <td>{{ user.name }}</td>
-              <td><span class="badge bg-info">{{ user.role?.startsWith('ROLE_') ? user.role?.substring(5) : user.role
-                  }}</span></td>
-              <td>{{ user.username }}</td>
+              <td>{{ user.name || 'N/A'}}</td>
+              <td>
+                <span
+                  class="badge bg-{{ user.role === 'ROLE_HOD' ? 'success' : user.role === 'ROLE_STAFF' ? 'warning text-dark' : 'danger' }}">
+                  {{ user.role?.startsWith('ROLE_') ? user.role?.substring(5)
+                  : user.role
+                  || 'N/A' }}
+                </span>
+              </td>
+              <td>{{ user.username || 'N/A' }}</td>
               <td>{{ user.phoneNumber || 'N/A' }}</td>
               <td>{{ user.departmentName || 'N/A' }}</td>
               <td>
                 <button class="btn btn-outline-info btn-sm me-1" (click)="viewUsersProfile(user)">
                   <i class="bi bi-eye-fill"></i>
+                </button>
+                <button class="btn btn-outline-warning btn-sm me-1" (click)="openEditUserModal(user)">
+                  <i class="bi bi-pencil-fill"></i>
                 </button>
                 <button class="btn btn-outline-danger btn-sm" (click)="deleteUserSwal(user.id)">
                   <i class="bi bi-trash3-fill"></i>
@@ -360,16 +354,259 @@
         <nav *ngIf="totalPages > 1">
           <ul class="pagination justify-content-center">
             <li class="page-item" [class.disabled]="page === 0">
-              <a class="page-link" (click)="onPageChange(page - 1)">Previous</a>
+              <button type="button" class="page-link" (click)="onPageChange(page - 1)">Previous</button>
             </li>
             <li class="page-item disabled">
               <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
             </li>
             <li class="page-item" [class.disabled]="page + 1 >= totalPages">
-              <a class="page-link" (click)="onPageChange(page + 1)">Next</a>
+              <button type="button" class="page-link" (click)="onPageChange(page + 1)">Next</button>
             </li>
           </ul>
         </nav>
+
+
+        <!-- Create User Modal -->
+        <div class="modal fade" id="createUserProModal" tabindex="-1" aria-labelledby="createUserModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="createUserModalLabel">➕ Create HOD / Staff</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+              </div>
+              <form #form="ngForm" (ngSubmit)="submitCreateUserPro()" novalidate>
+
+                <div class="modal-body">
+                  <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                      <label class="form-label">Name</label>
+                      <input type="text" class="form-control" name="name" required [(ngModel)]="newUserPro.name"
+                        #name="ngModel" />
+                      <div class="text-danger" *ngIf="(form.submitted || name.touched) && name.invalid">
+                        Name is required
+                      </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" name="email" required [(ngModel)]="newUserPro.email"
+                        #email="ngModel" />
+                      <div class="text-danger" *ngIf="(form.submitted || email.touched) && email.invalid">
+                        Valid email is required
+                      </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                      <label class="form-label">Phone Number</label>
+                      <input type="text" class="form-control" name="phoneNumber" required pattern="^[0-9]{10}$"
+                        [(ngModel)]="newUserPro.phoneNumber" #phoneNumber="ngModel" />
+                      <div class="text-danger" *ngIf="(form.submitted || phoneNumber.touched) && phoneNumber.invalid">
+                        Enter valid 10-digit phone number
+                      </div>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="col-md-6">
+                      <label class="form-label">Gender</label>
+                      <select class="form-select" name="gender" required [(ngModel)]="newUserPro.gender"
+                        #gender="ngModel">
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                      <div class="text-danger" *ngIf="(form.submitted || gender.touched) && gender.invalid">
+                        Gender is required
+                      </div>
+                    </div>
+
+                    <!-- DOB -->
+                    <div class="col-md-6">
+                      <label class="form-label">Date of Birth</label>
+                      <input type="date" class="form-control" name="dateOfBirth" required
+                        [(ngModel)]="newUserPro.dateOfBirth" #dateOfBirth="ngModel" />
+                      <div class="text-danger" *ngIf="(form.submitted || dateOfBirth.touched) && dateOfBirth.invalid">
+                        Date of birth is required
+                      </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="col-md-6">
+                      <label class="form-label">Role</label>
+                      <select class="form-select" name="roleId" required [(ngModel)]="newUserPro.roleId"
+                        #roleId="ngModel">
+                        <option value="">-- Select Role --</option>
+                        <ng-container *ngFor="let role of roles">
+                          <option *ngIf="role.role === 'ROLE_HOD' || role.role === 'ROLE_STAFF'" [value]="role.id">
+                            {{ role.role.startsWith('ROLE_') ? role.role.substring(5) : role.role || 'N/A' }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="(form.submitted || roleId.touched) && roleId.invalid">
+                        Role is required
+                      </div>
+                    </div>
+
+                    <!-- Department (optional but can add required if needed) -->
+                    <div class="col-md-6">
+                      <label class="form-label">Department</label>
+                      <select class="form-select" [(ngModel)]="newUserPro.departmentId" name="departmentId"
+                        #departmentId="ngModel">
+                        <option value="">-- Select Department --</option>
+                        <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName
+                          }}</option>
+                      </select>
+                      <div class="text-danger" *ngIf="(form.submitted || departmentId.touched) && departmentId.invalid">
+                        Department is required
+                      </div>
+                    </div>
+
+                    <!-- Subject (optional) -->
+                    <div class="col-md-6">
+                      <label class="form-label">Subject</label>
+                      <select class="form-select" [(ngModel)]="newUserPro.subjectId" name="subjectId">
+                        <option value="">-- Select Subject --</option>
+                        <option *ngFor="let subject of subjects" [value]="subject.id">{{
+                          subject.subjectName }}</option>
+                      </select>
+                    </div>
+
+                    <!-- Course (optional) -->
+                    <div class="col-md-6">
+                      <label class="form-label">Course</label>
+                      <select class="form-select" [(ngModel)]="newUserPro.courseId" name="courseId">
+                        <option value="">-- Select Course --</option>
+                        <option *ngFor="let course of Courses" [value]="course.id">{{ course.courseName }}
+                        </option>
+                      </select>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success" [disabled]="form.invalid">Create</button>
+                  <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserProModal" tabindex="-1" aria-labelledby="editUserProModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editUserProModalLabel">
+                  <i class="bi bi-pencil-square me-2"></i> Edit User Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                  (click)="closeModal()"></button>
+              </div>
+
+              <form #editUserForm="ngForm" (ngSubmit)="updateUserPartial()" novalidate>
+                <div class="modal-body">
+                  <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                      <label for="editName" class="form-label">Name</label>
+                      <input id="editName" name="name" #name="ngModel" type="text" class="form-control"
+                        [(ngModel)]="editUserPro.name" required />
+
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="editEmail" class="form-label">Email</label>
+                      <input id="editEmail" name="email" type="email" class="form-control"
+                        [(ngModel)]="editUserPro.email" required email #email="ngModel" />
+
+                    </div>
+
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                      <label for="editPhone" class="form-label">Phone</label>
+                      <input id="editPhone" name="phoneNumber" type="text" class="form-control"
+                        [(ngModel)]="editUserPro.phoneNumber" required #phoneNumber="ngModel" />
+
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="col-md-6">
+                      <label for="editGender" class="form-label">Gender</label>
+                      <select id="editGender" name="gender" class="form-select" [(ngModel)]="editUserPro.gender"
+                        required #gender="ngModel">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+
+                    </div>
+
+                    <!-- DOB -->
+                    <div class="col-md-6">
+                      <label for="editDOB" class="form-label">Date of Birth</label>
+                      <input id="editDOB" name="dateOfBirth" type="date" class="form-control"
+                        [(ngModel)]="editUserPro.dateOfBirth" required #dateOfBirth="ngModel" />
+
+                    </div>
+
+                    <!-- Department -->
+                    <div class="col-md-6">
+                      <label for="editDepartment" class="form-label">Department</label>
+                      <select id="editDepartment" name="departmentId" class="form-select"
+                        [(ngModel)]="editUserPro.departmentId" required #departmentId="ngModel">
+                        <option [ngValue]="null">Select Department</option>
+                        <option *ngFor="let dept of departments" [ngValue]="dept.id">{{
+                          dept.departmentName }}</option>
+                      </select>
+
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="col-md-6">
+                      <label for="editSubject" class="form-label">Subject</label>
+                      <select id="editSubject" name="subjectId" class="form-select" [(ngModel)]="editUserPro.subjectId">
+                        <option [ngValue]="null">-- Optional --</option>
+                        <option *ngFor="let subj of subjects" [ngValue]="subj.id">{{ subj.subjectName }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Course -->
+                    <div class="col-md-6">
+                      <label for="editCourse" class="form-label">Course</label>
+                      <select id="editCourse" name="courseId" class="form-select" [(ngModel)]="editUserPro.courseId">
+                        <option [ngValue]="null">-- Optional --</option>
+                        <option *ngFor="let course of courses" [ngValue]="course.id">{{ course.courseName
+                          }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">User Name</label>
+                      <input type="text" class="form-control" name="username" required
+                        [(ngModel)]="editUserPro.username" #username="ngModel" />
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" type="button" data-bs-dismiss="modal"
+                    (click)="closeModal()">Cancel</button>
+                  <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
         <!-- View User Profile Modal -->
         <div class="modal fade" id="viewUserProModal" tabindex="-1" aria-labelledby="viewUserProModal"
@@ -393,6 +630,7 @@
                       <img [src]="'http://localhost:8080/uploads/assets/default-profile.png'" alt="Profile"
                         class="rounded-circle shadow" width="100" height="100">
                       <h5 class="mt-2 text-dark">{{ selectedUserProfile?.name }}</h5>
+                      
                       <span class="badge bg-primary">{{ selectedUserProfile?.username }}</span>
                     </div>
                   </div>
@@ -402,9 +640,10 @@
 
                     <!-- Contact Info -->
                     <div class="col-md-6">
-                      <div class="card info-card border-0 shadow-sm violet-card text-white">
+                      <div class="card info-card border-0 shadow-sm violet-card text-white" style="height: 217px;">
                         <div class="card-body">
-                          <h5 class="card-title mb-3"><i class="bi bi-envelope-fill me-2"></i>Contact Info</h5>
+                          <h5 class="card-title mb-3"><i class="bi bi-envelope-fill me-2"></i>Contact Info
+                          </h5>
                           <p class="mb-2">
                             <i class="bi bi-envelope-open me-2"></i><strong>Email:</strong>
                             {{ selectedUserProfile?.email }}
@@ -421,14 +660,19 @@
                     <div class="col-md-6">
                       <div class="card info-card border-0 shadow-sm violet-card text-white">
                         <div class="card-body">
-                          <h5 class="card-title mb-3"><i class="bi bi-person-fill me-2"></i>Personal Info</h5>
+                          <h5 class="card-title mb-3"><i class="bi bi-person-fill me-2"></i>Personal Info
+                          </h5>
                           <p class="mb-2">
                             <i class="bi bi-gender-ambiguous me-2"></i><strong>Gender:</strong>
-                            {{ selectedUserProfile?.gender }}
+                            {{ selectedUserProfile?.gender || 'N/A'}}
                           </p>
                           <p>
                             <i class="bi bi-calendar-fill me-2"></i><strong>Age:</strong>
-                            {{ selectedUserProfile?.age }}
+                            {{ selectedUserProfile?.age || 'N/A'}}
+                          </p>
+                          <p>
+                            <i class="bi bi-building-fill me-2"></i><strong>Date of Birth:</strong>
+                            {{ selectedUserProfile?.dateOfBirth || 'N/A' }}
                           </p>
                         </div>
                       </div>
@@ -438,7 +682,8 @@
                     <div class="col-md-12">
                       <div class="card info-card border-0 shadow-sm violet-card text-white">
                         <div class="card-body">
-                          <h5 class="card-title mb-3"><i class="bi bi-journal-text me-2"></i>Academic Info</h5>
+                          <h5 class="card-title mb-3"><i class="bi bi-journal-text me-2"></i>Academic Info
+                          </h5>
                           <div class="row">
                             <div class="col-md-4 mb-2">
                               <i class="bi bi-book me-2"></i><strong>Course:</strong>
@@ -472,59 +717,103 @@
         </div>
 
         <!-- Full View of Staff and Admin-->
-        <div class="modal fade" id="viewUserProModal" tabindex="-1" aria-labelledby="viewUserProModal"
-          aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="viewUserProModal">🎓 Staff / HOD Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
 
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- All Students -->
-      <div *ngIf="viewSection === 'adminAllStudents'">
-        <h5 class="text-primary fw-bold">🎓 All Students</h5>
-        <table class="table table-bordered table-hover">
-          <thead>
-            <tr>
-              <th>S.NO</th>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Phone</th>
-              <th>Department</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let student of allStudents; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ student.name }}</td>
-              <td>{{ student.username }}</td>
-              <td>{{ student.phoneNumber }}</td>
-              <td>{{ student.departmentName }}</td>
-              <td>{{ student.status }}</td>
-              <td class=" gap-2 gap-md-3 d-flex justify-content-center">
-                <button class="btn btn-outline-warning" (click)="openEditStudentModal(student)"><i
-                    class="bi bi-pencil-square" title="Edit"></i></button>
-                <button class="btn btn-outline-info" (click)="viewStudentProfile(student)">
-                  <i class="bi bi-eye" title="View"></i>
-                </button>
-                <button class="btn btn-outline-danger" (click)="deleteStudentSwal(student.id)">
-                  <i class="bi bi-trash " title="Delete"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div *ngIf="viewSection === 'adminAllStudents'" class="px-3 py-2">
+        <!-- Header and Add Button -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="text-primary">🎓 All Students</h5>
+          <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createStudentModal">
+            <i class="bi bi-person-plus-fill me-1"></i> Add Student
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder=" Name or Username" [(ngModel)]="searchText"
+              (ngModelChange)="onFilterChange()" />
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" [(ngModel)]="filterDepartment" (change)="onFilterChange()">
+              <option [ngValue]="null">All Departments</option>
+              <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.departmentName }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+              <option value="">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of students; let i = index">
+                <td>{{ (page * size) + i + 1 }}</td>
+                <td>{{ student.name || 'N/A' }}</td>
+                <td>{{ student.username || 'N/A' }}</td>
+                <td>{{ student.phoneNumber || 'N/A' }}</td>
+                <td>{{ student.departmentName || 'N/A' }}</td>
+                <td>
+                  <span
+                    class="badge bg-{{ student.status === 'APPROVED' ? 'success' : student.status === 'PENDING' ? 'warning text-dark' : 'danger' }}">
+                    {{ student.status }}
+                  </span>
+                </td>
+                <td class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-outline-info btn-sm" (click)="viewStudentProfile(student)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-outline-warning btn-sm" (click)="openEditStudentModal(student)">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" (click)="deleteStudentSwal(student.id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="students.length === 0">
+                <td colspan="7" class="text-muted">No students found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav *ngIf="totalPages > 1" class="mt-2">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="page === 0">
+              <button type="button" class="page-link" (click)="onPageChange(page - 1)">Previous</button>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
+            </li>
+            <li class="page-item" [class.disabled]="page + 1 >= totalPages">
+              <button type="button" class="page-link" (click)="onPageChange(page + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
       </div>
+
+
       <!-- Update Student -->
       <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel"
         aria-hidden="true">
@@ -567,21 +856,24 @@
                     <label class="form-label">Department</label>
                     <select class="form-select" [(ngModel)]="studentEdit.departmentId" name="studentDepartment">
                       <option value="">-- Select Department --</option>
-                      <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
+                      <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}
+                      </option>
                     </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Course Name</label>
                     <select class="form-select" [(ngModel)]="studentEdit.courseId" name="studentCourse">
                       <option value="">-- Select Course --</option>
-                      <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}</option>
+                      <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName
+                        }}</option>
                     </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Subject</label>
                     <select class="form-select" [(ngModel)]="studentEdit.subjectId" name="studentSubject">
                       <option value="">-- Select Subject --</option>
-                      <option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.subjectName }}</option>
+                      <option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.subjectName
+                        }}</option>
                     </select>
                   </div>
                   <div class="col-md-6 mb-3">
@@ -601,6 +893,11 @@
                     <label class="form-label">Marksheet Image</label>
                     <input type="file" class="form-control" (change)="onMarksheetImageSelected($event)">
                   </div>
+                  <div class="col-md-6">
+                    <label class="form-label">User Name</label>
+                    <input type="text" class="form-control" name="username" required [(ngModel)]="studentEdit.username"
+                      #username="ngModel" />
+                  </div>
                 </div>
               </div>
               <div class="modal-footer">
@@ -612,72 +909,215 @@
         </div>
       </div>
     </div>
-    <!-- View Student Profile Modal -->
 
-    <div class="modal fade" id="viewStudentModal" tabindex="-1" aria-labelledby="viewStudentModalLabel"
+    <!-- Create Student Modal -->
+    <div class="modal fade" id="createStudentModal" tabindex="-1" aria-labelledby="createStudentModalLabel"
       aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-info text-white">
-            <h5 class="modal-title" id="viewStudentModalLabel">🎓 Student Full Profile</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
+          <form (ngSubmit)="AdminSubmitCreateStudent()" #createStudentForm="ngForm">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="createStudentModalLabel">➕ Create New Student</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-          <div class="modal-body">
-            <!-- Top: Profile + Basic Info -->
-            <div class="row align-items-start">
-              <div class="col-md-4 text-center mb-3">
-                <strong>Profile Image:</strong><br />
-                <img
-                  [src]="selectedStudent?.profileImagePath ? 'http://localhost:8080' + selectedStudent.profileImagePath :'http://localhost:8080' + '/uploads/assets/default-profile.png'"
-                  class="img-thumbnail rounded-circle mt-2 profile-thumbnail" alt="Profile Image" />
-              </div>
-              <div class="col-md-8">
-                <div class="row">
-                  <div class="col-6 mb-2"><strong>Name:</strong> {{ selectedStudent?.name }}</div>
-                  <div class="col-6 mb-2"><strong>Student ID:</strong> {{ selectedStudent?.id }}</div>
-                  <div class="col-6 mb-2"><strong>Email:</strong> {{ selectedStudent?.email }}</div>
-                  <div class="col-6 mb-2"><strong>Username:</strong> {{ selectedStudent?.username }}</div>
-                  <div class="col-6 mb-2"><strong>Phone:</strong> {{ selectedStudent?.phoneNumber }}</div>
-                  <div class="col-6 mb-2"><strong>Gender:</strong> {{ selectedStudent?.gender }}</div>
-                  <div class="col-6 mb-2"><strong>Age:</strong> {{ selectedStudent?.age }}</div>
-                  <div class="col-6 mb-2"><strong>Status:</strong> {{ selectedStudent?.status }}</div>
-                  <div class="col-6 mb-2"><strong>Course Status:</strong> {{ selectedStudent?.courseStatus }}</div>
-                  <div class="col-6 mb-2"><strong>Course Name:</strong> {{ selectedStudent?.courseName }}</div>
-                  <div class="col-6 mb-2"><strong>Subject Name:</strong> {{ selectedStudent?.subjectName }}</div>
-                  <div class="col-6 mb-2"><strong>Department:</strong> {{ selectedStudent?.departmentName }}</div>
+            <div class="modal-body">
+              <div class="row">
+                <!-- Name -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Name</label>
+                  <input #name="ngModel" type="text" class="form-control" [(ngModel)]="newStudent.name" name="name"
+                    required />
+                  <div>
+                    <span class="text-danger" *ngIf="name.invalid && (name.dirty || name.touched)"> Name is
+                      required</span>
+                  </div>
+                </div>
+
+                <!-- Age -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Age</label>
+                  <input #age="ngModel" type="number" class="form-control" [(ngModel)]="newStudent.age" name="age" />
+                  <div>
+                    <span class="text-danger" *ngIf="age.invalid && (age.dirty || age.touched)"> Age is required</span>
+                  </div>
+                </div>
+
+                <!-- Gender -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Gender</label>
+                  <select class="form-select" [(ngModel)]="newStudent.gender" name="gender" required>
+                    <option value="">-- Select Gender --</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email</label>
+                  <input #email="ngModel" type="email" class="form-control" [(ngModel)]="newStudent.email" name="email"
+                    required />
+                  <div>
+                    <span class="text-danger" *ngIf="email.invalid && (email.dirty || email.touched)"> Valid email is
+                      required</span>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Phone Number</label>
+                  <input #phoneNumber="ngModel" type="tel" class="form-control" [(ngModel)]="newStudent.phoneNumber"
+                    name="phoneNumber" />
+                  <div>
+                    <span class="text-danger" *ngIf="phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched)">
+                      Valid phone number is required</span>
+                  </div>
+                </div>
+
+                <!-- Department -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Department</label>
+                  <select class="form-select" [(ngModel)]="newStudent.departmentId" name="departmentId" required>
+                    <option value="">-- Select Department --</option>
+                    <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
+                  </select>
+                </div>
+
+                <!-- Profile Image -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Profile Image</label>
+                  <input type="file" class="form-control" (change)="onProfileImageSelected2($event)" />
+                </div>
+
+                <!-- Marksheet Image -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Marksheet Image</label>
+                  <input type="file" class="form-control" (change)="onMarksheetImageSelected2($event)" />
                 </div>
               </div>
             </div>
 
-            <!-- Full Marksheet Preview -->
-            <div class="row mt-4">
-              <div class="col-12 text-center">
-                <strong>Marksheet Image:</strong><br />
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Create Student</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Student Profile Modal -->
+
+    <div class="modal fade" id="viewStudentModal" tabindex="-1" aria-labelledby="viewStudentModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+          <div class="modal-header bg-gradient bg-info text-white">
+            <h5 class="modal-title" id="viewStudentModalLabel">
+              <i class="bi bi-person-circle me-2"></i> Student Full Profile
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body p-4">
+            <!-- Top: Profile + Info -->
+            <div class="row">
+              <!-- Profile Image -->
+              <div class="col-md-4 text-center mb-4">
                 <img
-                  [src]="selectedStudent?.marksheetImagePath ? 'http://localhost:8080' + selectedStudent.marksheetImagePath : 'http://localhost:8080' + '/uploads/assets/default-marksheet.png'"
-                  class="img-fluid rounded shadow mt-2" style="max-height: 500px;" alt="Marksheet Image" />
+                  [src]="selectedStudent?.profileImagePath ? 'http://localhost:8080' + selectedStudent.profileImagePath : 'http://localhost:8080/uploads/assets/default-profile.png'"
+                  alt="Profile" class="rounded-circle shadow mb-3"
+                  style="width: 150px; height: 150px; object-fit: cover;" />
+                <h5 class="fw-semibold mt-2">{{ selectedStudent?.name }}</h5>
+                <p class="text-muted mb-1">{{ selectedStudent?.email }}</p>
+                <span
+                  class="badge bg-{{ selectedStudent?.status === 'APPROVED' ? 'success' : selectedStudent?.status === 'PENDING' ? 'warning text-dark' : 'danger' }}">
+                  {{ selectedStudent?.status }}
+                </span>
               </div>
+
+              <!-- Details -->
+              <div class="col-md-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                  <div class="card-body p-4">
+                    <h5 class="mb-3 text-primary"><i class="bi bi-person-lines-fill me-2"></i>Student
+                      Details</h5>
+                    <div class="row g-3">
+                      <!-- Column 1 -->
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Student ID</p>
+                        <h6>{{ selectedStudent?.id }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Username</p>
+                        <h6>{{ selectedStudent?.username }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Phone</p>
+                        <h6>{{ selectedStudent?.phoneNumber }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Gender</p>
+                        <h6>{{ selectedStudent?.gender }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Age</p>
+                        <h6>{{ selectedStudent?.age }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Department</p>
+                        <h6>{{ selectedStudent?.departmentName }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Subject</p>
+                        <h6>{{ selectedStudent?.subjectName || '—' }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Course</p>
+                        <h6>{{ selectedStudent?.courseName || '—' }}</h6>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Course Status</p>
+                        <h6>{{ selectedStudent?.courseStatus || '—' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Divider -->
+            <hr class="my-4" />
+
+            <!-- Marksheet -->
+            <div class="text-center">
+              <h6 class="text-muted mb-2">Marksheet Preview</h6>
+              <img
+                [src]="selectedStudent?.marksheetImagePath ? 'http://localhost:8080' + selectedStudent.marksheetImagePath : 'http://localhost:8080/uploads/assets/default-marksheet.png'"
+                alt="Marksheet" class="img-fluid rounded shadow" style="max-height: 500px;" />
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+          <div class="modal-footer bg-light border-top-0">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-lg me-1"></i> Close
+            </button>
           </div>
         </div>
       </div>
     </div>
+
     <!-- End Admin View -->
 
 
     <!-- HOD View Section -->
     <div *ngIf="hasRole('ROLE_HOD')" class="hod-dashboard py-5">
-      <h2 class="mb-4 text-center text-white  rounded p-3 mt-4" style="background-color: #41B3A2; margin: 250px;">
-        Welcome {{ username }} to 🧑‍💼 HOD Dashboard
-      </h2>
-
       <!-- Requested Students Table -->
       <div *ngIf="viewSection === 'hodRequested'">
-        <h5 class="text-primary fw-bold mb-3">📌 Requested Students</h5>
+        <h5 class="text-primary fw-bold mb-3"> Requested Students</h5>
+        
         <ng-container *ngIf="hodRequested?.length && hodRequested.length > 0; else noRequested">
           <table class="table table-bordered table-hover">
             <thead>
@@ -709,6 +1149,8 @@
               </tr>
             </tbody>
           </table>
+
+          
         </ng-container>
         <ng-template #noRequested>
           <p>No requested students found.</p>
@@ -860,7 +1302,8 @@
             <option value="Female">Female</option>
 
           </select>
-          <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.gender">Gender is required.</div>
+          <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.gender">Gender is required.
+          </div>
         </div>
 
         <div class="mb-3">
@@ -1056,14 +1499,16 @@
                 <label>Subject Name</label>
                 <select class="form-select" [(ngModel)]="updatedStaff.subjectNme" name="subjectNme">
                   <option value="">-- Select Subject --</option>
-                  <option *ngFor="let subject of hodSubjects" [value]="subject.id">{{ subject.subjectName }}</option>
+                  <option *ngFor="let subject of hodSubjects" [value]="subject.id">{{ subject.subjectName
+                    }}</option>
                 </select>
               </div>
               <div class="mb-2">
                 <label>Course Name</label>
                 <select class="form-select" [(ngModel)]="updatedStaff.courseName" name="courseName">
                   <option value="">-- Select Subject --</option>
-                  <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}</option>
+                  <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -1320,9 +1765,12 @@
             <li class="list-group-item"><strong>Name:</strong> {{ studentProfile?.name }}</li>
             <li class="list-group-item"><strong>Email:</strong> {{ studentProfile?.email }}</li>
             <li class="list-group-item"><strong>Phone:</strong> {{ studentProfile?.phoneNumber }}</li>
-            <li class="list-group-item"><strong>Department:</strong> {{ studentProfile?.departmentName }}</li>
-            <li class="list-group-item"><strong>Course Name:</strong> {{ studentProfile?.courseName }}</li>
-            <li class="list-group-item"><strong>Subject Name:</strong> {{ studentProfile?.subjectName }}</li>
+            <li class="list-group-item"><strong>Department:</strong> {{ studentProfile?.departmentName }}
+            </li>
+            <li class="list-group-item"><strong>Course Name:</strong> {{ studentProfile?.courseName }}
+            </li>
+            <li class="list-group-item"><strong>Subject Name:</strong> {{ studentProfile?.subjectName }}
+            </li>
           </ul>
         </ng-container>
         <ng-template #loadingProfile>
