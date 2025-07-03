@@ -142,6 +142,7 @@ export class Dashboard implements OnInit {
   departmentInfo: any = null;
 
   // HOD role states
+  courseId: number | null = null;
   hodRequested: any[] = [];
   hodApproved: any[] = [];
   hodRejected: any[] = [];
@@ -311,7 +312,7 @@ export class Dashboard implements OnInit {
     });
   }
 
-  confirmStudentAction(studentId: number, action: 'approve' | 'reject' | 'approveByStaff' | 'rejectByStaff') {
+  confirmStudentAction(studentId: number, action: 'approve' | 'reject' | 'approveByStaff' | 'rejectByStaff' | 'deleteCourse') {
     const actionText = action === 'approve' ? 'Approve' : 'Reject';
     const confirmText = action === 'approve' ? 'Yes, approve it!' : 'Yes, reject it!';
 
@@ -401,18 +402,24 @@ export class Dashboard implements OnInit {
 
     if (this.hasRole("ROLE_HOD")) {
       this.viewSection = 'hodRequested';
-      this.fetchHodRequested();
+      this.fetchRequestedStudents();
+      this.fetchFilterCourses();
     }
     const name = this.authService.getUsername();
     if (name) {
       this.username = name.toUpperCase();
     }
 
-    console.log('Logged in as:', this.username);
-    if (this.hasRole('ROLE_STAFF')) {
-      this.fetchPenddingStudent();
-      console.log('Staff role matched. Staff dashboard will be visible.');
+    if (this.hasRole("ROLE_STAFF")) {
+      this.viewSection = 'pending'
+      this.fetchCourseStudents();
     }
+
+    if (this.hasRole("ROLE_STUDENT")) {
+      this.viewSection = 'profile'
+      this.fetchStudentProfile();
+    }
+    console.log('Logged in as:', this.username);
   }
 
   hasRole(role: string): boolean {
@@ -430,14 +437,14 @@ export class Dashboard implements OnInit {
     if (this.viewSection === 'profile' && !this.studentProfile) {
       this.fetchStudentProfile();
     } else if (this.viewSection === 'courses' && this.courseList.length === 0) {
-      this.fetchCourses();
+      this.onCourseFilterChange();
     } else if (this.viewSection === 'department' && !this.departmentInfo) {
       this.loadDepartmentInfo();
     }
 
     // For Staff API's
     if (this.viewSection === 'pending') {
-      this.fetchPenddingStudent();
+      this.fetchCourseStudents();
     }
     else if (this.viewSection === 'rejected') {
       this.fetchRejectedStudent();
@@ -455,7 +462,7 @@ export class Dashboard implements OnInit {
 
     // Hod API's
     else if (this.viewSection === 'hodRequested') {
-      this.fetchHodRequested();
+      this.fetchRequestedStudents();
     } else if (this.viewSection === 'hodApproved') {
       this.fetchHodApproved();
     } else if (this.viewSection === 'hodRejected') {
@@ -466,7 +473,7 @@ export class Dashboard implements OnInit {
       this.fetchHodToStaff();
 
     } else if (this.viewSection === 'hodCourses') {
-      this.fetchHodCourses();
+      this.fetchFilterCourses();
     }
     else if (this.viewSection === 'hodCreateStaff') {
       this.fetchHodCourses();
@@ -624,6 +631,50 @@ export class Dashboard implements OnInit {
         error: err => this.toast.showError('Failed to load all students.')
       });
   }
+
+
+  // Filtering
+  studentSearch: string = '';
+  studentStatusFilter: string = '';
+
+  // Pagination
+  studentPage: number = 0;
+  studentSize: number = 5;
+  studentTotalPages: number = 0;
+
+
+  onCourseStudentFilterChange(): void {
+    this.studentPage = 0;
+    this.fetchCourseStudents();
+  }
+
+  onCourseStudentPageChange(newPage: number): void {
+    if (newPage >= 0 && newPage < this.studentTotalPages) {
+      this.studentPage = newPage;
+      this.fetchCourseStudents();
+    }
+  }
+
+  fetchCourseStudents(): void {
+    const params = {
+      name: this.studentSearch,
+      courseStatus: this.studentStatusFilter,
+      page: this.studentPage,
+      size: this.studentSize
+    };
+
+    console.log('Fetching course students with params:', params);
+    this.http.get<any>('http://localhost:8080/staff/getCourseFilerStud', { params }).subscribe({
+      next: (res) => {
+        this.pendingStudents = res.students;
+        this.studentTotalPages = res.totalPages;
+      },
+      error: (err) => {
+        console.error('Error fetching pending students:', err);
+      }
+    });
+  }
+
   //---------------------------------------------------Staff Completed---------------------------------------------------------------//
 
   // HOD get APIs------>
@@ -696,8 +747,7 @@ export class Dashboard implements OnInit {
       .subscribe({
         next: () => {
           this.toast.showSuccess('Student approved.');
-          this.fetchHodRequested();
-          this.fetchHodApproved();
+          this.fetchFilterCourses();
         },
         error: (err) => {
           console.error('Approval failed:', err);
@@ -717,8 +767,7 @@ export class Dashboard implements OnInit {
       .subscribe({
         next: () => {
           this.toast.showSuccess('Student rejected.');
-          this.fetchHodRequested();
-          this.fetchHodRejected();
+          this.fetchFilterCourses();
         },
         error: (err) => {
           console.error('Rejection failed:', err);
@@ -856,6 +905,47 @@ export class Dashboard implements OnInit {
         }
       });
   }
+
+  //  Filter & Pagination Variables
+  courseSearch: string = '';
+  coursePage: number = 0;
+  courseSize: number = 8;
+  courseTotalPages: number = 0;
+
+
+  //  Called on filter input
+  onCourseFilterChange(): void {
+    this.coursePage = 0;
+    this.fetchFilterCourses();
+  }
+
+  //  Called on pagination click
+  onCoursePageChange(newPage: number): void {
+    if (newPage >= 0 && newPage < this.courseTotalPages) {
+      this.coursePage = newPage;
+      this.fetchFilterCourses();
+    }
+  }
+
+  //  Fetch data from API
+  fetchFilterCourses(): void {
+    const params = {
+      search: this.courseSearch,
+      page: this.coursePage,
+      size: this.courseSize
+    };
+
+    this.http.get<any>('http://localhost:8080/api/students/filteredCourses', { params }).subscribe({
+      next: (res) => {
+        this.courseList = res.courses;
+        this.courseTotalPages = res.totalPages;
+      },
+      error: (err) => {
+        console.error('Error fetching course list:', err);
+      }
+    });
+  }
+
 
   openEditStudentModal(student: any) {
     console.log('Editing student:', student); // Debug log
@@ -1029,6 +1119,21 @@ export class Dashboard implements OnInit {
       });
   }
 
+  deleteCourseSwal(courseId: number) {
+    Swal.fire({
+      title: 'Delete this Course?',
+      text: 'Are you sure you want to delete this Course?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteUser(courseId);
+      }
+    });
+  }
+
   deleteCourse(id: number) {
     this.http.delete(`http://localhost:8080/hod/deleteCourse/${id}`, this.authService.getAuthHeaders())
       .subscribe(() => {
@@ -1036,6 +1141,88 @@ export class Dashboard implements OnInit {
         this.fetchCourses();
       });
   }
+
+
+  selectedCourse: any = {
+    id: null,
+    courseName: '',
+    staffName: ''
+  };
+
+  openUpdateCourseModal(course: any): void {
+    this.selectedCourse = {
+      id: course.id,
+      courseName: course.courseName || null,
+      staffName: course.staffName || null,
+    };
+    ;
+    const modal = new bootstrap.Modal(document.getElementById('updateCourseModal')!);
+    modal.show();
+  }
+
+  submitUpdatedCourse(): void {
+    if (!this.selectedCourse.id) {
+      alert('Please select a staff member');
+      return;
+    }
+
+    this.http.patch('http://localhost:8080/hod/updateCourse', {
+      id: this.selectedCourse.id,
+      staffName: this.selectedCourse.staffName,
+      CourseName: this.selectedCourse.CourseName
+    }).subscribe({
+      next: () => {
+        this.showSwal('success', 'Updated', 'Course  updated successfully!');
+        this.fetchFilterCourses(); // Refresh list
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateCourseModal')!);
+        modal?.hide();
+      },
+      error: (err) => {
+        console.error('Update error:', err);
+        this.showSwal('error', 'Error', err.error?.message || 'Something went wrong');
+      }
+    });
+  }
+
+  filterName: string = '';
+  requestedPage: number = 0;
+  requestedSize: number = 10;
+  requestedTotalPages: number = 0;
+
+  onRequestedFilterChange(): void {
+    this.requestedPage = 0;
+    this.fetchRequestedStudents();
+  }
+
+  onRequestedPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.requestedTotalPages) {
+      this.requestedPage = newPage;
+      this.fetchRequestedStudents();
+    }
+  }
+
+  fetchRequestedStudents(): void {
+    const params = {
+      name: this.filterName,
+      status: this.filterStatus,
+      page: this.requestedPage,
+      size: this.requestedSize
+    };
+
+    this.http.get<any>('http://localhost:8080/hod/Allrequested/studentList', { params }).subscribe({
+      next: (response) => {
+        this.hodRequested = response.students;
+        this.requestedTotalPages = response.totalPages;
+      },
+      error: (err) => {
+        console.error('Error fetching requested students:', err);
+      }
+    });
+  }
+
+
+
+
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
   fetchStudentProfile() {
@@ -1109,6 +1296,38 @@ export class Dashboard implements OnInit {
       }
     });
   }
+
+
+  onStudCourseFilterChange(): void {
+    this.coursePage = 0;
+    this.fetchCourseList();
+  }
+
+  onStudCoursePageChange(newPage: number): void {
+    if (newPage >= 0 && newPage < this.courseTotalPages) {
+      this.coursePage = newPage;
+      this.fetchCourseList();
+    }
+  }
+
+  fetchCourseList(): void {
+    const params = {
+      search: this.courseSearch,
+      page: this.coursePage,
+      size: this.courseSize
+    };
+
+    this.http.get<any>('http://localhost:8080/api/students/courseList', { params }).subscribe({
+      next: (res) => {
+        this.courseList = res;
+        this.courseTotalPages = res.totalPages;
+      },
+      error: (err) => {
+        console.error('Error fetching course list:', err);
+      }
+    });
+  }
+
   //--------------------------------------Student Completed------------------------------------------------------------------//
 
   //Admin Api's
@@ -1590,7 +1809,7 @@ export class Dashboard implements OnInit {
 
 
   updateUserPartial(): void {
-    this.http.patch('http://localhost:8080/admin/updateHod', this.editUserPro).subscribe({      
+    this.http.patch('http://localhost:8080/admin/updateHod', this.editUserPro).subscribe({
       next: () => {
         this.showSwal('success', 'Updated', 'User updated successfully');
         this.closeModal('editUserProModal', true);
@@ -1648,25 +1867,25 @@ export class Dashboard implements OnInit {
     }
   }
 
- newStudent: {
-  name: string;
-  age: number | null;
-  gender: string;
-  email: string;
-  phoneNumber: string;
-  departmentId: number | null;  
-  profileImage: File | null;
-  marksheetImage: File | null;
-} = {
-  name: '',
-  age: null,
-  gender: '',
-  email: '',
-  phoneNumber: '',
-  departmentId: null,   
-  profileImage: null,
-  marksheetImage: null,
-};
+  newStudent: {
+    name: string;
+    age: number | null;
+    gender: string;
+    email: string;
+    phoneNumber: string;
+    departmentId: number | null;
+    profileImage: File | null;
+    marksheetImage: File | null;
+  } = {
+      name: '',
+      age: null,
+      gender: '',
+      email: '',
+      phoneNumber: '',
+      departmentId: null,
+      profileImage: null,
+      marksheetImage: null,
+    };
 
   createStudentModal() {
     this.fetchRoles(); // fetch roles to populate dropdown if not already fetched
@@ -1699,33 +1918,34 @@ export class Dashboard implements OnInit {
   }
 
   AdminSubmitCreateStudent() {
-  const formData = new FormData();
+    const formData = new FormData();
 
-  formData.append('name', this.newStudent.name);
-  formData.append('age', this.newStudent.age?.toString() || '');
-  formData.append('gender', this.newStudent.gender);
-  formData.append('email', this.newStudent.email);
-  formData.append('phoneNumber', this.newStudent.phoneNumber);
-  formData.append('departmentId', this.newStudent.departmentId?.toString() || '');
+    formData.append('name', this.newStudent.name);
+    formData.append('age', this.newStudent.age?.toString() || '');
+    formData.append('gender', this.newStudent.gender);
+    formData.append('email', this.newStudent.email);
+    formData.append('phoneNumber', this.newStudent.phoneNumber);
+    formData.append('departmentId', this.newStudent.departmentId?.toString() || '');
 
-  if (this.newStudent.profileImage) {
-    formData.append('profileImage', this.newStudent.profileImage);
-  }
-
-  if (this.newStudent.marksheetImage) {
-    formData.append('marksheetImage', this.newStudent.marksheetImage);
-  }
-
-  this.http.post('http://localhost:8080/admin/createStudent', formData).subscribe({
-    next: (res) => {
-      this.showSwal('success', 'Success','Student created successfully');
-      this.closeModal();
-    },
-    error: (err) => {
-      console.error('Error creating user:', err);
-      this.showSwal('error', 'Failed to create user', err.error?.message || 'Unknown error');
+    if (this.newStudent.profileImage) {
+      formData.append('profileImage', this.newStudent.profileImage);
     }
-  });
-}
+
+    if (this.newStudent.marksheetImage) {
+      formData.append('marksheetImage', this.newStudent.marksheetImage);
+    }
+
+    this.http.post('http://localhost:8080/admin/createStudent', formData).subscribe({
+      next: (res) => {
+        this.showSwal('success', 'Success', 'Student created successfully');
+        this.closeModal();
+      },
+      error: (err) => {
+        console.error('Error creating user:', err);
+        this.showSwal('error', 'Failed to create user', err.error?.message || 'Unknown error');
+      }
+    });
+  }
+
 
 }

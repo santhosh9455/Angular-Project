@@ -630,7 +630,7 @@
                       <img [src]="'http://localhost:8080/uploads/assets/default-profile.png'" alt="Profile"
                         class="rounded-circle shadow" width="100" height="100">
                       <h5 class="mt-2 text-dark">{{ selectedUserProfile?.name }}</h5>
-                      
+
                       <span class="badge bg-primary">{{ selectedUserProfile?.username }}</span>
                     </div>
                   </div>
@@ -756,7 +756,7 @@
           <table class="table table-bordered table-hover text-center align-middle">
             <thead class="table-light">
               <tr>
-                <th>#</th>
+                <th>S.NO</th>
                 <th>Name</th>
                 <th>Username</th>
                 <th>Phone</th>
@@ -917,7 +917,7 @@
         <div class="modal-content">
           <form (ngSubmit)="AdminSubmitCreateStudent()" #createStudentForm="ngForm">
             <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="createStudentModalLabel">➕ Create New Student</h5>
+              <h5 class="modal-title" id="createStudentModalLabel"> Create New Student</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -1116,13 +1116,26 @@
     <div *ngIf="hasRole('ROLE_HOD')" class="hod-dashboard py-5">
       <!-- Requested Students Table -->
       <div *ngIf="viewSection === 'hodRequested'">
-        <h5 class="text-primary fw-bold mb-3"> Requested Students</h5>
-        
+        <h5 class="text-primary fw-bold mb-3">Students</h5>
+        <div class="mb-3 row g-2 align-items-center">
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder=" Filter by name" [(ngModel)]="filterName"
+              (input)="onRequestedFilterChange()" />
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="onRequestedFilterChange()">
+              <option value="">ALL STATUS</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="PENDING">PENDING</option>
+            </select>
+          </div>
+        </div>
         <ng-container *ngIf="hodRequested?.length && hodRequested.length > 0; else noRequested">
           <table class="table table-bordered table-hover">
             <thead>
               <tr>
-                <th>#</th>
+                <th>S.NO</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -1133,24 +1146,46 @@
             </thead>
             <tbody>
               <tr *ngFor="let student of hodRequested; let i = index">
-                <td>{{ i + 1 }}</td>
+                <td>{{ (coursePage * courseSize) + i + 1 }}</td>
                 <td>{{ student.name }}</td>
                 <td>{{ student.email }}</td>
                 <td>{{ student.phoneNumber }}</td>
                 <td>{{ student.departmentName }}</td>
-                <td>{{ student.status }}</td>
                 <td>
-                  <button class="btn btn-success btn-sm me-2"
-                    (click)="confirmStudentAction(student.id, 'approve')">Approve</button>
-                  <button class="btn btn-danger btn-sm"
-                    (click)="confirmStudentAction(student.id, 'reject')">Reject</button>
+                  <span class="badge" [ngClass]="{
+          'bg-success': student.status === 'APPROVED',
+          'bg-danger': student.status === 'REJECTED',
+          'bg-warning text-dark': student.status === 'PENDING'
+        }">
+                    {{ student.status }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-success btn-sm me-2" (click)="confirmStudentAction(student.id, 'approve')"><i
+                      class="bi bi-patch-check" title="Approve"></i></button>
+                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'reject')"><i
+                      class="bi bi-x-octagon" title="Reject"></i></button>
                 </td>
 
               </tr>
             </tbody>
           </table>
+          <!-- Pagination -->
+          <nav class="d-flex justify-content-center">
+            <ul class="pagination">
+              <li class="page-item" [class.disabled]="requestedPage === 0">
+                <button class="page-link" (click)="onRequestedPageChange(requestedPage - 1)">Previous</button>
+              </li>
+              <li class="page-item" *ngFor="let page of [].constructor(requestedTotalPages); let p = index"
+                [class.active]="requestedPage === p">
+                <button class="page-link" (click)="onRequestedPageChange(p)">{{ p + 1 }}</button>
+              </li>
+              <li class="page-item" [class.disabled]="requestedPage === requestedTotalPages - 1">
+                <button class="page-link" (click)="onRequestedPageChange(requestedPage + 1)">Next</button>
+              </li>
+            </ul>
+          </nav>
 
-          
         </ng-container>
         <ng-template #noRequested>
           <p>No requested students found.</p>
@@ -1166,7 +1201,7 @@
           <div class="modal-content">
             <form (ngSubmit)="submitUpdateStudent()">
               <div class="modal-header">
-                <h5 class="modal-title" id="editStudentModalLabel">✍ Update Student</h5>
+                <h5 class="modal-title" id="editStudentModalLabel"> Update Student</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -1277,7 +1312,7 @@
     </div>
 
     <div *ngIf="viewSection === 'hodCreateStaff'" class="card p-3 mb-4 rounded w-75 mx-auto">
-      <h5 class="text-primary">➕ Add Staff</h5>
+      <h5 class="text-primary"> Add Staff</h5>
       <form (ngSubmit)="submitCreateStaff()" #staffForm="ngForm" novalidate>
 
         <div class="mb-3">
@@ -1367,7 +1402,7 @@
         <button type="submit" class="btn btn-primary">Create Course</button>
       </form>
     </div>
-    <!-- 📚 All Subjects -->
+    <!--  All Subjects -->
 
     <!-- Subject Edit Modal -->
     <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectLabel" aria-hidden="true">
@@ -1395,7 +1430,7 @@
     </div>
 
     <div *ngIf="viewSection === 'hodSubjects'">
-      <h5 class="text-info fw-bold mb-3">📚 All Subjects</h5>
+      <h5 class="text-info fw-bold mb-3"> All Subjects</h5>
       <ng-container *ngIf="hodSubjects?.length && hodSubjects.length > 0; else noSubjects">
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
@@ -1415,9 +1450,9 @@
                 <td>{{ subject.subjectName }}</td>
                 <td>{{ subject.departmentName }}</td>
                 <td>
-                  <button class="btn btn-success btn-sm me-2"
+                  <button class="btn btn-outline-warning btn-sm me-2"
                     (click)="openSubjectEditModal(subject.id, subject.subjectName)">
-                    Edit
+                    <i class="bi bi-pencil-square" title="Edit"></i>
                   </button>
 
                 </td>
@@ -1433,15 +1468,22 @@
 
     <!-- 📘 All Courses -->
     <div *ngIf="viewSection === 'hodCourses'">
-      <h5 class="text-primary fw-bold mb-3">📘 All Courses</h5>
+      <h5 class="text-primary fw-bold mb-3">All Courses</h5>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <input type="text" class="form-control" placeholder="Filter by Course Name" [(ngModel)]="courseSearch"
+            (input)="onCourseFilterChange()" />
+        </div>
+      </div>
       <ng-container *ngIf="hodCourses?.length && hodCourses.length > 0; else noCourses">
         <div class="table-responsive">
           <table class="table table-striped table-bordered">
             <thead class="table-primary">
               <tr>
-                <th>#</th>
+                <th>S.NO</th>
                 <th>Course Name</th>
                 <th>Staff Name</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -1449,14 +1491,72 @@
                 <td>{{ i + 1 }}</td>
                 <td>{{ course.courseName }}</td>
                 <td>{{ course.staffName }}</td>
+                <td>
+                  <button class="btn btn-outline-warning btn-sm me-2" (click)="openUpdateCourseModal(course)"><i
+                      class="bi bi-pencil-square" title="Edit"></i></button>
+                  <button class="btn btn-outline-danger btn-sm me-2" (click)="deleteCourseSwal(course.id)"><i
+                      class="bi bi-trash" title="Edit"></i></button>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <nav class="d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="coursePage === 0">
+              <button class="page-link" (click)="onCoursePageChange(coursePage - 1)">Privious</button>
+            </li>
+            <li class="page-item" *ngFor="let p of [].constructor(courseTotalPages); let pageIndex = index"
+              [class.active]="pageIndex === coursePage">
+              <button class="page-link" (click)="onCoursePageChange(pageIndex)">
+                {{ pageIndex + 1 }}
+              </button>
+            </li>
+            <li class="page-item" [class.disabled]="coursePage === courseTotalPages - 1">
+              <button class="page-link" (click)="onCoursePageChange(coursePage + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
       </ng-container>
       <ng-template #noCourses>
         <p class="text-muted">No courses found.</p>
       </ng-template>
+    </div>
+
+    <!-- Update Course Modal -->
+    <div class="modal fade" id="updateCourseModal" tabindex="-1" aria-labelledby="updateCourseModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form (ngSubmit)="submitUpdatedCourse()" #updateCourseForm="ngForm">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title" id="updateCourseModalLabel"> Update Course</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+              <!-- Course Name (readonly if not editable) -->
+              <div class="mb-3">
+                <label class="form-label">Course Name</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedCourse.courseName" name="courseName"
+                  readonly />
+              </div>
+
+              <!-- Staff Dropdown -->
+              <div class="mb-3">
+                <label class="form-label">Assign Staff</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedCourse.staffName" name="courseName"
+                  readonly />
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-warning">Update</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- 👩‍🏫 All Staff -->
@@ -1522,13 +1622,13 @@
     </div>
 
     <div *ngIf="viewSection === 'hodStaff'">
-      <h5 class="text-primary fw-bold mb-3">👩‍🏫 Staff Members</h5>
+      <h5 class="text-primary fw-bold mb-3">Staff</h5>
       <ng-container *ngIf="hodStaff?.length && hodStaff.length > 0; else noStaff">
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
             <thead class="table-secondary">
               <tr>
-                <th>#</th>
+                <th>S.NO</th>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
@@ -1550,7 +1650,10 @@
                 <td>{{ staff.subjectNme }}</td>
                 <td>{{ staff.courseName }}</td>
                 <td>
-                  <button class="btn btn-success btn-sm me-2" (click)="openUpdateStaffModal(staff)">Edit</button>
+                  <button class="btn btn-outline-warning btn-sm me-2" (click)="openUpdateStaffModal(staff)"><i
+                      class="bi bi-pencil-square" title="Edit"></i></button>
+                  <button class="btn btn-outline-danger btn-sm me-2" (click)="openUpdateStaffModal(staff)"><i
+                      class="bi bi-trash" title="Edit"></i></button>
                 </td>
               </tr>
             </tbody>
@@ -1565,13 +1668,27 @@
 
     <!-- Staff View -->
     <div *ngIf="hasRole('ROLE_STAFF')" class="student-dashboard py-5">
-      <h2 class="mb-4 text-center text-white bg-primary rounded p-3 mt-4"
-        style="background-color: #41B3A2; margin: 20%;">
-        Welcome {{ username }} to Dashboard</h2>
 
       <!-- Common Table -->
       <div *ngIf="viewSection === 'pending'">
-        <h5 class="text-primary fw-bold mb-3">📌 Pending Course Requests</h5>
+        <h5 class="text-primary fw-bold mb-3">Course Students</h5>
+
+        <!-- Filters -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Search by name" [(ngModel)]="studentSearch"
+              (input)="onCourseStudentFilterChange()" />
+          </div>
+          <div class="col-md-6">
+            <select class="form-select" [(ngModel)]="studentStatusFilter" (change)="onCourseStudentFilterChange()">
+              <option value="">ALL STATUS</option>
+              <option value="PENDING">PENDING</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+            </select>
+          </div>
+        </div>
+
         <ng-container *ngIf="pendingStudents?.length && pendingStudents.length > 0; else noPending">
           <table class="table table-bordered table-striped">
             <thead class="table-info">
@@ -1595,85 +1712,38 @@
                 <td>{{student.status}}</td>
                 <td>
                   <button class="btn btn-success btn-sm me-2"
-                    (click)="confirmStudentAction(student.id, 'approveByStaff')">Approve</button>
-                  <button class="btn btn-danger btn-sm"
-                    (click)="confirmStudentAction(student.id, 'rejectByStaff')">Reject</button>
+                    (click)="confirmStudentAction(student.id, 'approveByStaff')"><i
+                      class="bi bi-check-circle"></i></button>
+                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'rejectByStaff')"><i
+                      class="bi bi-x-circle"></i></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </ng-container>
+
+        <nav class="d-flex justify-content-center mt-3">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="studentPage === 0">
+              <button class="page-link" (click)="onCourseStudentPageChange(studentPage - 1)">Previous</button>
+            </li>
+            <li class="page-item" *ngFor="let p of [].constructor(studentTotalPages); let i = index"
+              [class.active]="i === studentPage">
+              <button class="page-link" (click)="onCourseStudentPageChange(i)">{{ i + 1 }}</button>
+            </li>
+            <li class="page-item" [class.disabled]="studentPage === studentTotalPages - 1">
+              <button class="page-link" (click)="onCourseStudentPageChange(studentPage + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
+
         <ng-template #noPending>
           <p>No pending students found.</p>
         </ng-template>
       </div>
 
-      <!-- Approved Students -->
-      <div *ngIf="viewSection === 'approved'">
-        <h5 class="text-success fw-bold mb-3">✅ Approved Students</h5>
-        <ng-container *ngIf="approvedStudents?.length && approvedStudents.length > 0; else noApproved">
-          <table class="table table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Course Name</th>
-                <th>Department</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let student of approvedStudents let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ student.studentName }}</td>
-                <td>{{ student.email }}</td>
-                <td>{{ student.courseName }}</td>
-                <td>{{ student.departmentName }}</td>
-                <td>{{ student.status }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-container>
-        <ng-template #noApproved>
-          <p>No approved students found.</p>
-        </ng-template>
-      </div>
-
-      <!-- Rejected Students -->
-      <div *ngIf="viewSection === 'rejected'">
-        <h5 class="text-danger fw-bold mb-3">Rejected Students</h5>
-        <ng-container *ngIf="rejectedStudents?.length && rejectedStudents.length > 0; else noRejected">
-
-          <table class="table table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Course Name</th>
-                <th>Department</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let student of rejectedStudents; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ student.studentName }}</td>
-                <td>{{ student.email }}</td>
-                <td>{{ student.courseName }}</td>
-                <td>{{ student.departmentName }}</td>
-                <td>{{ student.status }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-container>
-        <ng-template #noRejected>
-          <p>No rejected students found.</p>
-        </ng-template>
-      </div>
       <div *ngIf="viewSection === 'subjectStudents'">
-        <h5 class="text-info fw-bold mb-3">📚 Students Under Your Subjects</h5>
+        <h5 class="text-info fw-bold mb-3">Students Under Your Subject</h5>
         <ng-container *ngIf="subjectStudents?.length && subjectStudents.length > 0; else noSubjectStudents">
           <table class="table table-bordered table-hover">
             <thead>
@@ -1698,134 +1768,204 @@
           <p>No students found under your subjects.</p>
         </ng-template>
       </div>
-      <div *ngIf="viewSection === 'staffInfo'">
-        <h5 class="text-dark fw-bold mb-3">👨‍🏫 My Profile</h5>
-        <div class="list-group ">
-          <p><strong>Name:</strong> {{ staffInfo.name }}</p>
-          <p><strong>Age:</strong> {{ staffInfo.age }}</p>
-          <p><strong>Email:</strong> {{ staffInfo.email }}</p>
-          <p><strong>Department:</strong> {{ staffInfo.departmentName }}</p>
-          <p><strong>Gender:</strong> {{ staffInfo.gender }}</p>
-          <p><strong>Phone Number:</strong> {{ staffInfo.phoneNumber }}</p>
-          <p><strong>Subject Name:</strong> {{ staffInfo.subjectName?.name || "Not Assigned" }}</p>
-          <p><strong>Department Name:</strong> {{ staffInfo.departmentName }}</p>
-          <p><strong>Course Name:</strong> {{ staffInfo.courseName }}</p>
+      <div *ngIf="viewSection === 'staffInfo'" class="card shadow-sm border-0 mb-4 bg-white p-4">
+        <div class="row g-4 align-items-center">
+          <!-- Profile Image -->
+          <div class="col-md-4 text-center">
+            <img
+              [src]="staffInfo.profileImagePath ? 'http://localhost:8080' + staffInfo.profileImagePath : 'http://localhost:8080/uploads/assets/default-profile.png'"
+              alt="Profile Image" class="img-fluid rounded-circle border shadow-sm"
+              style="width: 150px; height: 150px; object-fit: cover;" />
+            <h5 class="mt-3 mb-0 text-primary fw-bold">{{ staffInfo.name }}</h5>
+            <small class="text-muted">{{ staffInfo.email }}</small>
+          </div>
+
+          <!-- Profile Info -->
+          <div class="row g-3">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <p class="mb-1"><strong>Age:</strong> {{ staffInfo.age }}</p>
+                <p class="mb-1"><strong>Gender:</strong> {{ staffInfo.gender }}</p>
+                <p class="mb-1"><strong>Phone:</strong> {{ staffInfo.phoneNumber }}</p>
+              </div>
+              <div class="row g-3">
+                <p class="mb-1"><strong>Department:</strong> {{ staffInfo.departmentName }}</p>
+                <p class="mb-1"><strong>Subject:</strong> {{ staffInfo.subjectName.toUpperCase() || 'Not Assigned' }}</p>
+                <p class="mb-1"><strong>Course:</strong> {{ staffInfo.courseName.toUpperCase() || 'Not Assigned' }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- All Studens-->
-      <div *ngIf="viewSection === 'allStudents'">
-        <h5 class="text-secondary fw-bold mb-3">📋 All Course Request Students</h5>
-        <ng-container *ngIf="allStudents?.length && allStudents.length > 0; else noStudents">
-          <table class="table table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>S.NO</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Department</th>
-                <th>Course</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let student of allStudents; let i = index">
-                <td>{{i+1}}</td>
-                <td>{{ student.studentName}}</td>
-                <td>{{ student.email }}</td>
-                <td>{{ student.departmentName }}</td>
-                <td>{{ student.courseName }}</td>
-                <td>{{ student.status }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-container>
-        <ng-template #noStudents>
-          <p>No students found under your subjects.</p>
-        </ng-template>
-      </div>
+
+
     </div>
 
-    <!-- Student View -->
+    <!-- Student View ---------------------------------------------------------------------------------------------------->
     <div *ngIf="hasRole('ROLE_STUDENT')" class="student-dashboard py-5">
-      <h2 class="mb-4 text-center text-wieght  rounded p-3 mt-4" style="background-color: #6528F7; margin: 20%;">🎓
-        Student Dashboard
-      </h2>
 
       <!-- Profile Section -->
-      <div *ngIf="viewSection === 'profile'" class="card p-3 mb-4">
-        <h5 class="mb-3" style="color: #41B3A2;">👤 Profile</h5>
-        <ng-container *ngIf="studentProfile; else loadingProfile">
-          <ul class="list-group">
-            <div class="col-md-4 text-center mb-3">
-              <strong>Profile Image:</strong><br />
-              <img
-                [src]="studentProfile?.profileImagePath ? 'http://localhost:8080' + studentProfile.profileImagePath : 'http://localhost:8080' + '/uploads/assets/default-profile.png'"
-                class="img-thumbnail rounded-circle mt-2 profile-thumbnail" alt="Profile Image" />
+      <!-- Profile Section -->
+      <div *ngIf="viewSection === 'profile'" class="card shadow-sm border-0 mb-4 mt-4">
+        <div class="card-body">
+          <h4 class="mb-4 text-primary d-flex align-items-center">
+            <i class="bi bi-person-circle me-2 fs-4"></i> Student Profile
+          </h4>
+
+          <ng-container *ngIf="studentProfile; else loadingProfile">
+            <div class="row g-4">
+              <!-- Profile Image -->
+              <div class="col-md-4 text-center">
+                <img
+                  [src]="studentProfile?.profileImagePath ? 'http://localhost:8080' + studentProfile.profileImagePath : 'http://localhost:8080/uploads/assets/default-profile.png'"
+                  class="img-fluid rounded-circle border border-3 border-primary profile-thumbnail" alt="Profile Image"
+                  style="width: 150px; height: 150px; object-fit: cover;" />
+                <h5 class="mt-3 text-dark">{{ studentProfile?.name }}</h5>
+                <p class="text-muted mb-0">{{ studentProfile?.email }}</p>
+                <p class="text-muted">{{ studentProfile?.phoneNumber }}</p>
+              </div>
+
+              <!-- Profile Info -->
+              <div class="col-md-8">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <div class="border rounded p-2 bg-light">
+                      <strong class="text-muted">Department</strong>
+                      <div class="fw-semibold">{{ studentProfile?.departmentName || 'N/A' }}</div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="border rounded p-2 bg-light">
+                      <strong class="text-muted">Course</strong>
+                      <div class="fw-semibold">{{ studentProfile?.courseName || 'N/A' }}</div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="border rounded p-2 bg-light">
+                      <strong class="text-muted">Subject</strong>
+                      <div class="fw-semibold">{{ studentProfile?.subjectName || 'N/A' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <li class="list-group-item"><strong>Name:</strong> {{ studentProfile?.name }}</li>
-            <li class="list-group-item"><strong>Email:</strong> {{ studentProfile?.email }}</li>
-            <li class="list-group-item"><strong>Phone:</strong> {{ studentProfile?.phoneNumber }}</li>
-            <li class="list-group-item"><strong>Department:</strong> {{ studentProfile?.departmentName }}
-            </li>
-            <li class="list-group-item"><strong>Course Name:</strong> {{ studentProfile?.courseName }}
-            </li>
-            <li class="list-group-item"><strong>Subject Name:</strong> {{ studentProfile?.subjectName }}
-            </li>
-          </ul>
-        </ng-container>
-        <ng-template #loadingProfile>
-          <p>Loading profile...</p>
-        </ng-template>
+          </ng-container>
+
+          <ng-template #loadingProfile>
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading profile...</p>
+            </div>
+          </ng-template>
+        </div>
       </div>
+
 
       <!-- Courses Section -->
-      <div *ngIf="viewSection === 'courses'" class="card p-3 mb-4">
-        <h5 class="mb-3" style="color: #6a1b9a;">📚 Available Courses</h5>
+      <!-- Available Courses -->
+      <!-- Available Courses (Grid Layout) -->
+      <div *ngIf="viewSection === 'courses'" class="card shadow-sm border-0 p-4 mb-4">
+        <h4 class="mb-4 text-purple d-flex align-items-center">
+          <i class="bi bi-book-fill me-2 fs-5"></i> Available Courses
+        </h4>
+        <!-- Filter Input -->
+        <div class="mb-3 row g-2 align-items-center">
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder=" Search courses" [(ngModel)]="courseSearch"
+              (input)="onCourseFilterChange()" />
+          </div>
+        </div>
+
         <ng-container *ngIf="courseList?.length && courseList.length > 0; else noCourses">
-          <ul class="list-group">
-            <li *ngFor="let course of courseList; let i = index"
-              class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{{ i + 1 }}:</strong> {{ course.courseName }}<br />
-                <small>👨‍🏫 {{ course.staffName || 'Staff Not Assigned' }}</small>
+          <div class="row g-3">
+            <div *ngFor="let course of courseList; let i = index" class="col-12 col-sm-6 col-md-4 col-lg-3">
+              <div class="card course-card h-100 shadow-sm border-0 p-3">
+                <div class="card-body d-flex flex-column justify-content-between">
+                  <div>
+                    <h6 class="fw-bold  mb-2">
+                      <i class="bi bi-journal-bookmark-fill me-2"></i>{{ course.courseName }}
+                    </h6>
+                    <p class=" small">
+                      <i class="bi bi-person-circle me-1"></i>
+                      {{ course.staffName || 'Staff Not Assigned' }}
+                    </p>
+                  </div>
+                  <button class="btn btn-outline-warning  btn-sm w-50 mt-3" (click)="confirmCourseEnroll(course.id)">
+                    <i class="bi bi-check-circle-fill me-1"></i> Enroll
+                  </button>
+                </div>
               </div>
-              <button class="btn btn-warning " (click)="confirmCourseEnroll(course.id)"><svg
-                  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-pin-angle-fill fs-2" viewBox="0 0 16 16">
-                  <path
-                    d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a6 6 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707s.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a6 6 0 0 1 1.013.16l3.134-3.133a3 3 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146" />
-                </svg>Enroll</button>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Pagination Controls -->
+        <nav class="d-flex justify-content-center mt-3">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="coursePage === 0">
+              <button class="page-link" (click)="onStudCoursePageChange(coursePage - 1)">Previous</button>
+            </li>
+            <li class="page-item" *ngFor="let p of [].constructor(courseTotalPages); let i = index"
+              [class.active]="coursePage === i">
+              <button class="page-link" (click)="onStudCoursePageChange(i)">{{ i + 1 }}</button>
+            </li>
+            <li class="page-item" [class.disabled]="coursePage === courseTotalPages - 1">
+              <button class="page-link" (click)="onStudCoursePageChange(coursePage + 1)">Next</button>
             </li>
           </ul>
-        </ng-container>
+        </nav>
+        <!-- No Courses Template -->
         <ng-template #noCourses>
-          <p>No courses available at the moment.</p>
+          <div class="alert alert-info text-center mt-3">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            No courses available at the moment.
+          </div>
         </ng-template>
       </div>
+
 
       <!-- Department Info Section -->
-      <div *ngIf="viewSection === 'department'" class="card p-3 mb-4">
-        <h5 class="mb-3" style="color: #6a1b9a;">🏫 Department Information</h5>
+      <!-- Department Info Section (Modern Style) -->
+      <div *ngIf="viewSection === 'department'" class="card shadow-sm border-0 p-4 mb-4 bg-light">
+        <h4 class="mb-4 text-purple d-flex align-items-center">
+          <i class="bi bi-building me-2 fs-5"></i> Department Information
+        </h4>
 
         <ng-container *ngIf="departmentInfo; else loadingDept">
-          <p><strong>Department Name:</strong> {{ departmentInfo?.departmentName }}</p>
-          <p><strong>HOD:</strong> {{ departmentInfo?.hodName }} ({{ departmentInfo?.hodEmail }})</p>
-          <p><strong>Staff Members:</strong></p>
-          <ul class="list-group">
-            <ng-container *ngIf="departmentInfo.staffNames?.length > 0; else noStaff">
-              <li *ngFor="let staff of departmentInfo.staffNames; let i = index" class="list-group-item">
-                {{ i + 1 }}. {{ staff }}
-              </li>
-            </ng-container>
-            <ng-template #noStaff>
-              <li class="list-group-item text-muted">Not Assigned</li>
-            </ng-template>
-          </ul>
+          <div class="mb-3">
+            <p class="mb-1"><strong class="text-dark">Department:</strong> {{ departmentInfo.departmentName }}</p>
+            <p class="mb-1">
+              <strong class="text-dark">Head of Department:</strong>
+              {{ departmentInfo.hodName }} <small class="text-muted">({{ departmentInfo.hodEmail }})</small>
+            </p>
+          </div>
+
+          <div>
+            <h6 class="text-secondary fw-bold"> Staff Members</h6>
+            <ul class="list-group list-group-flush shadow-sm rounded">
+              <ng-container *ngIf="departmentInfo.staffNames?.length > 0; else noStaff">
+                <li *ngFor="let staff of departmentInfo.staffNames; let i = index"
+                  class="list-group-item d-flex justify-content-start align-items-center staff-hover">
+                  <i class="bi bi-person-fill me-2 text-primary"></i>
+                  {{ i + 1 }}. {{ staff }}
+                </li>
+              </ng-container>
+              <ng-template #noStaff>
+                <li class="list-group-item text-muted">No Staff Found</li>
+              </ng-template>
+            </ul>
+          </div>
         </ng-container>
+
         <ng-template #loadingDept>
-          <p>No department info available...</p>
+          <div class="alert alert-info mt-3">
+            <i class="bi bi-info-circle me-2"></i> No department info available...
+          </div>
         </ng-template>
       </div>
+
     </div>
   </div>
 </body>

@@ -1,10 +1,4 @@
-.student-dashboard {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding-top: 160px;
-  padding: 5%;
-  margin-left: 12%;
-}
+
 
 .text-center{
   padding-top: 25px;
@@ -188,3 +182,39 @@ img.rounded-circle {
 .bg-gradient-info {
   background: linear-gradient(135deg, #17a2b8, #72d5e2);
 }
+.profile-thumbnail {
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+.text-purple {
+  color: #6a1b9a;
+}
+.text-purple {
+  color: #6a1b9a;
+}
+
+.course-card {
+  background-color: #471396; /* Light blue-gray background */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  color:#f8f9fc;
+  border-radius: 10px;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(125, 41, 176, 0.2);
+  color:#FFCC00;
+  background-color: #090040;
+}
+.text-purple {
+  color: #6a1b9a;
+}
+
+.staff-hover {
+  transition: background-color 0.3s ease;
+}
+
+.staff-hover:hover {
+  background-color: #f3f4f6;
+  cursor: default;
+}
+

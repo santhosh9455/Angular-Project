@@ -20,53 +20,29 @@
     <!-- HOD View -->
     <ng-container *ngIf="hasRole('ROLE_HOD')">
       <li (click)="selectSection('hodRequested')" [class.selected]="activeSection === 'hodRequested'">
-        <i class="bi bi-person-lines-fill me-2 fs-5"></i> Requested Students
-      </li>
-      <li (click)="selectSection('hodApproved')" [class.selected]="activeSection === 'hodApproved'">
-        <i class="bi bi-check-circle-fill me-2 fs-5 text-success"></i> Approved Students
-      </li>
-      <li (click)="selectSection('hodRejected')" [class.selected]="activeSection === 'hodRejected'">
-        <i class="bi bi-x-circle-fill me-2 fs-5 text-danger"></i> Rejected Students
-      </li>
-      <li (click)="selectSection('hodCreateStaff')" [class.selected]="activeSection === 'hodCreateStaff'">
-        <i class="bi bi-person-plus-fill me-2 fs-5"></i> Create Staff
-      </li>
-      <li (click)="selectSection('hodCreateSubject')" [class.selected]="activeSection === 'hodCreateSubject'">
-        <i class="bi bi-journal-plus me-2 fs-5"></i> Create Subject
-      </li>
-      <li (click)="selectSection('hodCreateCourse')" [class.selected]="activeSection === 'hodCreateCourse'">
-        <i class="bi bi-bookmark-plus-fill me-2 fs-5"></i> Create Course
+        <i class="bi bi-person-lines-fill me-2 fs-5"></i>Students
       </li>
       <li (click)="selectSection('hodStaff')" [class.selected]="activeSection === 'hodStaff'">
-        <i class="bi bi-people-fill me-2 fs-5"></i> All Staff
+        <i class="bi bi-people-fill me-2 fs-5"></i>Staff
       </li>
       <li (click)="selectSection('hodCourses')" [class.selected]="activeSection === 'hodCourses'">
-        <i class="bi bi-journals me-2 fs-5"></i> All Courses
+        <i class="bi bi-journals me-2 fs-5"></i>Courses
       </li>
       <li (click)="selectSection('hodSubjects')" [class.selected]="activeSection === 'hodSubjects'">
-        <i class="bi bi-journal-text me-2 fs-5"></i> All Subjects
+        <i class="bi bi-journal-text me-2 fs-5"></i>Subjects
       </li>
     </ng-container>
 
     <!-- Staff View -->
     <ng-container *ngIf="hasRole('ROLE_STAFF')">
       <li (click)="selectSection('pending')" [class.selected]="activeSection === 'pending'">
-        <i class="bi bi-hourglass-split me-2 fs-5"></i> Course Requests
-      </li>
-      <li (click)="selectSection('approved')" [class.selected]="activeSection === 'approved'">
-        <i class="bi bi-check-circle-fill me-2 fs-5 text-success"></i> Approved Students
-      </li>
-      <li (click)="selectSection('rejected')" [class.selected]="activeSection === 'rejected'">
-        <i class="bi bi-x-circle-fill me-2 fs-5 text-danger"></i> Rejected Students
+        <i class="bi bi-mortarboard-fill me-2 fs-5"></i> Course
       </li>
       <li (click)="selectSection('subjectStudents')" [class.selected]="activeSection === 'subjectStudents'">
-        <i class="bi bi-people-fill me-2 fs-5"></i> Subject Students
+        <i class="bi bi-people-fill me-2 fs-5"></i> Subject
       </li>
       <li (click)="selectSection('staffInfo')" [class.selected]="activeSection === 'staffInfo'">
         <i class="bi bi-person-circle me-2 fs-5"></i> My Profile
-      </li>
-      <li (click)="selectSection('allStudents')" [class.selected]="activeSection === 'allStudents'">
-        <i class="bi bi-mortarboard-fill me-2 fs-5"></i> All Students
       </li>
     </ng-container>
 
