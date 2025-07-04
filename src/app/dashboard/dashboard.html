@@ -63,7 +63,7 @@
               <div class="card shadow-lg rounded-4 border-0">
                 <div class="card-body d-flex flex-column">
                   <h5 class="card-title text-primary fw-bold mb-3 text-center">
-                    📊 Department-wise Student Count
+                    Department-wise Student Count
                   </h5>
                   <div class="position-relative" style="height: 400px;">
                     <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
@@ -80,7 +80,7 @@
       <!-- Create User -->
 
       <div *ngIf="viewSection === 'adminCreateUser'" class="card p-3 mb-4">
-        <h5 class="text-primary">➕ Create User</h5>
+        <h5 class="text-primary"> Create New User</h5>
         <form (ngSubmit)="submitCreateUser()">
           <div class="mb-3">
             <label class="form-label">Username</label>
@@ -103,33 +103,45 @@
       </div>
 
       <!-- Edit User Modal -->
+      <!-- Edit User Modal -->
       <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header bg-info text-white">
+            <div class="modal-header bg-warning text-white">
               <h5 class="modal-title icon-edit" id="editUserModalLabel">Edit User</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form (ngSubmit)="submitUserUpdate()">
+
+            <!-- Form Binding -->
+            <form #editForm="ngForm" (ngSubmit)="submitUserUpdate()" novalidate>
               <div class="modal-body">
+                <!-- Username -->
                 <div class="mb-3">
                   <label class="form-label">Username</label>
-                  <input type="text" class="form-control" [(ngModel)]="editUser.username" name="editUsername" required>
+                  <input type="text" class="form-control" name="editUsername" [(ngModel)]="editUser.username"
+                    required />
                 </div>
+
+                <!-- Password -->
                 <div class="mb-3">
                   <label class="form-label">Password</label>
-                  <input type="password" class="form-control" [(ngModel)]="editUser.password" name="editPassword"
-                    required>
+                  <input type="password" class="form-control" name="editPassword" [(ngModel)]="editUser.password"
+                    required />
                 </div>
+
+                <!-- Role -->
                 <div class="mb-3">
                   <label class="form-label">Role Name</label>
-                  <select name="roleid" class="form-select" [(ngModel)]="editUser.roleId" name="editRole" required>
-                    <option value="">-- Select Role --</option>
-                    <option *ngFor="let role of roles" [value]="role.id">{{ role.role?.startsWith('ROLE_') ?
-                      role.role.substring(5) : role.role || 'Unknown' }}</option>
+                  <select class="form-select" name="roleId" [(ngModel)]="editUser.roleId" required>
+                    <option [ngValue]="null">--Select Role--</option>
+                    <option *ngFor="let role of roles" [ngValue]="role.id">
+                      {{ role.role.replace('ROLE_', '') }}
+                    </option>
                   </select>
                 </div>
               </div>
+
+              <!-- Footer -->
               <div class="modal-footer">
                 <button type="submit" class="btn btn-primary">Update User</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -145,7 +157,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content shadow">
             <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title" id="createUserModalLabel">➕ Create New User</h5>
+              <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                 aria-label="Close"></button>
             </div>
@@ -178,7 +190,7 @@
                   <div class="col-md-6">
                     <label class="form-label">Role</label>
                     <select class="form-select" [(ngModel)]="newUser.roleId" name="roleId" required>
-                      <option [ngValue]="null">Select Role</option>
+                      <option [ngValue]="null">--Select Role--</option>
                       <option *ngFor="let role of roles" [ngValue]="role.id">
                         {{ role.role.replace('ROLE_', '') }}
                       </option>
@@ -372,7 +384,7 @@
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow">
               <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="createUserModalLabel">➕ Create HOD / Staff</h5>
+                <h5 class="modal-title" id="createUserModalLabel"> Create HOD / Staff</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                   aria-label="Close"></button>
               </div>
@@ -468,21 +480,19 @@
                     <!-- Subject (optional) -->
                     <div class="col-md-6">
                       <label class="form-label">Subject</label>
-                      <select class="form-select" [(ngModel)]="newUserPro.subjectId" name="subjectId">
-                        <option value="">-- Select Subject --</option>
-                        <option *ngFor="let subject of subjects" [value]="subject.id">{{
-                          subject.subjectName }}</option>
-                      </select>
+                      <ng-select class="form-select" [items]="subjects" bindLabel="subjectName" bindValue="id"
+                         [(ngModel)]="newUserPro.subjectId" name="subjectId"
+                        [searchable]="true" [clearable]="true">
+                      </ng-select>
                     </div>
 
                     <!-- Course (optional) -->
                     <div class="col-md-6">
                       <label class="form-label">Course</label>
-                      <select class="form-select" [(ngModel)]="newUserPro.courseId" name="courseId">
-                        <option value="">-- Select Course --</option>
-                        <option *ngFor="let course of Courses" [value]="course.id">{{ course.courseName }}
-                        </option>
-                      </select>
+                      <ng-select class="form-select" [items]="Courses" bindLabel="courseName" bindValue="id"
+                         [(ngModel)]="newUserPro.courseId" name="courseId"
+                        [searchable]="true" [clearable]="true">
+                      </ng-select>
                     </div>
 
                   </div>
@@ -539,11 +549,11 @@
                     <!-- Gender -->
                     <div class="col-md-6">
                       <label for="editGender" class="form-label">Gender</label>
-                      <select id="editGender" name="gender" class="form-select" [(ngModel)]="editUserPro.gender"
-                        required #gender="ngModel">
-                        <option value="">Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                      <select class="form-select" name="gender" required [(ngModel)]="editUserPro.gender"
+                        #gender="ngModel">
+                        <option [ngValue]="null">-- Select Gender --</option>
+                        <option [ngValue]="'Male'">Male</option>
+                        <option [ngValue]="'Female'">Female</option>
                       </select>
 
                     </div>
@@ -569,23 +579,21 @@
                     </div>
 
                     <!-- Subject -->
-                    <div class="col-md-6">
-                      <label for="editSubject" class="form-label">Subject</label>
-                      <select id="editSubject" name="subjectId" class="form-select" [(ngModel)]="editUserPro.subjectId">
-                        <option [ngValue]="null">-- Optional --</option>
-                        <option *ngFor="let subj of subjects" [ngValue]="subj.id">{{ subj.subjectName }}
-                        </option>
-                      </select>
+                     <div class="col-md-6">
+                      <label class="form-label">Subject</label>
+                      <ng-select class="form-select" [items]="subjects" bindLabel="subjectName" bindValue="id"
+                         [(ngModel)]="editUserPro.subjectId" name="subjectId"
+                        [searchable]="true" [clearable]="true">
+                      </ng-select>
                     </div>
 
                     <!-- Course -->
                     <div class="col-md-6">
                       <label for="editCourse" class="form-label">Course</label>
-                      <select id="editCourse" name="courseId" class="form-select" [(ngModel)]="editUserPro.courseId">
-                        <option [ngValue]="null">-- Optional --</option>
-                        <option *ngFor="let course of courses" [ngValue]="course.id">{{ course.courseName
-                          }}</option>
-                      </select>
+                      <ng-select class="form-select" [items]="Courses" bindLabel="courseName" bindValue="id"
+                         [(ngModel)]="editUserPro.courseId" name="courseId"
+                        [searchable]="true" [clearable]="true">
+                      </ng-select>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">User Name</label>
@@ -616,7 +624,7 @@
 
               <!-- Modal Header -->
               <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">🎓 Staff / HOD Profile</h5>
+                <h5 class="modal-title"> Staff / HOD Profile</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
 
@@ -723,7 +731,7 @@
       <div *ngIf="viewSection === 'adminAllStudents'" class="px-3 py-2">
         <!-- Header and Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="text-primary">🎓 All Students</h5>
+          <h5 class="text-primary"> All Students</h5>
           <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createStudentModal">
             <i class="bi bi-person-plus-fill me-1"></i> Add Student
           </button>
@@ -820,8 +828,8 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <form (ngSubmit)="AdminsubmitUpdateStudent()">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editStudentModalLabel">✍ Update Student</h5>
+              <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="editStudentModalLabel"> Update Student</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -872,18 +880,29 @@
                     <label class="form-label">Subject</label>
                     <select class="form-select" [(ngModel)]="studentEdit.subjectId" name="studentSubject">
                       <option value="">-- Select Subject --</option>
-                      <option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.subjectName
+                      <option *ngFor="let subject of hodSubjects" [value]="subject.id">{{ subject.subjectName
                         }}</option>
                     </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Status</label>
-                    <input type="text" class="form-control" [(ngModel)]="studentEdit.active" name="studentStatus" />
+                    <select class="form-select" name="status" [(ngModel)]="studentEdit.status" id="status">
+                      <option value="">--Select Status--</option>
+                      <option value="PENDING">PENDING</option>
+                      <option value="APPROVED">APPROVED</option>
+                      <option value="REJECTED">REJECTED</option>
+                    </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Course Status</label>
-                    <input type="text" class="form-control" [(ngModel)]="studentEdit.courseStatus"
-                      name="studentCourseStatus" />
+                    <select class="form-select" name="courseStatus" [(ngModel)]="studentEdit.courseStatus"
+                      id="courseStatus">
+                      <option value="">--Select Course Status--</option>
+                      <option value="NOT_REQUESTED">NOT_REQUESTED</option>
+                      <option value="APPROVED">APPROVED</option>
+                      <option value="REJECTED">REJECTED</option>
+                      <option value="PENDING">PENDING</option>
+                    </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Profile Image</label>
@@ -1046,10 +1065,6 @@
                     <div class="row g-3">
                       <!-- Column 1 -->
                       <div class="col-sm-6">
-                        <p class="mb-1 text-muted small">Student ID</p>
-                        <h6>{{ selectedStudent?.id }}</h6>
-                      </div>
-                      <div class="col-sm-6">
                         <p class="mb-1 text-muted small">Username</p>
                         <h6>{{ selectedStudent?.username }}</h6>
                       </div>
@@ -1154,19 +1169,28 @@
                 <td>
                   <span class="badge" [ngClass]="{
           'bg-success': student.status === 'APPROVED',
-          'bg-danger': student.status === 'REJECTED',
-          'bg-warning text-dark': student.status === 'PENDING'
+          'bg-secondary': student.status === 'REJECTED',
+          'bg-danger text-dark': student.status === 'PENDING'
         }">
                     {{ student.status }}
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-success btn-sm me-2" (click)="confirmStudentAction(student.id, 'approve')"><i
-                      class="bi bi-patch-check" title="Approve"></i></button>
-                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'reject')"><i
-                      class="bi bi-x-octagon" title="Reject"></i></button>
+                  <button class="btn btn-outline-success btn-sm me-2"
+                    (click)="confirmStudentAction(student.id, 'approve')"><i class="bi bi-patch-check"
+                      title="Approve"></i></button>
+                  <button class="btn btn-outline-secondary   btn-sm me-2"
+                    (click)="confirmStudentAction(student.id, 'reject')"><i class="bi bi-x-octagon"
+                      title="Reject"></i></button>
+                  <button class="btn btn-outline-info btn-sm me-2" (click)="viewStudentProfile(student)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="btn btn-outline-warning btn-sm me-2" (click)="openEditStudentModal(student)"><i
+                      class="bi bi-pencil-square" title="Edit"></i>
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" (click)="openHodStudentDeleteModel(student.id)"><i
+                      class="bi bi-trash3-fill" title="Delete"></i></button>
                 </td>
-
               </tr>
             </tbody>
           </table>
@@ -1744,9 +1768,18 @@
 
       <div *ngIf="viewSection === 'subjectStudents'">
         <h5 class="text-info fw-bold mb-3">Students Under Your Subject</h5>
+
+        <!-- Filters -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Filter by name" [(ngModel)]="subjectStudentFilterName"
+              (input)="onSubjectStudentFilterChange()" />
+          </div>
+        </div>
+
         <ng-container *ngIf="subjectStudents?.length && subjectStudents.length > 0; else noSubjectStudents">
           <table class="table table-bordered table-hover">
-            <thead>
+            <thead class="table-light">
               <tr>
                 <th>#</th>
                 <th>Name</th>
@@ -1756,49 +1789,77 @@
             </thead>
             <tbody>
               <tr *ngFor="let student of subjectStudents; let i = index">
-                <td>{{ i + 1 }}</td>
+                <td>{{ subjectStudentPage * subjectStudentSize + i + 1 }}</td>
                 <td>{{ student.name }}</td>
                 <td>{{ student.email }}</td>
-                <td>{{student.departmentName}}</td>
+                <td>{{ student.departmentName }}</td>
               </tr>
             </tbody>
           </table>
+
+          <!-- Pagination -->
+          <nav class="d-flex justify-content-center">
+            <ul class="pagination">
+              <li class="page-item" [class.disabled]="subjectStudentPage === 0">
+                <button class="page-link" (click)="onSubjectStudentPageChange(subjectStudentPage - 1)">Previous</button>
+              </li>
+              <li class="page-item" *ngFor="let p of [].constructor(subjectStudentTotalPages); let pageIndex = index"
+                [class.active]="subjectStudentPage === pageIndex">
+                <button class="page-link" (click)="onSubjectStudentPageChange(pageIndex)">
+                  {{ pageIndex + 1 }}
+                </button>
+              </li>
+              <li class="page-item" [class.disabled]="subjectStudentPage === subjectStudentTotalPages - 1">
+                <button class="page-link" (click)="onSubjectStudentPageChange(subjectStudentPage + 1)">Next</button>
+              </li>
+            </ul>
+          </nav>
         </ng-container>
+
         <ng-template #noSubjectStudents>
-          <p>No students found under your subjects.</p>
+          <div class="alert alert-info text-center mt-3">
+            No students found under your subjects.
+          </div>
         </ng-template>
       </div>
-      <div *ngIf="viewSection === 'staffInfo'" class="card shadow-sm border-0 mb-4 bg-white p-4">
+
+      <div *ngIf="viewSection === 'staffInfo'" class="card shadow-sm border-0 mb-4 bg-light p-4">
         <div class="row g-4 align-items-center">
-          <!-- Profile Image -->
+          <!-- Profile Image & Basic Info -->
           <div class="col-md-4 text-center">
             <img
               [src]="staffInfo.profileImagePath ? 'http://localhost:8080' + staffInfo.profileImagePath : 'http://localhost:8080/uploads/assets/default-profile.png'"
-              alt="Profile Image" class="img-fluid rounded-circle border shadow-sm"
+              alt="Profile Image" class="img-fluid rounded-circle border border-3 border-primary shadow"
               style="width: 150px; height: 150px; object-fit: cover;" />
-            <h5 class="mt-3 mb-0 text-primary fw-bold">{{ staffInfo.name }}</h5>
-            <small class="text-muted">{{ staffInfo.email }}</small>
+            <h5 class="mt-3 text-primary fw-bold mb-1">{{ staffInfo.name }}</h5>
+            <p class="text-muted mb-0">{{ staffInfo.email }}</p>
           </div>
 
-          <!-- Profile Info -->
-          <div class="row g-3">
-            <div class="row g-3">
-              <div class="col-sm-6">
-                <p class="mb-1"><strong>Age:</strong> {{ staffInfo.age }}</p>
-                <p class="mb-1"><strong>Gender:</strong> {{ staffInfo.gender }}</p>
-                <p class="mb-1"><strong>Phone:</strong> {{ staffInfo.phoneNumber }}</p>
+          <!-- Details Section -->
+          <div class="col-md-8">
+            <div class="row row-cols-1 row-cols-sm-2 g-3">
+              <div class="col">
+                <div class="bg-white rounded shadow-sm p-3 h-100">
+                  <h4 class="mb-3 text-primary">Staff Personal Details</h4>
+                  <p class="mb-1"><strong>Age:</strong> {{ staffInfo.age }}</p>
+                  <p class="mb-1"><strong>Gender:</strong> {{ staffInfo.gender }}</p>
+                  <p class="mb-1"><strong>Phone:</strong> {{ staffInfo.phoneNumber }}</p>
+                </div>
               </div>
-              <div class="row g-3">
-                <p class="mb-1"><strong>Department:</strong> {{ staffInfo.departmentName }}</p>
-                <p class="mb-1"><strong>Subject:</strong> {{ staffInfo.subjectName.toUpperCase() || 'Not Assigned' }}</p>
-                <p class="mb-1"><strong>Course:</strong> {{ staffInfo.courseName.toUpperCase() || 'Not Assigned' }}</p>
+              <div class="col">
+                <div class="bg-white rounded shadow-sm p-3 h-100">
+                  <h4 class="mb-3 text-primary">Academic Details</h4>
+                  <p class="mb-1"><strong>Department:</strong> {{ staffInfo.departmentName }}</p>
+                  <p class="mb-1"><strong>Subject:</strong>
+                    {{ staffInfo.subjectNme?.toUpperCase() || 'Not Assigned' }}</p>
+                  <p class="mb-1"><strong>Course:</strong>
+                    {{ staffInfo.courseName?.toUpperCase() || 'Not Assigned' }}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-
     </div>
 
     <!-- Student View ---------------------------------------------------------------------------------------------------->

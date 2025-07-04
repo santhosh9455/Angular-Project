@@ -6,20 +6,40 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ToastService } from '../services/toast.service';
 import { ToastComponent } from "../components/toast/toast";
 import { SidebarComponent } from '../components/sidebar/sidebar';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, NgModel } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { from } from 'rxjs';
+import { from, Subject } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { ActivatedRoute } from '@angular/router';
-
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
+import { debounceTime, switchMap } from 'rxjs/operators';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Navbar, CommonModule, ToastComponent, SidebarComponent, FormsModule, BaseChartDirective],
+  imports: [Navbar, CommonModule, ToastComponent, SidebarComponent, FormsModule, BaseChartDirective,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatNativeDateModule, NgSelectModule, MatAutocompleteModule,MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -172,7 +192,7 @@ export class Dashboard implements OnInit {
   selectedStudentId: number | null = null;
   selectedStudent: any = null;
   studentEdit: {
-    active: string;
+    status: string;
     subjectId: number | null;
     courseId: number | null;
     departmentId: number | null;
@@ -193,7 +213,7 @@ export class Dashboard implements OnInit {
       phoneNumber: '',
       profileImage: null,
       marksheetImage: null,
-      active: '',
+      status: '',
       subjectId: null,
       courseId: null,
       departmentId: null,
@@ -394,7 +414,7 @@ export class Dashboard implements OnInit {
     if (this.hasRole("ROLE_ADMIN")) {
       this.viewSection = 'dashboard';
       this.loadChartData();
-      this.fetchUsers();
+      this.fetchUserProfiles();
       this.fetchAllUsers();
       this.loadAllStudents();
 
@@ -403,7 +423,6 @@ export class Dashboard implements OnInit {
     if (this.hasRole("ROLE_HOD")) {
       this.viewSection = 'hodRequested';
       this.fetchRequestedStudents();
-      this.fetchFilterCourses();
     }
     const name = this.authService.getUsername();
     if (name) {
@@ -674,6 +693,44 @@ export class Dashboard implements OnInit {
       }
     });
   }
+
+
+  // Filter & Pagination Variables
+  subjectStudentFilterName: string = '';
+  subjectStudentPage: number = 0;
+  subjectStudentSize: number = 5;
+  subjectStudentTotalPages: number = 0;
+
+  onSubjectStudentFilterChange(): void {
+    this.subjectStudentPage = 0;
+    this.fetchFilerSubjectStudents();
+  }
+
+  onSubjectStudentPageChange(newPage: number): void {
+    if (newPage >= 0 && newPage < this.subjectStudentTotalPages) {
+      this.subjectStudentPage = newPage;
+      this.fetchFilerSubjectStudents();
+    }
+  }
+
+  fetchFilerSubjectStudents(): void {
+    const params = {
+      name: this.subjectStudentFilterName,
+      page: this.subjectStudentPage,
+      size: this.subjectStudentSize
+    };
+
+    this.http.get<any>('http://localhost:8080/staff/getFilterSubjectStudents', { params }).subscribe({
+      next: (res) => {
+        this.subjectStudents = res.students;
+        this.subjectStudentTotalPages = res.totalPages;
+      },
+      error: (err) => {
+        console.error('Error fetching subject students:', err);
+      }
+    });
+  }
+
 
   //---------------------------------------------------Staff Completed---------------------------------------------------------------//
 
@@ -956,29 +1013,29 @@ export class Dashboard implements OnInit {
     }
 
     this.selectedStudentId = student.id;
-
     this.studentEdit = {
+      status: student.status || '',
+      subjectId: student.subjectId || null,
+      courseId: student.courseId || null,
+      departmentId: student.departmentId || null,
+      courseStatus: student.courseStatus || null,
       name: student.name || '',
       age: student.age || null,
       gender: student.gender || '',
       email: '',
       phoneNumber: student.phoneNumber || '',
-      profileImage: null,
-      marksheetImage: null,
-      active: student.active || '',
-      subjectId: student.subjectId ?? null,
-      courseId: student.courseId ?? null,
-      departmentId: student.departmentId ?? null,
-      courseStatus: student.courseStatus || '',
-      username: student.username || ''
+      profileImage: student.profileImage || null,
+      marksheetImage: student.marksheetImage || null,
+      username: '',
     };
+
+    console.log('Student edit data:', this.studentEdit); // Debug log
 
     const modalElement = document.getElementById('editStudentModal');
     if (modalElement) {
       const modal = new (window as any).bootstrap.Modal(modalElement);
       this.fetchHodCourses(); // Load courses for dropdown
-      this.fetchAdminDepartments(); // Load departments for dropdown
-      this.fetchSubjects();
+      this.fetchAdminSubjects();
       modal.show();
     }
   }
@@ -993,8 +1050,8 @@ export class Dashboard implements OnInit {
     this.editUser = {
       id: user.id || null,
       username: user.username || '',
-      password: user.password || '',
-      roleid: user.id || null
+      password: '',
+      roleid: user.roleId || null
 
     };
     const modalUser = document.getElementById('editUserModal');
@@ -1067,8 +1124,8 @@ export class Dashboard implements OnInit {
     if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
     if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
     if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
-    if (this.studentEdit.subjectId) formData.append('subjectId', this.studentEdit.subjectId.toString());
-    if (this.studentEdit.active) formData.append('status', this.studentEdit.active);
+    if (this.studentEdit.subjectId) formData.append('studentSubject', this.studentEdit.subjectId.toString());
+    if (this.studentEdit.status) formData.append('status', this.studentEdit.status);
     if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
     if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
     if (this.studentEdit.marksheetImage) formData.append('marksheetImage', this.studentEdit.marksheetImage);
@@ -1079,8 +1136,8 @@ export class Dashboard implements OnInit {
       { headers: this.authService.getAuthHeaders().headers }
     ).subscribe({
       next: () => {
-        this.toast.showSuccess('Student updated successfully');
-        this.fetchHodApproved();
+        this.showSwal('success', 'Student Updated', 'Student details updated successfully!');
+        this.fetchRequestedStudents();
         const modalEl = document.getElementById('editStudentModal');
         if (modalEl) {
           const modalInstance = (window as any).bootstrap.Modal.getInstance(modalEl);
@@ -1221,7 +1278,32 @@ export class Dashboard implements OnInit {
   }
 
 
+  openHodStudentDeleteModel(studentId: number) {
+    Swal.fire({
+      title: 'Delete this Student?',
+      text: 'Are you sure you want to delete this Student?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.HoddeleteStudent(studentId);
+      }
+    });
+  }
 
+  HoddeleteStudent(studentId: number) {
+    this.http.delete(`http://localhost:8080/admin/deleteStudent/${studentId}`).subscribe({
+      next: (res) => {
+        Swal.fire('Success', 'Student deleted successfully.', 'success');
+        this.fetchAllStudents(); // Refresh the student list
+      },
+      error: (err) => {
+        Swal.fire('Error', err.error?.message || 'Failed to delete student', 'error');
+      }
+    });
+  }
 
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
@@ -1403,10 +1485,11 @@ export class Dashboard implements OnInit {
     if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
     if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
     if (this.studentEdit.subjectId) formData.append('studentSubject', this.studentEdit.subjectId.toString());
-    if (this.studentEdit.active) formData.append('studentStatus', this.studentEdit.active);
+    if (this.studentEdit.status) formData.append('status', this.studentEdit.status);
     if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
     if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
     if (this.studentEdit.marksheetImage) formData.append('marksheetImage', this.studentEdit.marksheetImage);
+    if (this.studentEdit.username) formData.append('username', this.studentEdit.username);
     console.log('Updating student with data:', this.studentEdit)
     this.http.patch(
       `http://localhost:8080/admin/UpdateStudents/${this.selectedStudentId}`,
@@ -1416,8 +1499,8 @@ export class Dashboard implements OnInit {
       next: () => {
         console.log("Data updated");
 
+        this.showSwal('success', 'Student Updated', 'Student details updated successfully!');
         this.toast.showSuccess('Student updated successfully');
-        this.loadAllStudents();
         this.fetchStudents();
         this.loadChartData();
         const modalEl = document.getElementById('editStudentModal');
@@ -1517,6 +1600,19 @@ export class Dashboard implements OnInit {
     });
   }
 
+  fetchAdminSubjects() {
+    this.http.get<any[]>('http://localhost:8080/admin/getAllSubjects', this.authService.getAuthHeaders())
+      .subscribe({
+        next: (res: any) => {
+          this.hodSubjects = res;
+          console.log('HOD Subjects:', this.hodSubjects);
+        },
+        error: (err: any) => {
+          console.error('HOD Subjects error:', err);
+          this.studentMessage = 'Failed to load HOD Subjects.';
+        }
+      });
+  }
   submitAssignStud() {
     if (!this.roleAssignStud.username || !this.roleAssignStud.studId) {
       Swal.fire('Error', 'Please select both username and role.', 'error');
@@ -1538,6 +1634,38 @@ export class Dashboard implements OnInit {
       }
     });
   }
+
+  subjectSearch: string = '';
+  filteredSubjects: any[] = [];
+  showSubjectDropdown: boolean = false;
+
+  onSubjectSearch(): void {
+    if (this.subjectSearch.trim().length === 0) {
+      this.filteredSubjects = [];
+      this.showSubjectDropdown = false;
+      return;
+    }
+
+    this.http.get<any[]>('http://localhost:8080/admin/getFilterAllSubjects', {
+      params: { search: this.subjectSearch }
+    }).subscribe({
+      next: (res) => {
+        this.filteredSubjects = res;
+        this.showSubjectDropdown = true;
+      },
+      error: () => {
+        this.filteredSubjects = [];
+        this.showSubjectDropdown = false;
+      }
+    });
+  }
+
+  selectSubject(subject: any): void {
+    this.newUserPro.subjectId = subject.id;
+    this.subjectSearch = subject.subjectName;
+    this.showSubjectDropdown = false;
+  }
+
 
   submitCreateUserPro(): void {
     this.http.post('http://localhost:8080/admin/createUserPro', this.newUserPro).subscribe({
@@ -1646,10 +1774,21 @@ export class Dashboard implements OnInit {
   fetchAdminCourses() {
     this.http.get<any[]>('http://localhost:8080/admin/getAllCourses', this.authService.getAuthHeaders())
       .subscribe({
-        next: res => this.Courses = res,
-        error: err => this.toast.showError('Failed to load course list.')
+        next: (res) => {
+          this.Courses = res;
+          console.log('Admin Courses:', this.Courses); // <-- Moved here
+        },
+        error: (err) => {
+          console.error('Error fetching courses:', err);
+          if (err.error.message) {
+            this.toast.showError(err.error.message);
+          } else {
+            this.toast.showError('Failed to load course list.');
+          }
+        }
       });
   }
+
 
   // Filter parameters
   searchText: string = '';
@@ -1787,6 +1926,9 @@ export class Dashboard implements OnInit {
   };
 
   openEditUserModal(user: any): void {
+    this.fetchAdminCourses();
+    this.fetchSubjects();
+    this.fetchAdminDepartments();
     this.editUserPro = {
       id: user.id,
       name: user.name || '',
@@ -1797,12 +1939,13 @@ export class Dashboard implements OnInit {
       departmentId: user.departmentId || null,
       subjectId: user.subjectId || null,
       courseId: user.courseId || null,
-      username: user.username || null
+      username: ''
     };
 
     const modalEl = document.getElementById('editUserProModal');
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
+
       modal.show();
     }
   }
@@ -1816,7 +1959,7 @@ export class Dashboard implements OnInit {
         this.fetchUsers();
       },
       error: (err) => {
-        this.showSwal('error', 'Update Failed', err || 'Unknown error');
+        this.showSwal('error', 'Update Failed', err.error.message || 'Unknown error');
       }
     });
   }

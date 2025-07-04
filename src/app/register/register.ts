@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { Navbar } from "../navbar/navbar";
 import { ToastService } from '../services/toast.service';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-registration',
@@ -16,6 +18,7 @@ import Swal from 'sweetalert2';
 export class RegistrationComponent {
   fb = inject(FormBuilder);
   http = inject(HttpClient);
+  router = inject(Router);
 
   registrationForm: FormGroup = this.fb.group({
     name: ['', Validators.required],
@@ -83,6 +86,7 @@ ngOnInit(): void {
         next: () => {
           this.showSwal('success','Registration successfull!','Your Registration successfully sent to HOD...')
           this.registrationForm.reset();
+          this.router.navigate(['/login']);
         },
         error: (err) => {
           console.error('Registration failed:', err);
