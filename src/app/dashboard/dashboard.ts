@@ -1,4 +1,4 @@
-import { Component, inject, NgModule, OnInit } from '@angular/core';
+import { Component, inject, NgModule, OnInit, ViewChild } from '@angular/core';
 import { Navbar } from "../navbar/navbar";
 import { AuthService } from '../services/auth';
 import { CommonModule } from '@angular/common';
@@ -19,11 +19,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
 declare var bootstrap: any;
 
@@ -501,6 +501,7 @@ export class Dashboard implements OnInit {
     //Admin API's
     else if (this.viewSection === 'adminAllUsers') {
       this.fetchAllAuthUser();
+      this.fetchAllUsers();
     }
     else if (this.viewSection === 'adminAllStudents') {
       this.fetchStudents();
@@ -1305,6 +1306,16 @@ export class Dashboard implements OnInit {
     });
   }
 
+  displayedColumns: string[] = ['index', 'username', 'role', 'actions'];
+  dataSource = new MatTableDataSource<any>([]);
+  tableSize = 10;
+  tablePage = 0;
+  totalUsers = 0;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
   fetchStudentProfile() {
@@ -1420,8 +1431,12 @@ export class Dashboard implements OnInit {
         Authorization: `Bearer ${this.authService.getToken()}`
       }
     }).subscribe({
-      next: (res) => {
-        this.allUsers = res;
+      next: (users) => {
+        this.allUsers = users;
+        this.dataSource = new MatTableDataSource(users);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.totalUsers = users.length;
       },
       error: (err) => {
         console.error('Failed to load users:', err);

@@ -234,40 +234,55 @@
         </div>
 
         <!-- Table -->
-        <table class="table table-bordered table-hover text-center align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of allUsers; let i = index">
-              <td>{{ (page * size) + i + 1 }}</td>
-              <td>{{ user.username }}</td>
-              <td>
-                <span class="badge"
-                  [ngClass]="{'bg-primary': user.role === 'ROLE_ADMIN','bg-warning text-dark': user.role === 'ROLE_STAFF','bg-success': user.role === 'ROLE_STUDENT','bg-secondary': user.role === 'ROLE_HOD'}">
-                  {{ user.role.startsWith('ROLE_') ? user.role.substring(5) : user.role || 'Unknown' }}
-                </span>
-              </td>
+        <mat-table class="table" [dataSource]="dataSource" matSort class="mat-elevation-z2">
 
-              <td>
-                <button class="btn btn-outline-warning btn-sm " (click)="openEditUserModel(user)">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-sm ms-2" (click)="deleteUserAuthSwal(user.id)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="allUsers.length === 0">
-              <td colspan="4" class="text-muted">No users found.</td>
-            </tr>
-          </tbody>
-        </table>
+          <!-- Index Column -->
+          <ng-container matColumnDef="index">
+            <mat-header-cell *matHeaderCellDef>#</mat-header-cell>
+            <mat-cell *matCellDef="let row; let i = index">{{ (page * size) + i + 1 }}</mat-cell>
+          </ng-container>
+
+          <!-- Username Column -->
+          <ng-container matColumnDef="username">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Username</mat-header-cell>
+            <mat-cell *matCellDef="let row">{{ row.username }}</mat-cell>
+          </ng-container>
+
+          <!-- Role Column -->
+          <ng-container matColumnDef="role">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Role</mat-header-cell>
+            <mat-cell *matCellDef="let row">
+              <span class="badge" [ngClass]="{
+          'bg-primary': row.role === 'ROLE_ADMIN',
+          'bg-warning text-dark': row.role === 'ROLE_STAFF',
+          'bg-success': row.role === 'ROLE_STUDENT',
+          'bg-secondary': row.role === 'ROLE_HOD'
+        }">
+                {{ row.role.startsWith('ROLE_') ? row.role.substring(5) : row.role || 'Unknown' }}
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let row">
+              <button mat-icon-button color="primary" (click)="openEditUserModel(row)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteUserAuthSwal(row.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+
+        <mat-paginator [length]="totalUsers" [pageSize]="size" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons>
+        </mat-paginator>
+
 
         <!-- Pagination -->
         <nav *ngIf="totalPages > 1">
@@ -481,8 +496,7 @@
                     <div class="col-md-6">
                       <label class="form-label">Subject</label>
                       <ng-select class="form-select" [items]="subjects" bindLabel="subjectName" bindValue="id"
-                         [(ngModel)]="newUserPro.subjectId" name="subjectId"
-                        [searchable]="true" [clearable]="true">
+                        [(ngModel)]="newUserPro.subjectId" name="subjectId" [searchable]="true" [clearable]="true">
                       </ng-select>
                     </div>
 
@@ -490,8 +504,7 @@
                     <div class="col-md-6">
                       <label class="form-label">Course</label>
                       <ng-select class="form-select" [items]="Courses" bindLabel="courseName" bindValue="id"
-                         [(ngModel)]="newUserPro.courseId" name="courseId"
-                        [searchable]="true" [clearable]="true">
+                        [(ngModel)]="newUserPro.courseId" name="courseId" [searchable]="true" [clearable]="true">
                       </ng-select>
                     </div>
 
@@ -579,11 +592,10 @@
                     </div>
 
                     <!-- Subject -->
-                     <div class="col-md-6">
+                    <div class="col-md-6">
                       <label class="form-label">Subject</label>
                       <ng-select class="form-select" [items]="subjects" bindLabel="subjectName" bindValue="id"
-                         [(ngModel)]="editUserPro.subjectId" name="subjectId"
-                        [searchable]="true" [clearable]="true">
+                        [(ngModel)]="editUserPro.subjectId" name="subjectId" [searchable]="true" [clearable]="true">
                       </ng-select>
                     </div>
 
@@ -591,8 +603,7 @@
                     <div class="col-md-6">
                       <label for="editCourse" class="form-label">Course</label>
                       <ng-select class="form-select" [items]="Courses" bindLabel="courseName" bindValue="id"
-                         [(ngModel)]="editUserPro.courseId" name="courseId"
-                        [searchable]="true" [clearable]="true">
+                        [(ngModel)]="editUserPro.courseId" name="courseId" [searchable]="true" [clearable]="true">
                       </ng-select>
                     </div>
                     <div class="col-md-6">
