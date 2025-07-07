@@ -255,3 +255,29 @@ img.rounded-circle {
   text-transform: uppercase;
   background-color: #f3f4f6;
 }
+/* Material table header row */
+.mat-header-cell {
+  background-color: #6a1b9a !important; /* or #B13BFF */
+  color: white !important;
+}
+
+/* Header cell text */
+.mat-header-cell {
+  font-weight: bold;
+  color: white !important;
+}
+
+/* Optional: Adjust padding and alignment */
+.mat-header-cell, .mat-cell {
+  text-align: center;
+  padding: 12px 8px;
+}
+.mat-row:hover {
+  background-color: #f3e9ff;
+}
+.modal-title {
+  font-weight: 600;
+}
+.card-text {
+  font-size: 1rem;
+}

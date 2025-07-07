@@ -6,7 +6,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ToastService } from '../services/toast.service';
 import { ToastComponent } from "../components/toast/toast";
 import { SidebarComponent } from '../components/sidebar/sidebar';
-import { FormControl, FormGroup, FormsModule, NgModel } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, NgForm, NgModel } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { from, Subject } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
@@ -22,8 +22,8 @@ import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/ma
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
 declare var bootstrap: any;
 
@@ -34,7 +34,7 @@ declare var bootstrap: any;
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatNativeDateModule, NgSelectModule, MatAutocompleteModule,MatTableModule,
+    MatNativeDateModule, NgSelectModule, MatAutocompleteModule, MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatButtonModule,
@@ -176,7 +176,7 @@ export class Dashboard implements OnInit {
     email: '',
     phoneNumber: '',
     subjectId: null,
-    courseName: ''
+    courseName: null
   };
 
   selectedStaff: any = null;
@@ -414,8 +414,8 @@ export class Dashboard implements OnInit {
     if (this.hasRole("ROLE_ADMIN")) {
       this.viewSection = 'dashboard';
       this.loadChartData();
+      this.fetchUserList();
       this.fetchUserProfiles();
-      this.fetchAllUsers();
       this.loadAllStudents();
 
     }
@@ -492,7 +492,7 @@ export class Dashboard implements OnInit {
       this.fetchHodToStaff();
 
     } else if (this.viewSection === 'hodCourses') {
-      this.fetchFilterCourses();
+      this.fetchHodFilterCourses();
     }
     else if (this.viewSection === 'hodCreateStaff') {
       this.fetchHodCourses();
@@ -848,15 +848,19 @@ export class Dashboard implements OnInit {
             email: '',
             phoneNumber: '',
             subjectId: null,
-            courseName: ''
+            courseName: null
           };
           this.fetchHodToStaff(); // Assuming this method reloads the staff list
-          this.showSwal('success', "Staff Created Successfully", "Ask Admin To Create Login Credentials"); // Show success message
+          this.showSwal('success', "Staff Created Successfully", "success"); // Show success message
+          const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+          modal?.hide();
         },
         error: (err) => {
           console.error('Create staff error:', err);
           const errorMessage = err?.error?.message || 'Something went wrong';
           this.showSwal('error', "Failed to create staff", errorMessage); // Show error message
+          const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+          modal?.hide();
         }
       });
   }
@@ -867,23 +871,63 @@ export class Dashboard implements OnInit {
       headers: this.authService.getAuthHeaders().headers,
       params
     }).subscribe(() => {
-      this.toast.showSuccess('Subject created');
+      this.showSwal('success', 'Subject Created Successfully', 'success');
       this.newSubjectName = '';
       this.fetchHodSubjects();
+      // Close modal after successful creation
+      const modalEl = document.getElementById('addSubjectModal');
+      if (modalEl) {
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance?.hide();  // close modal properly
+      }
     });
   }
 
-  submitCreateCourse() {
-    const params = new HttpParams().set('courseName', this.newCourseName);
-    this.http.post('http://localhost:8080/hod/createCourse', null, {
-      headers: this.authService.getAuthHeaders().headers,
-      params
-    }).subscribe(() => {
-      this.toast.showSuccess('Course created');
-      this.newCourseName = '';
-      this.fetchHodCourses();
-    });
+  NewCourseName!: string | '';
+
+  OpenNewCourseModal() {
+
+    console.log('Adding course:', this.NewCourseName);
+
+    this.NewCourseName = this.NewCourseName;
+    const modal = document.getElementById('addCourseModal');
+    if (modal) {
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.show();
+    }
   }
+
+  submitCreateCourse() {
+  if (!this.NewCourseName || !this.NewCourseName.trim()) {
+    this.showSwal('warning', 'Course name is required', 'warning');
+    return;
+  }
+
+  const params = new HttpParams().set('courseName', this.NewCourseName.trim());
+
+  this.http.post('http://localhost:8080/hod/createCourse', null, {
+    headers: this.authService.getAuthHeaders().headers,
+    params
+  }).subscribe({
+    next: () => {
+      this.showSwal('success', 'Course Created Successfully', 'success');
+      this.NewCourseName = '';
+      this.fetchHodFilterCourses();
+
+      // Close modal after successful creation
+      const modalEl = document.getElementById('addCourseModal');
+      if (modalEl) {
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance?.hide();  // close modal properly
+      }
+    },
+    error: (err) => {
+      console.error('Error creating course:', err);
+      this.showSwal('error', 'Creation Failed', err.error?.message || 'Something went wrong');
+    }
+  });
+}
+
 
 
   openSubjectEditModal(subjectId: number, currentName: string) {
@@ -975,6 +1019,7 @@ export class Dashboard implements OnInit {
   onCourseFilterChange(): void {
     this.coursePage = 0;
     this.fetchFilterCourses();
+    this.fetchHodFilterCourses();
   }
 
   //  Called on pagination click
@@ -982,6 +1027,7 @@ export class Dashboard implements OnInit {
     if (newPage >= 0 && newPage < this.courseTotalPages) {
       this.coursePage = newPage;
       this.fetchFilterCourses();
+      this.fetchHodFilterCourses();
     }
   }
 
@@ -997,6 +1043,8 @@ export class Dashboard implements OnInit {
       next: (res) => {
         this.courseList = res.courses;
         this.courseTotalPages = res.totalPages;
+        console.log('Fetched courses:', this.courseList);
+
       },
       error: (err) => {
         console.error('Error fetching course list:', err);
@@ -1160,11 +1208,25 @@ export class Dashboard implements OnInit {
     }
   }
 
+  deleteSubjectModal(id: number) {
+    Swal.fire({
+      title: 'Delete this Subject?',
+      text: 'Are you sure you want to delete this Subject?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteSubject(id);
+      }
+    });
+  }
 
   deleteSubject(id: number) {
     this.http.delete(`http://localhost:8080/hod/deleteSubject/${id}`, this.authService.getAuthHeaders())
       .subscribe(() => {
-        this.toast.showSuccess('Subject deleted');
+        this.showSwal('success', 'Subject Deleted', 'Subject deleted successfully!');
         this.fetchHodSubjects();
       });
   }
@@ -1187,7 +1249,7 @@ export class Dashboard implements OnInit {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deleteUser(courseId);
+        this.deleteCourse(courseId);
       }
     });
   }
@@ -1195,17 +1257,18 @@ export class Dashboard implements OnInit {
   deleteCourse(id: number) {
     this.http.delete(`http://localhost:8080/hod/deleteCourse/${id}`, this.authService.getAuthHeaders())
       .subscribe(() => {
-        this.toast.showSuccess('Course deleted');
-        this.fetchCourses();
+        this.showSwal('success', 'Course Deleted', 'Course deleted successfully!');
+        this.fetchHodFilterCourses();
       });
   }
 
 
   selectedCourse: any = {
     id: null,
-    courseName: '',
+    CourseName: '',
     staffName: ''
   };
+
 
   openUpdateCourseModal(course: any): void {
     this.selectedCourse = {
@@ -1213,35 +1276,38 @@ export class Dashboard implements OnInit {
       courseName: course.courseName || null,
       staffName: course.staffName || null,
     };
-    ;
     const modal = new bootstrap.Modal(document.getElementById('updateCourseModal')!);
     modal.show();
   }
 
   submitUpdatedCourse(): void {
     if (!this.selectedCourse.id) {
-      alert('Please select a staff member');
+      alert('Course ID is missing');
       return;
     }
 
-    this.http.patch('http://localhost:8080/hod/updateCourse', {
-      id: this.selectedCourse.id,
-      staffName: this.selectedCourse.staffName,
-      CourseName: this.selectedCourse.CourseName
-    }).subscribe({
+    // Ensure trimming and validation
+    this.selectedCourse.courseName = this.selectedCourse.courseName?.trim() || null;
+    this.selectedCourse.staffName = this.selectedCourse.staffName?.trim() || null;
+
+    console.log('Updating course:', this.selectedCourse);
+    
+
+    this.http.patch('http://localhost:8080/hod/updateCourse', this.selectedCourse).subscribe({
       next: () => {
-        this.showSwal('success', 'Updated', 'Course  updated successfully!');
-        this.fetchFilterCourses(); // Refresh list
+        this.showSwal('success', 'Updated', 'Course updated successfully!');
+        this.fetchHodFilterCourses(); // Refresh list
         const modal = bootstrap.Modal.getInstance(document.getElementById('updateCourseModal')!);
         modal?.hide();
       },
       error: (err) => {
         console.error('Update error:', err);
         this.showSwal('error', 'Error', err.error?.message || 'Something went wrong');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateCourseModal')!);
+        modal?.hide();
       }
     });
   }
-
   filterName: string = '';
   requestedPage: number = 0;
   requestedSize: number = 10;
@@ -1306,16 +1372,98 @@ export class Dashboard implements OnInit {
     });
   }
 
-  displayedColumns: string[] = ['index', 'username', 'role', 'actions'];
-  dataSource = new MatTableDataSource<any>([]);
-  tableSize = 10;
-  tablePage = 0;
-  totalUsers = 0;
+  selectedStaffId: number | null = null;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  deleteStuffModel(staff: any) {
+    Swal.fire({
+      title: 'Delete this Staff?',
+      text: 'Are you sure you want to delete this Staff?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteStaffByHod(staff);
+      }
+    });
+  }
+  deleteStaffByHod(staff: any) {
+    this.selectedStaffId = staff.id;
 
-  
+    this.http.delete(`http://localhost:8080/admin/deleteStaff/${this.selectedStaffId}`).subscribe({
+      next: (res) => {
+        Swal.fire('Success', 'Staff deleted successfully', 'success')
+      },
+      error: (err) => {
+        Swal.fire('Warning', err.error.message, 'error');
+      }
+    })
+
+  }
+
+  openAddStaffModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+    modal.show();
+  }
+
+  resetStaffForm() {
+    this.newStaff = {
+      name: '',
+      age: null,
+      gender: '',
+      email: '',
+      phoneNumber: '',
+      subjectId: null,
+      courseName: null
+    };
+    this.updatedStaff = {};
+  }
+
+  @ViewChild('staffForm') staffForm!: NgForm;
+
+
+
+
+  openViewStaffModal(staff: any): void {
+    this.selectedStaff = staff;
+    const modal = new bootstrap.Modal(document.getElementById('viewStaffModal')!);
+    modal.show();
+  }
+
+
+    
+
+  fetchHodFilterCourses(): void {
+    const params = {
+      search: this.courseSearch,
+      page: this.coursePage,
+      size: this.courseSize
+    };
+
+    this.http.get<any>('http://localhost:8080/hod/filteredCourse', { params }).subscribe({
+      next: (res) => {
+        this.courseList = res.courses;
+        this.courseTotalPages = res.totalPages;
+        console.log(this.courseList);
+
+      },
+      error: (err) => {
+        console.error('Error fetching course list:', err);
+      }
+    });
+  }
+
+
+  openAddSubjectModal(): void {
+  this.newSubjectName = '';
+  const modal = document.getElementById('addSubjectModal');
+  if (modal) {
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+  }
+}
+
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
   fetchStudentProfile() {
@@ -1425,24 +1573,7 @@ export class Dashboard implements OnInit {
 
   //Admin Api's
 
-  fetchAllUsers() {
-    this.http.get<any>('http://localhost:8080/admin/getAllUsers', {
-      headers: {
-        Authorization: `Bearer ${this.authService.getToken()}`
-      }
-    }).subscribe({
-      next: (users) => {
-        this.allUsers = users;
-        this.dataSource = new MatTableDataSource(users);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.totalUsers = users.length;
-      },
-      error: (err) => {
-        console.error('Failed to load users:', err);
-      }
-    });
-  }
+
 
   loadAllStudents() {
     this.http.get<any[]>('http://localhost:8080/admin/gellAllStud', {
@@ -2105,5 +2236,69 @@ export class Dashboard implements OnInit {
     });
   }
 
+  users: any[] = [];
+  totalUsers = 0;
+  displayedColumns: string[] = ['index', 'username', 'role', 'actions'];
 
+  onUserFilterChange(): void {
+    this.page = 0; // Reset to first page
+    this.fetchAllUsers();
+  }
+
+  onPageEvent(event: PageEvent) {
+    this.size = event.pageSize;
+    this.page = event.pageIndex;
+    this.fetchAllUsers();
+  }
+
+  sortField: string = 'username'; // default
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  onSortChange(sort: Sort) {
+    this.sortField = sort.active;
+    this.sortDirection = sort.direction || 'asc'; // fallback to asc
+    this.page = 0; // reset to first page on sort
+    this.fetchAllUsers(); // your server API should support sorting
+    console.log(`Sorting by ${this.sortField} ${this.sortDirection}`);
+
+  }
+
+  fetchAllUsers(): void {
+    let params = new HttpParams()
+      .set('page', this.page.toString())
+      .set('size', this.size.toString())
+      .set('sort', `${this.sortField},${this.sortDirection}`);
+
+    if (this.searchText?.trim()) {
+      params = params.set('search', this.searchText.trim());
+    }
+    if (this.userFilterRoleId != null) {
+      params = params.set('roleId', this.userFilterRoleId.toString());
+    }
+
+    this.http.get<any>('http://localhost:8080/admin/users', { params }).subscribe({
+      next: (res) => {
+        this.allUsers = res.content;
+        this.totalPages = res.totalPages;
+        this.totalUsers = res.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+      }
+    });
+
+  }
+
+
+  fetchUserList() {
+    this.http.get<any>('http://localhost:8080/admin/getAllUsers').subscribe({
+      next: (res) => {
+        this.allUsers = res;
+      },
+      error: (err) => {
+        console.error('Error fetching users:', err);
+      }
+    });
+  }
 }
+

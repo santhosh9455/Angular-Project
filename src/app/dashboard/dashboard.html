@@ -21,9 +21,9 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                   <div class="d-flex align-items-center mb-3">
                     <i class="bi bi-person-bounding-box fs-3 me-3"></i>
-                    <h6 class="mb-0 text-uppercase">Total Students</h6>
+                    <h2 class="mb-0 text-uppercase">Total Students</h2>
                   </div>
-                  <h2 class="fw-bold text-center">{{ allStudents.length || 0 }}</h2>
+                  <h1 class="fw-bold text-center">{{ allStudents.length || 0 }}</h1>
                 </div>
               </div>
             </div>
@@ -34,9 +34,9 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                   <div class="d-flex align-items-center mb-3">
                     <i class="bi bi-person-lines-fill fs-3 me-3"></i>
-                    <h6 class="mb-0 text-uppercase">Total Users</h6>
+                    <h2 class="mb-0 text-uppercase">Total Users</h2>
                   </div>
-                  <h2 class="fw-bold text-center">{{ allUsers.length || 0 }}</h2>
+                  <h1 class="fw-bold text-center">{{ allUsers.length || 0 }}</h1>
                 </div>
               </div>
             </div>
@@ -47,9 +47,9 @@
                 <div class="card-body d-flex flex-column justify-content-between">
                   <div class="d-flex align-items-center mb-3">
                     <i class="bi bi-people-fill fs-3 me-3"></i>
-                    <h6 class="mb-0 text-uppercase">Staff & HOD</h6>
+                    <h2 class="mb-0 text-uppercase">Staff & HOD</h2>
                   </div>
-                  <h2 class="fw-bold text-center">{{ UsersProfile.length || 0 }}</h2>
+                  <h1 class="fw-bold text-center">{{ UsersProfile.length || 0 }}</h1>
                 </div>
               </div>
             </div>
@@ -83,15 +83,15 @@
         <h5 class="text-primary"> Create New User</h5>
         <form (ngSubmit)="submitCreateUser()">
           <div class="mb-3">
-            <label class="form-label">Username</label>
+            <label class="form-label">Username<span class="text-danger"> *</span></label>
             <input type="text" class="form-control" [(ngModel)]="newUser.username" name="username" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Password</label>
+            <label class="form-label">Password<span class="text-danger"> *</span></label>
             <input type="password" class="form-control" [(ngModel)]="newUser.password" name="password" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Role Name</label>
+            <label class="form-label">Role Name<span class="text-danger"> *</span></label>
             <select name="roleid" class="form-select" [(ngModel)]="newUser.roleId" name="editRole" required>
               <option value="">-- Select Role --</option>
               <option *ngFor="let role of roles" [value]="role.id">{{ role.role?.startsWith('ROLE_') ?
@@ -107,8 +107,8 @@
       <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header bg-warning text-white">
-              <h5 class="modal-title icon-edit" id="editUserModalLabel">Edit User</h5>
+            <div class="modal-header bg-primary text-white">
+              <h2 class="modal-title icon-edit" id="editUserModalLabel">Edit User</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -157,7 +157,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content shadow">
             <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
+              <h2 class="modal-title" id="createUserModalLabel">Create User</h2>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                 aria-label="Close"></button>
             </div>
@@ -167,7 +167,7 @@
                 <div class="row g-3">
                   <!-- Username -->
                   <div class="col-md-6">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">Username<span class="text-danger"> *</span></label>
                     <input #username="ngModel" type="text" class="form-control" [(ngModel)]="newUser.username"
                       name="username" required />
                     <div class="text-danger" *ngIf="(form.submitted || username.touched) && username.invalid">
@@ -177,7 +177,7 @@
 
                   <!-- Password -->
                   <div class="col-md-6">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">Password<span class="text-danger"> *</span></label>
                     <input #password="ngModel" type="password" class="form-control" [(ngModel)]="newUser.password"
                       name="password" required />
                     <div class="text-danger" *ngIf="(form.submitted || password.touched) && password.invalid">
@@ -188,7 +188,7 @@
 
                   <!-- Role -->
                   <div class="col-md-6">
-                    <label class="form-label">Role</label>
+                    <label class="form-label">Role<span class="text-danger"> *</span></label>
                     <select class="form-select" [(ngModel)]="newUser.roleId" name="roleId" required>
                       <option [ngValue]="null">--Select Role--</option>
                       <option *ngFor="let role of roles" [ngValue]="role.id">
@@ -212,45 +212,51 @@
       <!-- All Users -->
       <div *ngIf="viewSection === 'adminAllUsers'" class="px-3 py-2">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="text-primary fw-bold"> All Users</h5>
+          <h2 class="text-primary fw-bold"> All Users</h2>
           <button class="btn btn-success" (click)="openCreateUserModal()">
             <i class="bi bi-person-plus-fill me-1"></i> Add User
           </button>
         </div>
 
         <!-- Filters -->
+        <!-- Filters -->
         <div class="row g-2 mb-3">
           <div class="col-md-6">
-            <input type="text" class="form-control" placeholder=" Search username" [(ngModel)]="searchText"
+            <input type="text" class="form-control" placeholder="Search username" [(ngModel)]="searchText"
               (ngModelChange)="onFilterChange()" />
           </div>
           <div class="col-md-6">
             <select class="form-select" [(ngModel)]="userFilterRoleId" (change)="onFilterChange()">
               <option [ngValue]="null">All Roles</option>
-              <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.role?.startsWith('ROLE_') ?
-                role.role.substring(5) : role.role || 'Unknown' }}</option>
+              <option *ngFor="let role of roles" [ngValue]="role.id">
+                {{ role.role?.startsWith('ROLE_') ? role.role.substring(5) : role.role || 'Unknown' }}
+              </option>
             </select>
           </div>
         </div>
 
+
         <!-- Table -->
-        <mat-table class="table" [dataSource]="dataSource" matSort class="mat-elevation-z2">
+        <mat-table class="table" [dataSource]="allUsers" matSort (matSortChange)="onSortChange($event)"
+          class="mat-elevation-z2">
 
           <!-- Index Column -->
           <ng-container matColumnDef="index">
-            <mat-header-cell *matHeaderCellDef>#</mat-header-cell>
+            <mat-header-cell style="background-color:#6a1b9a; color:white" *matHeaderCellDef>S.NO</mat-header-cell>
             <mat-cell *matCellDef="let row; let i = index">{{ (page * size) + i + 1 }}</mat-cell>
           </ng-container>
 
           <!-- Username Column -->
           <ng-container matColumnDef="username">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>Username</mat-header-cell>
+            <mat-header-cell style="background-color:#6a1b9a; color:white" *matHeaderCellDef
+              mat-sort-header>Username</mat-header-cell>
             <mat-cell *matCellDef="let row">{{ row.username }}</mat-cell>
           </ng-container>
 
           <!-- Role Column -->
           <ng-container matColumnDef="role">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>Role</mat-header-cell>
+            <mat-header-cell class="color-white" style="background-color:#6a1b9a; color:white" *matHeaderCellDef
+              mat-sort-header>Role</mat-header-cell>
             <mat-cell *matCellDef="let row">
               <span class="badge" [ngClass]="{
           'bg-primary': row.role === 'ROLE_ADMIN',
@@ -265,7 +271,7 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-header-cell style="background-color:#6a1b9a; color:white" *matHeaderCellDef>Actions</mat-header-cell>
             <mat-cell *matCellDef="let row">
               <button mat-icon-button color="primary" (click)="openEditUserModel(row)">
                 <mat-icon>edit</mat-icon>
@@ -280,31 +286,16 @@
           <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
 
-        <mat-paginator [length]="totalUsers" [pageSize]="size" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons>
+        <mat-paginator [length]="totalUsers" [pageSize]="size" [pageIndex]="page" [pageSizeOptions]="[5, 10, 25]"
+          (page)="onPageEvent($event)" showFirstLastButtons>
         </mat-paginator>
-
-
-        <!-- Pagination -->
-        <nav *ngIf="totalPages > 1">
-          <ul class="pagination justify-content-center">
-            <li class="page-item" [class.disabled]="page === 0">
-              <a class="page-link" (click)="onPageChange(page - 1)">Previous</a>
-            </li>
-            <li class="page-item disabled">
-              <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
-            </li>
-            <li class="page-item" [class.disabled]="page + 1 >= totalPages">
-              <a class="page-link" (click)="onPageChange(page + 1)">Next</a>
-            </li>
-          </ul>
-        </nav>
       </div>
 
       <!-- All Staff & Hod -->
       <div *ngIf="viewSection === 'adminAllStaffHod'" class="px-2 py-3">
         <!-- Header + Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="text-primary fw-bold mb-0"> All Staff & HOD</h5>
+          <h2 class="text-primary fw-bold mb-0"> All Staff & HOD</h2>
           <button class="btn btn-success" (click)="openCreateUserProModal()">
             <i class="bi bi-person-plus-fill me-1"></i> Add HOD / Staff
           </button>
@@ -336,7 +327,7 @@
         <table class="table table-hover table-bordered text-center align-middle">
           <thead class="table-light">
             <tr>
-              <th>#</th>
+              <th>S.No</th>
               <th>Name</th>
               <th>Role</th>
               <th>Username</th>
@@ -399,7 +390,7 @@
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow">
               <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="createUserModalLabel"> Create HOD / Staff</h5>
+                <h2 class="modal-title" id="createUserModalLabel"> Create HOD / Staff</h2>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                   aria-label="Close"></button>
               </div>
@@ -409,7 +400,7 @@
                   <div class="row g-3">
                     <!-- Name -->
                     <div class="col-md-6">
-                      <label class="form-label">Name</label>
+                      <label class="form-label">Name<span class="text-danger"> *</span></label>
                       <input type="text" class="form-control" name="name" required [(ngModel)]="newUserPro.name"
                         #name="ngModel" />
                       <div class="text-danger" *ngIf="(form.submitted || name.touched) && name.invalid">
@@ -419,7 +410,7 @@
 
                     <!-- Email -->
                     <div class="col-md-6">
-                      <label class="form-label">Email</label>
+                      <label class="form-label">Email<span class="text-danger"> *</span></label>
                       <input type="email" class="form-control" name="email" required [(ngModel)]="newUserPro.email"
                         #email="ngModel" />
                       <div class="text-danger" *ngIf="(form.submitted || email.touched) && email.invalid">
@@ -429,7 +420,7 @@
 
                     <!-- Phone -->
                     <div class="col-md-6">
-                      <label class="form-label">Phone Number</label>
+                      <label class="form-label">Phone Number<span class="text-danger"> *</span></label>
                       <input type="text" class="form-control" name="phoneNumber" required pattern="^[0-9]{10}$"
                         [(ngModel)]="newUserPro.phoneNumber" #phoneNumber="ngModel" />
                       <div class="text-danger" *ngIf="(form.submitted || phoneNumber.touched) && phoneNumber.invalid">
@@ -439,7 +430,7 @@
 
                     <!-- Gender -->
                     <div class="col-md-6">
-                      <label class="form-label">Gender</label>
+                      <label class="form-label">Gender<span class="text-danger"> *</span></label>
                       <select class="form-select" name="gender" required [(ngModel)]="newUserPro.gender"
                         #gender="ngModel">
                         <option value="">-- Select Gender --</option>
@@ -453,7 +444,7 @@
 
                     <!-- DOB -->
                     <div class="col-md-6">
-                      <label class="form-label">Date of Birth</label>
+                      <label class="form-label">Date of Birth<span class="text-danger"> *</span></label>
                       <input type="date" class="form-control" name="dateOfBirth" required
                         [(ngModel)]="newUserPro.dateOfBirth" #dateOfBirth="ngModel" />
                       <div class="text-danger" *ngIf="(form.submitted || dateOfBirth.touched) && dateOfBirth.invalid">
@@ -463,7 +454,7 @@
 
                     <!-- Role -->
                     <div class="col-md-6">
-                      <label class="form-label">Role</label>
+                      <label class="form-label">Role<span class="text-danger"> *</span></label>
                       <select class="form-select" name="roleId" required [(ngModel)]="newUserPro.roleId"
                         #roleId="ngModel">
                         <option value="">-- Select Role --</option>
@@ -480,7 +471,7 @@
 
                     <!-- Department (optional but can add required if needed) -->
                     <div class="col-md-6">
-                      <label class="form-label">Department</label>
+                      <label class="form-label">Department<span class="text-danger"> *</span></label>
                       <select class="form-select" [(ngModel)]="newUserPro.departmentId" name="departmentId"
                         #departmentId="ngModel">
                         <option value="">-- Select Department --</option>
@@ -525,9 +516,9 @@
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content rounded-4 shadow">
               <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editUserProModalLabel">
-                  <i class="bi bi-pencil-square me-2"></i> Edit User Profile
-                </h5>
+                <h2 class="modal-title" id="editUserProModalLabel">
+                  <i class="bi bi-pencil-square me-2"></i> Edit HOD / Staff
+                </h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                   (click)="closeModal()"></button>
               </div>
@@ -635,7 +626,7 @@
 
               <!-- Modal Header -->
               <div class="modal-header bg-info text-white">
-                <h5 class="modal-title"> Staff / HOD Profile</h5>
+                <h2 class="modal-title"> Staff / HOD Profile</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
 
@@ -742,7 +733,7 @@
       <div *ngIf="viewSection === 'adminAllStudents'" class="px-3 py-2">
         <!-- Header and Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="text-primary"> All Students</h5>
+          <h2 class="text-primary"> All Students</h2>
           <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createStudentModal">
             <i class="bi bi-person-plus-fill me-1"></i> Add Student
           </button>
@@ -839,8 +830,8 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <form (ngSubmit)="AdminsubmitUpdateStudent()">
-              <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="editStudentModalLabel"> Update Student</h5>
+              <div class="modal-header bg-primary text-white">
+                <h2 class="modal-title" id="editStudentModalLabel"> Update Student</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -946,8 +937,8 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <form (ngSubmit)="AdminSubmitCreateStudent()" #createStudentForm="ngForm">
-            <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="createStudentModalLabel"> Create New Student</h5>
+            <div class="modal-header bg-primary text-white">
+              <h2 class="modal-title" id="createStudentModalLabel"> Create New Student</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -955,7 +946,7 @@
               <div class="row">
                 <!-- Name -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Name</label>
+                  <label class="form-label">Name<span class="text-danger"> *</span></label>
                   <input #name="ngModel" type="text" class="form-control" [(ngModel)]="newStudent.name" name="name"
                     required />
                   <div>
@@ -966,7 +957,7 @@
 
                 <!-- Age -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Age</label>
+                  <label class="form-label">Age<span class="text-danger"> *</span></label>
                   <input #age="ngModel" type="number" class="form-control" [(ngModel)]="newStudent.age" name="age" />
                   <div>
                     <span class="text-danger" *ngIf="age.invalid && (age.dirty || age.touched)"> Age is required</span>
@@ -975,7 +966,7 @@
 
                 <!-- Gender -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Gender</label>
+                  <label class="form-label">Gender<span class="text-danger"> *</span></label>
                   <select class="form-select" [(ngModel)]="newStudent.gender" name="gender" required>
                     <option value="">-- Select Gender --</option>
                     <option value="Male">Male</option>
@@ -985,7 +976,7 @@
 
                 <!-- Email -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Email</label>
+                  <label class="form-label">Email<span class="text-danger"> *</span></label>
                   <input #email="ngModel" type="email" class="form-control" [(ngModel)]="newStudent.email" name="email"
                     required />
                   <div>
@@ -996,7 +987,7 @@
 
                 <!-- Phone -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Phone Number</label>
+                  <label class="form-label">Phone Number<span class="text-danger"> *</span></label>
                   <input #phoneNumber="ngModel" type="tel" class="form-control" [(ngModel)]="newStudent.phoneNumber"
                     name="phoneNumber" />
                   <div>
@@ -1007,7 +998,7 @@
 
                 <!-- Department -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Department</label>
+                  <label class="form-label">Department<span class="text-danger"> *</span></label>
                   <select class="form-select" [(ngModel)]="newStudent.departmentId" name="departmentId" required>
                     <option value="">-- Select Department --</option>
                     <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
@@ -1016,13 +1007,13 @@
 
                 <!-- Profile Image -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Profile Image</label>
+                  <label class="form-label">Profile Image<span class="text-danger"> *</span></label>
                   <input type="file" class="form-control" (change)="onProfileImageSelected2($event)" />
                 </div>
 
                 <!-- Marksheet Image -->
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Marksheet Image</label>
+                  <label class="form-label">Marksheet Image<span class="text-danger"> *</span></label>
                   <input type="file" class="form-control" (change)="onMarksheetImageSelected2($event)" />
                 </div>
               </div>
@@ -1044,9 +1035,9 @@
       <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content rounded-4 shadow-lg border-0">
           <div class="modal-header bg-gradient bg-info text-white">
-            <h5 class="modal-title" id="viewStudentModalLabel">
+            <h2 class="modal-title" id="viewStudentModalLabel">
               <i class="bi bi-person-circle me-2"></i> Student Full Profile
-            </h5>
+            </h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
@@ -1119,7 +1110,7 @@
 
             <!-- Marksheet -->
             <div class="text-center">
-              <h6 class="text-muted mb-2">Marksheet Preview</h6>
+              <h2 class="text-muted mb-2">Marksheet Preview</h2>
               <img
                 [src]="selectedStudent?.marksheetImagePath ? 'http://localhost:8080' + selectedStudent.marksheetImagePath : 'http://localhost:8080/uploads/assets/default-marksheet.png'"
                 alt="Marksheet" class="img-fluid rounded shadow" style="max-height: 500px;" />
@@ -1142,7 +1133,7 @@
     <div *ngIf="hasRole('ROLE_HOD')" class="hod-dashboard py-5">
       <!-- Requested Students Table -->
       <div *ngIf="viewSection === 'hodRequested'">
-        <h5 class="text-primary fw-bold mb-3">Students</h5>
+        <h2 class="text-primary fw-bold mb-3">Students</h2>
         <div class="mb-3 row g-2 align-items-center">
           <div class="col-md-4">
             <input type="text" class="form-control" placeholder=" Filter by name" [(ngModel)]="filterName"
@@ -1236,7 +1227,7 @@
           <div class="modal-content">
             <form (ngSubmit)="submitUpdateStudent()">
               <div class="modal-header">
-                <h5 class="modal-title" id="editStudentModalLabel"> Update Student</h5>
+                <h2 class="modal-title" id="editStudentModalLabel"> Update Student</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -1321,123 +1312,125 @@
       </div>
     </div>
 
-    <!-- ❌ Rejected Students -->
-    <div *ngIf="viewSection === 'hodRejected'">
-      <h5 class="text-danger fw-bold mb-3">❌ Rejected Students</h5>
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          <thead class="table-danger">
-            <tr>
-              <th>#</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Course</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let student of hodRejected; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ student.id }}</td>
-              <td>{{ student.name }}</td>
-              <td>{{ student.courseName }}</td>
-            </tr>
-          </tbody>
-        </table>
+
+    <!-- Add Staff Modal -->
+    <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <form (ngSubmit)="submitCreateStaff()" #staffForm="ngForm" novalidate>
+            <div class="modal-header">
+              <h2 class="modal-title text-primary fw-bold" id="addStaffModalLabel">Add New Staff</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                (click)="resetStaffForm()"></button>
+            </div>
+
+            <div class="modal-body">
+              <div class="row g-3">
+
+                <div class="col-md-6">
+                  <label class="form-label">Name<span class="text-danger"> *</span></label>
+                  <input type="text" class="form-control" name="name" [(ngModel)]="newStaff.name" required>
+                  <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.name">Name is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Age<span class="text-danger"> *</span></label>
+                  <input type="number" class="form-control" name="age" [(ngModel)]="newStaff.age" min="18" required>
+                  <div class="text-danger" *ngIf="staffForm.submitted && (!newStaff.age || newStaff.age < 18)">
+                    Age must be 18 or older.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Gender<span class="text-danger"> *</span></label>
+                  <select class="form-select" name="gender" [(ngModel)]="newStaff.gender" required>
+                    <option value="">-- Select Gender --</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                  <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.gender">Gender is required.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email<span class="text-danger"> *</span></label>
+                  <input type="email" class="form-control" name="email" [(ngModel)]="newStaff.email" required email>
+                  <div class="text-danger" *ngIf="staffForm.submitted && !staffForm.controls['email']?.valid">
+                    Valid email is required.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Phone Number<span class="text-danger"> *</span></label>
+                  <input type="text" class="form-control" name="phoneNumber" [(ngModel)]="newStaff.phoneNumber"
+                    pattern="^[0-9]{10}$" required>
+                  <div class="text-danger" *ngIf="staffForm.submitted && !staffForm.controls['phoneNumber']?.valid">
+                    Phone number must be 10 digits.
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Subject</label>
+                  <select class="form-select" [(ngModel)]="newStaff.subjectId" name="subjectId" required>
+                    <option [ngValue]="null">-- Select Subject --</option>
+                    <option *ngFor="let subject of hodSubjects" [value]="subject.id">
+                      {{ subject.subjectName }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Course Name</label>
+                  <select class="form-select" [(ngModel)]="updatedStaff.courseName" name="courseName">
+                    <option value="">-- Select Course --</option>
+                    <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}</option>
+                  </select>
+                </div>
+
+              </div>
+            </div>
+
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Create Staff</button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                (click)="resetStaffForm()">Cancel</button>
+
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
-    <div *ngIf="viewSection === 'hodCreateStaff'" class="card p-3 mb-4 rounded w-75 mx-auto">
-      <h5 class="text-primary"> Add Staff</h5>
-      <form (ngSubmit)="submitCreateStaff()" #staffForm="ngForm" novalidate>
-
-        <div class="mb-3">
-          <label class="form-label">Name</label>
-          <input type="text" class="form-control" name="name" [(ngModel)]="newStaff.name" required>
-          <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.name">Name is required.</div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Age</label>
-          <input type="number" class="form-control" name="age" [(ngModel)]="newStaff.age" min="18" required>
-          <div class="text-danger" *ngIf="staffForm.submitted && (!newStaff.age || newStaff.age < 18)">
-            Age must be 18 or older.
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Gender</label>
-          <select class="form-select" name="gender" [(ngModel)]="newStaff.gender" required>
-            <option value="">-- Select Gender --</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-
-          </select>
-          <div class="text-danger" *ngIf="staffForm.submitted && !newStaff.gender">Gender is required.
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" [(ngModel)]="newStaff.email" required email>
-          <div class="text-danger" *ngIf="staffForm.submitted && !staffForm.controls['email']?.valid">
-            Valid email is required.
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Phone Number</label>
-          <input type="text" class="form-control" name="phoneNumber" [(ngModel)]="newStaff.phoneNumber"
-            pattern="^[0-9]{10}$" required>
-          <div class="text-danger" *ngIf="staffForm.submitted && !staffForm.controls['phoneNumber']?.valid">
-            Phone number must be 10 digits.
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Subject</label>
-          <select class="form-select" [(ngModel)]="newStaff.subjectId" name="subjectId" required>
-            <option [ngValue]="null">-- Select Subject --</option>
-            <option *ngFor="let subject of hodSubjects" [value]="subject.id">
-              {{ subject.subjectName }}
-            </option>
-          </select>
-        </div>
-
-
-        <div class="mb-3">
-          <label class="form-label">Course Name (optional)</label>
-          <select class="form-select" [(ngModel)]="updatedStaff.courseName" name="courseName">
-            <option value="">-- Select Subject --</option>
-            <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-success">Create Staff</button>
-      </form>
-    </div>
-
-    <div *ngIf="viewSection === 'hodCreateSubject'" class="card p-3 mb-4">
-      <h5 class="text-primary"> Add Subject</h5>
-      <form (ngSubmit)="submitCreateSubject()">
-        <div class="mb-3">
-          <label class="form-label">Subject Name</label>
-          <input type="text" class="form-control" [(ngModel)]="newSubjectName" name="subjectName" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Subject</button>
-      </form>
-    </div>
-
-    <div *ngIf="viewSection === 'hodCreateCourse'" class="card p-3 mb-4">
-      <h5 class="text-primary"> Add Course</h5>
-      <form (ngSubmit)="submitCreateCourse()">
-        <div class="mb-3">
-          <label class="form-label">Course Name</label>
-          <input type="text" class="form-control" [(ngModel)]="newCourseName" name="courseName" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Course</button>
-      </form>
-    </div>
     <!--  All Subjects -->
+
+    <!-- Add Subject Modal -->
+    <div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form (ngSubmit)="submitCreateSubject()" #addSubjectForm="ngForm">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="addSubjectLabel">Add New Subject</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+              <label class="form-label">Subject Name</label>
+              <input type="text" class="form-control" [(ngModel)]="newSubjectName" name="newSubjectName" required
+                #subjectInput="ngModel" />
+              <div class="text-danger mt-1" *ngIf="addSubjectForm.submitted && subjectInput.invalid">
+                Subject name is required.
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Create</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <!-- Subject Edit Modal -->
     <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectLabel" aria-hidden="true">
@@ -1465,14 +1458,19 @@
     </div>
 
     <div *ngIf="viewSection === 'hodSubjects'">
-      <h5 class="text-info fw-bold mb-3"> All Subjects</h5>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-info fw-bold m-0">All Subjects</h2>
+        <button class="btn btn-success" (click)="openAddSubjectModal()">
+          <i class="bi bi-plus-circle me-1"></i> Add Subject
+        </button>
+      </div>
+
       <ng-container *ngIf="hodSubjects?.length && hodSubjects.length > 0; else noSubjects">
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
             <thead class="table-info">
               <tr>
-                <th>#</th>
-                <th>ID</th>
+                <th>S.NO</th>
                 <th>Subject Name</th>
                 <th>Department</th>
                 <th>Actions</th>
@@ -1481,7 +1479,6 @@
             <tbody>
               <tr *ngFor="let subject of hodSubjects; let i = index">
                 <td>{{ i + 1 }}</td>
-                <td>{{ subject.id }}</td>
                 <td>{{ subject.subjectName }}</td>
                 <td>{{ subject.departmentName }}</td>
                 <td>
@@ -1489,28 +1486,73 @@
                     (click)="openSubjectEditModal(subject.id, subject.subjectName)">
                     <i class="bi bi-pencil-square" title="Edit"></i>
                   </button>
-
+                   <button class="btn btn-outline-danger btn-sm me-2"
+                    (click)="deleteSubjectModal(subject.id)">
+                    <i class="bi bi-trash3" title="Delete"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </ng-container>
+
       <ng-template #noSubjects>
         <p class="text-muted">No subjects found.</p>
       </ng-template>
     </div>
 
+
+    <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form (ngSubmit)="submitCreateCourse()" #addCourseForm="ngForm" novalidate>
+            <!-- Modal Header -->
+            <div class="modal-header bg-success text-white">
+              <h2 class="modal-title" id="addCourseModalLabel">
+                <i class="bi bi-plus-circle me-2"></i> Add New Course
+              </h2>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+              <!-- Course Name -->
+              <div class="mb-3">
+                <label for="courseName" class="form-label">Course Name <span class="text-danger">*</span></label>
+                <input type="text" id="courseName" class="form-control" name="courseName" [(ngModel)]="NewCourseName"
+                  #courseNameRef="ngModel" required minlength="3" />
+
+                <div class="text-danger mt-1" *ngIf="addCourseForm.submitted && courseNameRef.invalid">
+                  <small *ngIf="courseNameRef.errors?.['required']">Course name is required.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Add Course</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- 📘 All Courses -->
     <div *ngIf="viewSection === 'hodCourses'">
-      <h5 class="text-primary fw-bold mb-3">All Courses</h5>
+      <h2 class="text-primary fw-bold mb-3">All Courses</h2>
       <div class="row mb-3">
         <div class="col-md-6">
           <input type="text" class="form-control" placeholder="Filter by Course Name" [(ngModel)]="courseSearch"
             (input)="onCourseFilterChange()" />
         </div>
       </div>
-      <ng-container *ngIf="hodCourses?.length && hodCourses.length > 0; else noCourses">
+      <button class="btn btn-success mb-3" style="margin-left: 85%;" (click)="OpenNewCourseModal()">
+        <i class="bi bi-person-plus-fill me-1"></i> Add Course
+      </button>
+      <ng-container *ngIf="courseList?.length && courseList.length > 0; else noCourses">
         <div class="table-responsive">
           <table class="table table-striped table-bordered">
             <thead class="table-primary">
@@ -1522,7 +1564,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let course of hodCourses; let i = index">
+              <tr *ngFor="let course of courseList; let i = index">
                 <td>{{ i + 1 }}</td>
                 <td>{{ course.courseName }}</td>
                 <td>{{ course.staffName }}</td>
@@ -1564,35 +1606,119 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <form (ngSubmit)="submitUpdatedCourse()" #updateCourseForm="ngForm">
-            <div class="modal-header bg-warning text-dark">
-              <h5 class="modal-title" id="updateCourseModalLabel"> Update Course</h5>
+            <div class="modal-header bg-primary text-dark">
+              <h2 class="modal-title" id="updateCourseModalLabel"> Update Course</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
               <!-- Course Name (readonly if not editable) -->
               <div class="mb-3">
-                <label class="form-label">Course Name</label>
-                <input type="text" class="form-control" [(ngModel)]="selectedCourse.courseName" name="courseName"
-                  readonly />
+                <label class="form-label">Course Name </label>
+                <input type="text" class="form-control" [(ngModel)]="selectedCourse.courseName" name="CourseName" />
               </div>
 
               <!-- Staff Dropdown -->
               <div class="mb-3">
                 <label class="form-label">Assign Staff</label>
-                <input type="text" class="form-control" [(ngModel)]="selectedCourse.staffName" name="courseName"
-                  readonly />
+                <input type="text" class="form-control" [(ngModel)]="selectedCourse.staffName" name="staffName" />
               </div>
             </div>
 
             <div class="modal-footer">
-              <button type="submit" class="btn btn-warning">Update</button>
+              <button type="submit" class="btn btn-primary">Update</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
           </form>
         </div>
       </div>
     </div>
+    <!-- View Staff Modal -->
+    <div class="modal fade" id="viewStaffModal" tabindex="-1" aria-labelledby="viewStaffModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow border-0 rounded-4">
+          <div class="modal-header text-white"
+            style="background: linear-gradient(90deg, #6a1b9a, #8e24aa); border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;">
+            <h2 class="modal-title d-flex align-items-center m-0" id="viewStaffModalLabel">
+              <i class="bi bi-person-circle me-2 fs-4"></i> Staff Profile
+            </h2>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body p-4" *ngIf="selectedStaff">
+
+            <!-- Personal Details Card -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-primary text-white">
+                <i class="bi bi-person-badge-fill me-2"></i>Personal Details
+              </div>
+              <div class="card-body">
+                <div class="row gy-3">
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-person-fill me-2 text-primary"></i>Name:</strong> {{ selectedStaff.name
+                      }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-envelope-fill me-2 text-primary"></i>Email:</strong> {{
+                      selectedStaff.email }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-gender-ambiguous me-2 text-primary"></i>Gender:</strong> {{
+                      selectedStaff.gender }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-calendar2-week-fill me-2 text-primary"></i>Age:</strong> {{
+                      selectedStaff.age }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-telephone-fill me-2 text-primary"></i>Phone:</strong> {{
+                      selectedStaff.phoneNumber }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Academic Details Card -->
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-success text-white">
+                <i class="bi bi-mortarboard-fill me-2"></i>Academic Details
+              </div>
+              <div class="card-body">
+                <div class="row gy-3">
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-book me-2 text-success"></i>Subject:</strong> {{
+                      selectedStaff.subjectNme || 'Not Assigned' }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-building me-2 text-success"></i>Department:</strong> {{
+                      selectedStaff.departmentName }}</p>
+                  </div>
+                  <div class="col-md-6" *ngIf="selectedStaff.courseName">
+                    <p><strong><i class="bi bi-journal-code me-2 text-success"></i>Course:</strong> {{
+                      selectedStaff.courseName }}</p>
+                  </div>
+                  <div class="col-md-6" *ngIf="selectedStaff.username">
+                    <p><strong><i class="bi bi-person-rolodex me-2 text-success"></i>Username:</strong> {{
+                      selectedStaff.username }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+
+          <div class="modal-footer bg-light rounded-bottom-4">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle me-1"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
     <!-- 👩‍🏫 All Staff -->
     <!-- Edit Staff Modal -->
@@ -1601,7 +1727,7 @@
         <div class="modal-content">
           <form (ngSubmit)="saveUpdatedStaff()">
             <div class="modal-header">
-              <h5 class="modal-title" id="editStaffLabel">Edit Staff</h5>
+              <h2 class="modal-title" id="editStaffLabel">Edit Staff</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1656,15 +1782,19 @@
       </div>
     </div>
 
+
     <div *ngIf="viewSection === 'hodStaff'">
-      <h5 class="text-primary fw-bold mb-3">Staff</h5>
+      <h2 class="text-primary fw-bold mb-3">Staff</h2>
+      <button class="btn btn-success mb-3" style="margin-left: 85%;" (click)="openAddStaffModal()">
+        <i class="bi bi-person-plus-fill me-1"></i> Add Staff
+      </button>
+
       <ng-container *ngIf="hodStaff?.length && hodStaff.length > 0; else noStaff">
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
             <thead class="table-secondary">
               <tr>
                 <th>S.NO</th>
-                <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Gender</th>
@@ -1677,18 +1807,21 @@
             <tbody>
               <tr *ngFor="let staff of hodStaff; let i = index">
                 <td>{{ i + 1 }}</td>
-                <td>{{staff.id}}</td>
                 <td>{{ staff.name }}</td>
                 <td>{{ staff.email }}</td>
                 <td>{{ staff.gender }}</td>
                 <td>{{ staff.phoneNumber }}</td>
-                <td>{{ staff.subjectNme }}</td>
+                <td>{{ staff.subjectNme || 'N/A' }}</td>
                 <td>{{ staff.courseName }}</td>
                 <td>
+                  <button class="btn btn-outline-info me-2 btn-sm" (click)="openViewStaffModal(staff)">
+                    <i class="bi bi-eye-fill" title="View"></i>
+                  </button>
+
                   <button class="btn btn-outline-warning btn-sm me-2" (click)="openUpdateStaffModal(staff)"><i
                       class="bi bi-pencil-square" title="Edit"></i></button>
-                  <button class="btn btn-outline-danger btn-sm me-2" (click)="openUpdateStaffModal(staff)"><i
-                      class="bi bi-trash" title="Edit"></i></button>
+                  <button class="btn btn-outline-danger btn-sm me-2" (click)="deleteStuffModel(staff)"><i
+                      class="bi bi-trash" title="Delete"></i></button>
                 </td>
               </tr>
             </tbody>

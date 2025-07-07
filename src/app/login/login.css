@@ -1,12 +1,121 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f9f1ff, #f3e9ff);
+  font-family: 'Poppins', sans-serif;
+}
+
+.card {
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem; /* Reduced from 50% to a reasonable padding */
+  width: 100%;
+  max-width: 500px;
+}
+
+.login-header h3 {
+  font-size: 1.75rem; /* Slightly smaller for better proportionality */
+  font-weight: 600;
+  color: #b13bff;
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 1.5rem; /* Consistent spacing */
+}
+
+.form-label {
+  position: relative; /* Changed from absolute to relative for better alignment */
+  display: block; /* Ensure label takes full width */
+  font-size: 0.9rem;
+  color: #b13bff;
+  margin-bottom: 0.5rem; /* Space between label and input */
+  font-weight: 500;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-group-text {
+  background-color: #f9f1ff;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 25px 0 0 25px;
+  color: #b13bff;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.form-control {
+  border-radius: 0 25px 25px 0;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #b13bff;
+  box-shadow: 0 0 8px rgba(177, 59, 255, 0.3);
+  outline: none;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.error-message {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  margin-left: 0.75rem; /* Align with input padding */
+}
+
 .login-btn {
-  background-color: #6a1b9a;
+  background-color: #b13bff;
   transition: all 0.3s ease-in-out;
+  padding: 0.75rem; /* Consistent button padding */
 }
 
 .login-btn:hover {
-  background-color: #2c2c2c;
-  color: #ffeb3b !important;
-  box-shadow: 0 0 2px rgba(106, 27, 154, 0.5);
+  background-color: #c468ff;
+  box-shadow: 0 6px 20px rgba(177, 59, 255, 0.4);
   transform: scale(1.01);
 }
 
+.login-btn:disabled {
+  background-color: #d8a7ff;
+  cursor: not-allowed;
+}
+
+.text-decoration-none {
+  color: #b13bff;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.text-decoration-none:hover {
+  color: #d8a7ff;
+}
+
+.material-icons {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .card {
+    padding: 1rem;
+  }
+
+  .login-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+}
