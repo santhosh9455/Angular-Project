@@ -1,0 +1,27 @@
+.container {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.display-1 {
+  font-size: 8rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+  .display-1 {
+    font-size: 5rem;
+  }
+  
+  .btn-lg {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+}
