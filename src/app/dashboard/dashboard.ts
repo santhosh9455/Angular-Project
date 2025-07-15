@@ -505,6 +505,7 @@ export class Dashboard implements OnInit {
     }
     else if (this.viewSection === 'adminAllStudents') {
       this.fetchStudents();
+      this.onSubjectSearch();
       this.loadAllStudents();
     }
     else if (this.viewSection === 'adminCreateHod') {
@@ -522,6 +523,7 @@ export class Dashboard implements OnInit {
     else if (this.viewSection === 'adminAllStaffHod') {
       this.fetchAdminDepartments();
       this.fetchRoles();
+      this.fetchUsers();
     }
   }
 
@@ -898,35 +900,35 @@ export class Dashboard implements OnInit {
   }
 
   submitCreateCourse() {
-  if (!this.NewCourseName || !this.NewCourseName.trim()) {
-    this.showSwal('warning', 'Course name is required', 'warning');
-    return;
-  }
-
-  const params = new HttpParams().set('courseName', this.NewCourseName.trim());
-
-  this.http.post('http://localhost:8080/hod/createCourse', null, {
-    headers: this.authService.getAuthHeaders().headers,
-    params
-  }).subscribe({
-    next: () => {
-      this.showSwal('success', 'Course Created Successfully', 'success');
-      this.NewCourseName = '';
-      this.fetchHodFilterCourses();
-
-      // Close modal after successful creation
-      const modalEl = document.getElementById('addCourseModal');
-      if (modalEl) {
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        modalInstance?.hide();  // close modal properly
-      }
-    },
-    error: (err) => {
-      console.error('Error creating course:', err);
-      this.showSwal('error', 'Creation Failed', err.error?.message || 'Something went wrong');
+    if (!this.NewCourseName || !this.NewCourseName.trim()) {
+      this.showSwal('warning', 'Course name is required', 'warning');
+      return;
     }
-  });
-}
+
+    const params = new HttpParams().set('courseName', this.NewCourseName.trim());
+
+    this.http.post('http://localhost:8080/hod/createCourse', null, {
+      headers: this.authService.getAuthHeaders().headers,
+      params
+    }).subscribe({
+      next: () => {
+        this.showSwal('success', 'Course Created Successfully', 'success');
+        this.NewCourseName = '';
+        this.fetchHodFilterCourses();
+
+        // Close modal after successful creation
+        const modalEl = document.getElementById('addCourseModal');
+        if (modalEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          modalInstance?.hide();  // close modal properly
+        }
+      },
+      error: (err) => {
+        console.error('Error creating course:', err);
+        this.showSwal('error', 'Creation Failed', err.error?.message || 'Something went wrong');
+      }
+    });
+  }
 
 
 
@@ -1054,12 +1056,16 @@ export class Dashboard implements OnInit {
 
 
   openEditStudentModal(student: any) {
+
+    this.onSubjectSearch();
     console.log('Editing student:', student); // Debug log
 
     if (!student || !student.id) {
       this.toast.showError('Invalid student selected.');
       return;
     }
+
+    
 
     this.selectedStudentId = student.id;
     this.studentEdit = {
@@ -1083,8 +1089,8 @@ export class Dashboard implements OnInit {
     const modalElement = document.getElementById('editStudentModal');
     if (modalElement) {
       const modal = new (window as any).bootstrap.Modal(modalElement);
-      this.fetchHodCourses(); // Load courses for dropdown
-      this.fetchAdminSubjects();
+      this.onSubjectSearch();
+      this.fetchHodCourses(); // Load courses for dropdown      
       modal.show();
     }
   }
@@ -1109,13 +1115,31 @@ export class Dashboard implements OnInit {
       modal.show();
     }
   }
+
+  departmentId: number | null = null;
   fetchSubjects() {
-    this.http.get<any[]>('http://localhost:8080/admin/getAllSubjects', this.authService.getAuthHeaders())
-      .subscribe({
-        next: (data) => this.subjects = data,
-        error: () => this.toast.showError('Failed to load subjects')
-      });
+    const params = {
+      page: this.page.toString(),     // Make sure `this.page` exists
+      Subjectsize: 100,     // Make sure `this.size` exists
+      search: this.searchText || '',      // Optional: if you use filtering
+      deptId: this.departmentId?.toString() || ''  // Optional: if department filter is used
+    };
+
+    this.http.get<any>('http://localhost:8080/admin/getAllNewFilterSubject', {
+      params,
+      headers: this.authService.getAuthHeaders().headers
+    }).subscribe(
+      (response) => {
+        this.subjects = response.content;       // actual data
+        this.totalElements = response.totalElements; // for pagination controls
+        this.page = response.number;            // current page
+        this.size = response.size;              // current page size
+        console.log('Subjects', this.subjects);
+      },
+      () => this.toast.showError('Failed to load subjects')
+    );
   }
+
   fetchAdminDepartments() {
     this.http.get<any[]>('http://localhost:8080/dept/AllDept')
       .subscribe({
@@ -1291,7 +1315,7 @@ export class Dashboard implements OnInit {
     this.selectedCourse.staffName = this.selectedCourse.staffName?.trim() || null;
 
     console.log('Updating course:', this.selectedCourse);
-    
+
 
     this.http.patch('http://localhost:8080/hod/updateCourse', this.selectedCourse).subscribe({
       next: () => {
@@ -1432,7 +1456,7 @@ export class Dashboard implements OnInit {
   }
 
 
-    
+
 
   fetchHodFilterCourses(): void {
     const params = {
@@ -1456,13 +1480,13 @@ export class Dashboard implements OnInit {
 
 
   openAddSubjectModal(): void {
-  this.newSubjectName = '';
-  const modal = document.getElementById('addSubjectModal');
-  if (modal) {
-    const bootstrapModal = new bootstrap.Modal(modal);
-    bootstrapModal.show();
+    this.newSubjectName = '';
+    const modal = document.getElementById('addSubjectModal');
+    if (modal) {
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.show();
+    }
   }
-}
 
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
@@ -1819,6 +1843,7 @@ export class Dashboard implements OnInit {
         this.showSwal('success', 'Success', 'User created successfully');
         this.resetNewUser();
         this.closeModal();
+        this.fetchUsers();
         this.fetchAllUsers();
       },
       error: (err) => {
@@ -1963,11 +1988,11 @@ export class Dashboard implements OnInit {
       params = params.set('role', this.filterRole);
     }
 
-    if (this.filterDepartment) {
-      params = params.set('departmentId', this.filterDepartment);
-      console.log(" ----", params);
-
+    if (this.filterDepartment !== null && this.filterDepartment !== undefined) {
+      params = params.set('departmentId', this.filterDepartment.toString());
     }
+
+    console.log("Data   .." + params);
 
     this.http.get<any>('http://localhost:8080/admin/api/users', { params }).subscribe({
       next: (res) => {
@@ -2058,18 +2083,19 @@ export class Dashboard implements OnInit {
   }
 
   editUserPro = {
-    id: null as number | null,
-    name: '' as string,
-    email: '' as string,
-    phoneNumber: '' as string,
-    gender: '' as string,
-    dateOfBirth: '' as string, // use ISO format like 'YYYY-MM-DD'
+  id: null as number | null,
+  name: '' as string,
+  email: '' as string,
+  phoneNumber: '' as string,
+  gender: '' as string,
+  dateOfBirth: '' as string,
 
-    departmentId: null as number | null,
-    subjectId: null as number | null,
-    courseId: null as number | null,
-    username: '' as string
-  };
+  departmentId: null as number | null,
+  subjectIds: [] as number[],  // ✅ updated to support multiple
+  courseId: null as number | null,
+  username: '' as string
+};
+
 
   openEditUserModal(user: any): void {
     this.fetchAdminCourses();
@@ -2083,7 +2109,7 @@ export class Dashboard implements OnInit {
       gender: user.gender || '',
       dateOfBirth: user.dateOfBirth || '',
       departmentId: user.departmentId || null,
-      subjectId: user.subjectId || null,
+      subjectIds: user.subjectIds || [],
       courseId: user.courseId || null,
       username: ''
     };
@@ -2209,13 +2235,15 @@ export class Dashboard implements OnInit {
   AdminSubmitCreateStudent() {
     const formData = new FormData();
 
-    formData.append('name', this.newStudent.name);
+    // Required fields
+    formData.append('name', this.newStudent.name || '');
     formData.append('age', this.newStudent.age?.toString() || '');
-    formData.append('gender', this.newStudent.gender);
-    formData.append('email', this.newStudent.email);
-    formData.append('phoneNumber', this.newStudent.phoneNumber);
+    formData.append('gender', this.newStudent.gender || '');
+    formData.append('email', this.newStudent.email || '');
+    formData.append('phoneNumber', this.newStudent.phoneNumber || '');
     formData.append('departmentId', this.newStudent.departmentId?.toString() || '');
 
+    // Optional file fields
     if (this.newStudent.profileImage) {
       formData.append('profileImage', this.newStudent.profileImage);
     }
@@ -2224,14 +2252,37 @@ export class Dashboard implements OnInit {
       formData.append('marksheetImage', this.newStudent.marksheetImage);
     }
 
-    this.http.post('http://localhost:8080/admin/createStudent', formData).subscribe({
+    this.http.post(
+      'http://localhost:8080/admin/createStudent',
+      formData,
+      this.authService.getAuthHeaders() // ensure this returns `{ headers: HttpHeaders }`
+    ).subscribe({
       next: (res) => {
         this.showSwal('success', 'Success', 'Student created successfully');
-        this.closeModal();
+
+        // ✅ Reset form
+        this.newStudent = {
+          name: '',
+          age: null,
+          gender: '',
+          email: '',
+          phoneNumber: '',
+          departmentId: null,
+          profileImage: null,
+          marksheetImage: null
+        };
+        this.fetchStudents();
+
+        // ✅ Close modal safely
+        const modalEl = document.getElementById('createStudentModal');
+        if (modalEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          modalInstance?.hide();
+        }
       },
       error: (err) => {
         console.error('Error creating user:', err);
-        this.showSwal('error', 'Failed to create user', err.error?.message || 'Unknown error');
+        this.showSwal('error', 'Failed to create student', err.error?.message || 'Unknown error');
       }
     });
   }

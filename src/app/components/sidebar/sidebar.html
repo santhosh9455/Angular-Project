@@ -5,7 +5,7 @@
     <!-- ✅ Admin View -->
     <ng-container *ngIf="hasRole('ROLE_ADMIN')">
       <li (click)="selectSection('dashboard')" [class.selected]="activeSection === 'dashboard'">
-        <i class="bi bi-person-fill me-2 fs-5"></i> Dashboard
+        <i class="bi bi-speedometer2 me-2 fs-5"></i> Dashboard
       </li>
       <li (click)="selectSection('adminAllUsers')" [class.selected]="activeSection === 'adminAllUsers'">
         <i class="bi bi-people-fill me-2 fs-5"></i> Users

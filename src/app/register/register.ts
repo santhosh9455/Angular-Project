@@ -41,7 +41,7 @@ showSwal(typeIcon: 'success' | 'error' | 'warning' | 'info' | 'question' = 'succ
       title: title,
       text: text,
       icon: typeIcon,
-      confirmButtonText: 'Cool'
+      confirmButtonText: 'OK'
     });
   }
 
@@ -90,8 +90,7 @@ ngOnInit(): void {
         },
         error: (err) => {
           console.error('Registration failed:', err);
-          this.showSwal('error','Registration failed:',err),
-          this.registrationForm.reset();
+          this.showSwal('error','Registration failed:',err);
         }
       });
     }
