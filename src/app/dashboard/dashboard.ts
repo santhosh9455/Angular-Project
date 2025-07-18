@@ -193,7 +193,7 @@ export class Dashboard implements OnInit {
   selectedStudent: any = null;
   studentEdit: {
     status: string;
-    subjectId: number | null;
+    subjectId: number[];
     courseId: number | null;
     departmentId: number | null;
     courseStatus: string;
@@ -206,20 +206,20 @@ export class Dashboard implements OnInit {
     marksheetImage: File | null;
     username: string;
   } = {
-      name: '',
-      age: null,
-      gender: '',
-      email: '',
-      phoneNumber: '',
-      profileImage: null,
-      marksheetImage: null,
-      status: '',
-      subjectId: null,
-      courseId: null,
-      departmentId: null,
-      courseStatus: '',
-      username: ''
-    };
+    name: '',
+    age: null,
+    gender: '',
+    email: '',
+    phoneNumber: '',
+    profileImage: null,
+    marksheetImage: null,
+    status: '',
+    subjectId: [],
+    courseId: null,
+    departmentId: null,
+    courseStatus: '',
+    username: ''
+  };
 
 
   selectedSubjectId: number | null = null;
@@ -238,7 +238,7 @@ export class Dashboard implements OnInit {
     dateOfBirth: '',
     roleId: null,
     departmentId: null,
-    subjectId: null,
+    subjectId: [] as number[],
     courseId: null,
   };
   newUser = { username: '', password: '', roleId: null };
@@ -456,6 +456,7 @@ export class Dashboard implements OnInit {
     if (this.viewSection === 'profile' && !this.studentProfile) {
       this.fetchStudentProfile();
     } else if (this.viewSection === 'courses' && this.courseList.length === 0) {
+      this.fetchHodFilterCourses();
       this.onCourseFilterChange();
     } else if (this.viewSection === 'department' && !this.departmentInfo) {
       this.loadDepartmentInfo();
@@ -506,7 +507,6 @@ export class Dashboard implements OnInit {
     else if (this.viewSection === 'adminAllStudents') {
       this.fetchStudents();
       this.onSubjectSearch();
-      this.loadAllStudents();
     }
     else if (this.viewSection === 'adminCreateHod') {
       this.fetchAdminDepartments();
@@ -782,6 +782,7 @@ export class Dashboard implements OnInit {
       .subscribe({
         next: res => {
           this.hodStaff = res;
+          console.log('HOD Staff:', this.hodStaff);
           this.fetchHodCourses();
           this.fetchHodSubjects();
         },
@@ -1058,6 +1059,7 @@ export class Dashboard implements OnInit {
   openEditStudentModal(student: any) {
 
     this.onSubjectSearch();
+    this.fetchSubjects();
     console.log('Editing student:', student); // Debug log
 
     if (!student || !student.id) {
@@ -1091,6 +1093,7 @@ export class Dashboard implements OnInit {
       const modal = new (window as any).bootstrap.Modal(modalElement);
       this.onSubjectSearch();
       this.fetchHodCourses(); // Load courses for dropdown      
+      this.fetchAdminCourses();
       modal.show();
     }
   }
@@ -1125,7 +1128,7 @@ export class Dashboard implements OnInit {
       deptId: this.departmentId?.toString() || ''  // Optional: if department filter is used
     };
 
-    this.http.get<any>('http://localhost:8080/admin/getAllNewFilterSubject', {
+    this.http.get<any>('http://localhost:8080/admin/getFilterAllSubjects', {
       params,
       headers: this.authService.getAuthHeaders().headers
     }).subscribe(
@@ -1143,7 +1146,10 @@ export class Dashboard implements OnInit {
   fetchAdminDepartments() {
     this.http.get<any[]>('http://localhost:8080/dept/AllDept')
       .subscribe({
-        next: (data) => this.departments = data,
+        next: (data) => {
+          this.departments = data;
+          console.log(this.departments);
+        },
         error: () => this.toast.showError('Failed to load departments')
       });
   }
@@ -1654,7 +1660,7 @@ export class Dashboard implements OnInit {
     if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
     if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
     if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
-    if (this.studentEdit.subjectId) formData.append('studentSubject', this.studentEdit.subjectId.toString());
+    if (this.studentEdit.subjectId) formData.append('subjectId', this.studentEdit.subjectId.toString());
     if (this.studentEdit.status) formData.append('status', this.studentEdit.status);
     if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
     if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
@@ -1862,7 +1868,7 @@ export class Dashboard implements OnInit {
       dateOfBirth: '',
       roleId: null,
       departmentId: null,
-      subjectId: null,
+      subjectId: [] as number[],
       courseId: null,
     };
   }
@@ -1910,6 +1916,7 @@ export class Dashboard implements OnInit {
       next: (res) => {
         Swal.fire('Success', 'Student deleted successfully.', 'success');
         this.fetchAllStudents(); // Refresh the student list
+        this.fetchStudents();
       },
       error: (err) => {
         Swal.fire('Error', err.error?.message || 'Failed to delete student', 'error');
@@ -1999,6 +2006,8 @@ export class Dashboard implements OnInit {
         this.UsersProfile = res.content;
         this.totalPages = res.totalPages;
         this.totalElements = res.totalElements;
+        console.log("User Profile info",this.UsersProfile);
+        
       },
       error: (err) => {
         console.error('Error fetching users:', err);
@@ -2071,7 +2080,7 @@ export class Dashboard implements OnInit {
       dateOfBirth: '',
       roleId: null,
       departmentId: null,
-      subjectId: null,
+      subjectId: [] as number[],  // ✅ updated to support multiple
       courseId: null,
     };
 
@@ -2091,13 +2100,16 @@ export class Dashboard implements OnInit {
   dateOfBirth: '' as string,
 
   departmentId: null as number | null,
-  subjectIds: [] as number[],  // ✅ updated to support multiple
+  subjectId: [] as number[],  // ✅ updated to support multiple
   courseId: null as number | null,
-  username: '' as string
+  username: '' as string,
+  subjectName:'' as string
 };
 
 
   openEditUserModal(user: any): void {
+    console.log("User details",user);
+    
     this.fetchAdminCourses();
     this.fetchSubjects();
     this.fetchAdminDepartments();
@@ -2109,11 +2121,14 @@ export class Dashboard implements OnInit {
       gender: user.gender || '',
       dateOfBirth: user.dateOfBirth || '',
       departmentId: user.departmentId || null,
-      subjectIds: user.subjectIds || [],
+      subjectId: user.subjectId || [],  // ✅ extract subject IDs only
       courseId: user.courseId || null,
-      username: ''
+      username: '',
+      subjectName:user.subjectName || ''
     };
 
+    console.log("After selected user ",this.editUserPro);
+    
     const modalEl = document.getElementById('editUserProModal');
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
@@ -2210,6 +2225,7 @@ export class Dashboard implements OnInit {
     const modalElement = document.getElementById('createStudentModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
+      this.onSubjectSearch();
       modal.show();
     }
   }

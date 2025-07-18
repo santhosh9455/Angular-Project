@@ -39,10 +39,14 @@
   padding: 6px 12px;
   cursor: pointer;
 } 
-.table th, .table td {
+.table th {
   vertical-align: middle;
   text-align: center;
 }
+ .table td{
+  vertical-align: middle;
+  text-align: start;
+ }
 .hod-dashboard .student-btn {
     background-color: #6a1b9a;
     color: #fff;
@@ -61,7 +65,7 @@
     overflow: hidden;
     background-color: #fff;
   }
-  .table th, .table td {
+  .table th {
     text-align: center;
     vertical-align: middle;
   }
@@ -272,8 +276,17 @@ img.rounded-circle {
   text-align: center;
   padding: 12px 8px;
 }
-.mat-row:hover {
+/* This affects the sort arrow (both ascending and descending) */
+::ng-deep .mat-sort-header-arrow {
+  color: white !important; /* your preferred color */
+  opacity: 1 !important;
+}
+.mat-cell{
   background-color: #f3e9ff;
+}
+
+.mat-cell:hover {
+  background-color: #6806df;
 }
 .modal-title {
   font-weight: 600;
