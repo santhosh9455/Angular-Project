@@ -24,7 +24,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 declare var bootstrap: any;
 
 @Component({
@@ -38,8 +39,8 @@ declare var bootstrap: any;
     MatPaginatorModule,
     MatSortModule,
     MatButtonModule,
-    MatIconModule,
-  ],
+    MatCardModule,
+    MatIconModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -206,20 +207,20 @@ export class Dashboard implements OnInit {
     marksheetImage: File | null;
     username: string;
   } = {
-    name: '',
-    age: null,
-    gender: '',
-    email: '',
-    phoneNumber: '',
-    profileImage: null,
-    marksheetImage: null,
-    status: '',
-    subjectId: [],
-    courseId: null,
-    departmentId: null,
-    courseStatus: '',
-    username: ''
-  };
+      name: '',
+      age: null,
+      gender: '',
+      email: '',
+      phoneNumber: '',
+      profileImage: null,
+      marksheetImage: null,
+      status: '',
+      subjectId: [],
+      courseId: null,
+      departmentId: null,
+      courseStatus: '',
+      username: ''
+    };
 
 
   selectedSubjectId: number | null = null;
@@ -511,6 +512,9 @@ export class Dashboard implements OnInit {
     else if (this.viewSection === 'adminCreateHod') {
       this.fetchAdminDepartments();
     }
+    else if (this.viewSection === 'adminDepartment') {
+      this.loadDepartments();
+    }
     else if (this.viewSection === 'adminCreateUser') {
       this.fetchRoles();
     }
@@ -688,7 +692,9 @@ export class Dashboard implements OnInit {
     console.log('Fetching course students with params:', params);
     this.http.get<any>('http://localhost:8080/staff/getCourseFilerStud', { params }).subscribe({
       next: (res) => {
-        this.pendingStudents = res.students;
+        // this.pendingStudents = res.students;
+        this.pendingStudents = Array.isArray(res.students) ? res.students : [res.students];
+
         this.studentTotalPages = res.totalPages;
       },
       error: (err) => {
@@ -1067,7 +1073,7 @@ export class Dashboard implements OnInit {
       return;
     }
 
-    
+
 
     this.selectedStudentId = student.id;
     this.studentEdit = {
@@ -1166,7 +1172,35 @@ export class Dashboard implements OnInit {
       });
   }
 
+  displayedColumnsdept: string[] = ['index', 'departmentName', 'actions'];
 
+  dataSource = new MatTableDataSource<any>([]);
+  pageSize = 5;
+
+  loadDepartments(): void {
+    let params = new HttpParams()
+      .set('page', this.page)
+      .set('size', this.pageSize)
+      .set('search', this.searchText.trim());
+
+    this.http.get<any>('http://localhost:8080/dept/AllFilterDept', { params }).subscribe({
+      next: (response) => {
+        this.dataSource.data = response.departments;
+        console.log(this.dataSource.data);
+
+        this.totalElements = response.totalItems;
+      },
+      error: (err) => {
+        console.error('Error fetching departments', err);
+      }
+    });
+  }
+
+  onPageChangeDept(event: PageEvent): void {
+    this.page = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadDepartments();
+  }
   onProfileImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -1185,6 +1219,140 @@ export class Dashboard implements OnInit {
     }
   }
 
+  departmentName: string = '';
+  selectedDepartmentId: number | null = null;
+
+  editDepartment(dept: any) {
+    this.departmentId = dept.id;
+    this.newDepartmentName = dept.departmentName;
+
+    const modal = document.getElementById('editDepartmentModal');
+    if (modal) {
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.show();
+    } else {
+      console.error('Edit Department modal element not found');
+    }
+  }
+
+  AdminEditDept() {
+    if (!this.newDepartmentName || !this.newDepartmentName.trim()) {
+      this.toast.showError('Department name cannot be empty.');
+      return;
+    }
+
+    const params = new HttpParams().set('newDepartmentName', this.newDepartmentName.trim());
+
+    this.http.patch(
+      `http://localhost:8080/dept/updateDept/${this.departmentId}`,
+      null,
+      {
+        headers: this.authService.getAuthHeaders().headers,
+        params
+      }
+    ).subscribe({
+      next: () => {
+        this.showSwal('success', 'Department Updated', 'success');
+        this.newDepartmentName = '';
+        this.loadDepartments();
+
+        // Close modal
+        const modalEl = document.getElementById('editDepartmentModal');
+        if (modalEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          modalInstance?.hide();
+        }
+      },
+      error: (err) => {
+        console.error('Error Updating department:', err);
+        this.resetDepForm();
+        this.showSwal('error', 'Update Failed', err.error?.message || 'Something went wrong');
+      }
+    });
+  }
+  deleteDepartment(deptId: number) {
+    this.selectedDepartmentId = deptId;
+    Swal.fire({
+      title: 'Delete this Department?',
+      text: 'Are you sure you want to delete this Department?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log(this.selectedDepartmentId);
+
+        this.http.delete(`http://localhost:8080/dept/deleteDept/${this.selectedDepartmentId}`, this.authService.getAuthHeaders())
+          .subscribe({
+            next: () => {
+              this.showSwal('success', 'Department Deleted', 'Department deleted successfully!');
+              this.loadDepartments();
+            },
+            error: (err) => {
+              console.error('Error deleting department:', err);
+              this.showSwal('error', 'Deletion Failed', err.error?.message || 'Something went wrong');
+            }
+          });
+      }
+    });
+  }
+  newDepartmentName: string = '';
+
+  openNewDepartmentModal() {
+    this.newDepartmentName = ''; // Reset the input field
+    const modal = document.getElementById('newDepartmentModal');
+    if (modal) {
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.show();
+    } else {
+      console.error('Add Department modal element not found');
+    }
+  }
+
+  resetDepForm() {
+    this.newDepartmentName = ''; // Reset the input field
+    const modal = document.getElementById('newDepartmentModal');
+    console.log("Resetting Department Form");
+
+    if (modal) {
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.hide();
+    } else {
+      console.error('Add Department modal element not found');
+    }
+  }
+  AdminsubmitCreateDepartment() {
+    if (!this.newDepartmentName || !this.newDepartmentName.trim()) {
+      this.toast.showError('Department name cannot be empty.');
+      return;
+    }
+
+    const params = new HttpParams().set('departmentName', this.newDepartmentName.trim());
+
+    this.http.post('http://localhost:8080/dept/createDept', null, {
+      headers: this.authService.getAuthHeaders().headers,
+      params
+    }).subscribe({
+      next: () => {
+        this.showSwal('success', 'Department Created', 'success');
+        this.newDepartmentName = '';
+        this.loadDepartments();
+
+        // Close modal after successful creation
+        const modalEl = document.getElementById('newDepartmentModal');
+        if (modalEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          modalInstance?.hide();  // close modal properly
+        }
+      },
+      error: (err) => {
+        console.error('Error creating department:', err);
+        this.resetDepForm();
+        this.showSwal('error', 'Creation Failed', err.error?.message || 'Something went wrong');
+      }
+    });
+  }
 
 
   submitUpdateStudent() {
@@ -2006,8 +2174,8 @@ export class Dashboard implements OnInit {
         this.UsersProfile = res.content;
         this.totalPages = res.totalPages;
         this.totalElements = res.totalElements;
-        console.log("User Profile info",this.UsersProfile);
-        
+        console.log("User Profile info", this.UsersProfile);
+
       },
       error: (err) => {
         console.error('Error fetching users:', err);
@@ -2092,24 +2260,24 @@ export class Dashboard implements OnInit {
   }
 
   editUserPro = {
-  id: null as number | null,
-  name: '' as string,
-  email: '' as string,
-  phoneNumber: '' as string,
-  gender: '' as string,
-  dateOfBirth: '' as string,
+    id: null as number | null,
+    name: '' as string,
+    email: '' as string,
+    phoneNumber: '' as string,
+    gender: '' as string,
+    dateOfBirth: '' as string,
 
-  departmentId: null as number | null,
-  subjectId: [] as number[],  // ✅ updated to support multiple
-  courseId: null as number | null,
-  username: '' as string,
-  subjectName:'' as string
-};
+    departmentId: null as number | null,
+    subjectId: [] as number[],  // ✅ updated to support multiple
+    courseId: null as number | null,
+    username: '' as string,
+    subjectName: '' as string
+  };
 
 
   openEditUserModal(user: any): void {
-    console.log("User details",user);
-    
+    console.log("User details", user);
+
     this.fetchAdminCourses();
     this.fetchSubjects();
     this.fetchAdminDepartments();
@@ -2124,11 +2292,11 @@ export class Dashboard implements OnInit {
       subjectId: user.subjectId || [],  // ✅ extract subject IDs only
       courseId: user.courseId || null,
       username: '',
-      subjectName:user.subjectName || ''
+      subjectName: user.subjectName || ''
     };
 
-    console.log("After selected user ",this.editUserPro);
-    
+    console.log("After selected user ", this.editUserPro);
+
     const modalEl = document.getElementById('editUserProModal');
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);

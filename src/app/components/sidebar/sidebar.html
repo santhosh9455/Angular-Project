@@ -1,6 +1,6 @@
 <nav class="sidebar" [class.collapsed]="collapsed">
   <ul class="list-unstyled mt-4">
-   
+
 
     <!-- ✅ Admin View -->
     <ng-container *ngIf="hasRole('ROLE_ADMIN')">
@@ -14,7 +14,10 @@
         <i class="bi bi-mortarboard-fill me-2 fs-5"></i> Students
       </li>
       <li (click)="selectSection('adminAllStaffHod')" [class.selected]="activeSection === 'adminAllStaffHod'">
-        <i class="bi bi-person-lines-fill m-2 fs-5"></i> Staff & HOD
+        <i class="bi bi-person-lines-fill m-0 fs-5"></i> Staff & HOD
+      </li>
+      <li (click)="selectSection('adminDepartment')" [class.selected]="activeSection === 'adminDepartment'">
+        <i class="bi bi-person-lines-fill m-0 fs-5"></i> Department
       </li>
     </ng-container>
     <!-- HOD View -->

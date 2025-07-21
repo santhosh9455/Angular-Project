@@ -12,6 +12,5 @@ export const routes: Routes = [
   { path: 'register', component: RegistrationComponent },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   { path: 'logout', redirectTo: 'login', pathMatch: 'full' },
-  {path:'**',component:Error404}
-  
+  { path: '**', component: Error404 }
 ];
