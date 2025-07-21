@@ -172,11 +172,12 @@ export class Dashboard implements OnInit {
   hodCourses: any[] = [];
   newStaff = {
     name: '',
+    courseId: null,
     age: null,
     gender: '',
     email: '',
     phoneNumber: '',
-    subjectId: null,
+    subjectId: [],
     courseName: null
   };
 
@@ -474,7 +475,7 @@ export class Dashboard implements OnInit {
       this.fetchApprovedStudent();
     }
     else if (this.viewSection === 'subjectStudents') {
-      this.fetchSubjectStudents();
+      this.fetchFilerSubjectStudents();
     } else if (this.viewSection === 'staffInfo') {
       this.fetchStaffInfo();
     } else if (this.viewSection === 'allStudents') {
@@ -731,7 +732,7 @@ export class Dashboard implements OnInit {
 
     this.http.get<any>('http://localhost:8080/staff/getFilterSubjectStudents', { params }).subscribe({
       next: (res) => {
-        this.subjectStudents = res.students;
+        this.subjectStudents = res.content;
         this.subjectStudentTotalPages = res.totalPages;
       },
       error: (err) => {
@@ -856,20 +857,21 @@ export class Dashboard implements OnInit {
             gender: '',
             email: '',
             phoneNumber: '',
-            subjectId: null,
+            subjectId: [],
+            courseId:null,
             courseName: null
           };
           this.fetchHodToStaff(); // Assuming this method reloads the staff list
           this.showSwal('success', "Staff Created Successfully", "success"); // Show success message
           const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
-          modal?.hide();
+          modal.hide();
         },
         error: (err) => {
           console.error('Create staff error:', err);
           const errorMessage = err?.error?.message || 'Something went wrong';
           this.showSwal('error', "Failed to create staff", errorMessage); // Show error message
           const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
-          modal?.hide();
+          modal.hide();
         }
       });
   }
@@ -1063,7 +1065,6 @@ export class Dashboard implements OnInit {
 
 
   openEditStudentModal(student: any) {
-
     this.onSubjectSearch();
     this.fetchSubjects();
     console.log('Editing student:', student); // Debug log
@@ -1371,7 +1372,7 @@ export class Dashboard implements OnInit {
     if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
     if (this.studentEdit.courseId) formData.append('courseId', this.studentEdit.courseId.toString());
     if (this.studentEdit.departmentId) formData.append('departmentId', this.studentEdit.departmentId.toString());
-    if (this.studentEdit.subjectId) formData.append('studentSubject', this.studentEdit.subjectId.toString());
+    if (this.studentEdit.subjectId) formData.append('subjectId', this.studentEdit.subjectId.toString());
     if (this.studentEdit.status) formData.append('status', this.studentEdit.status);
     if (this.studentEdit.courseStatus) formData.append('courseStatus', this.studentEdit.courseStatus.toString());
     if (this.studentEdit.profileImage) formData.append('profileImage', this.studentEdit.profileImage);
@@ -1595,6 +1596,7 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         Swal.fire('Warning', err.error.message, 'error');
+        
       }
     })
 
@@ -1612,10 +1614,13 @@ export class Dashboard implements OnInit {
       gender: '',
       email: '',
       phoneNumber: '',
-      subjectId: null,
+      subjectId: [],
+      courseId:null,
       courseName: null
     };
     this.updatedStaff = {};
+    const modal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+    modal.hide();
   }
 
   @ViewChild('staffForm') staffForm!: NgForm;
