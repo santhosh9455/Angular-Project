@@ -335,8 +335,10 @@ export class Dashboard implements OnInit {
   }
 
   confirmStudentAction(studentId: number, action: 'approve' | 'reject' | 'approveByStaff' | 'rejectByStaff' | 'deleteCourse') {
-    const actionText = action === 'approve' ? 'Approve' : 'Reject';
-    const confirmText = action === 'approve' ? 'Yes, approve it!' : 'Yes, reject it!';
+    const actionText = action === 'approve' || 'approveByStaff' ? 'Approve' : 'Reject';
+    const confirmText = action === 'approve' || 'approveByStaff' ? 'Yes, approve it!' : 'Yes, reject it!';
+
+    console.log(actionText, action);
 
 
     Swal.fire({
@@ -476,7 +478,7 @@ export class Dashboard implements OnInit {
     }
     else if (this.viewSection === 'subjectStudents') {
       this.fetchFilerSubjectStudents();
-    } else if (this.viewSection === 'staffInfo') {
+    } else if (this.viewSection === 'StaffInfo') {
       this.fetchStaffInfo();
     } else if (this.viewSection === 'allStudents') {
       this.fetchAllStudents();
@@ -858,7 +860,7 @@ export class Dashboard implements OnInit {
             email: '',
             phoneNumber: '',
             subjectId: [],
-            courseId:null,
+            courseId: null,
             courseName: null
           };
           this.fetchHodToStaff(); // Assuming this method reloads the staff list
@@ -1596,7 +1598,7 @@ export class Dashboard implements OnInit {
       },
       error: (err) => {
         Swal.fire('Warning', err.error.message, 'error');
-        
+
       }
     })
 
@@ -1615,7 +1617,7 @@ export class Dashboard implements OnInit {
       email: '',
       phoneNumber: '',
       subjectId: [],
-      courseId:null,
+      courseId: null,
       courseName: null
     };
     this.updatedStaff = {};
@@ -2375,6 +2377,8 @@ export class Dashboard implements OnInit {
     age: number | null;
     gender: string;
     email: string;
+    courseId: number | null;
+    subjectId: [];
     phoneNumber: string;
     departmentId: number | null;
     profileImage: File | null;
@@ -2384,6 +2388,8 @@ export class Dashboard implements OnInit {
       age: null,
       gender: '',
       email: '',
+      courseId: null,
+      subjectId: [],
       phoneNumber: '',
       departmentId: null,
       profileImage: null,
@@ -2391,14 +2397,12 @@ export class Dashboard implements OnInit {
     };
 
   createStudentModal() {
-    this.fetchRoles(); // fetch roles to populate dropdown if not already fetched
-
-
     // Show modal
     const modalElement = document.getElementById('createStudentModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
-      this.onSubjectSearch();
+      this.fetchSubjects();
+      this.fetchAdminCourses();
       modal.show();
     }
   }
@@ -2431,6 +2435,8 @@ export class Dashboard implements OnInit {
     formData.append('email', this.newStudent.email || '');
     formData.append('phoneNumber', this.newStudent.phoneNumber || '');
     formData.append('departmentId', this.newStudent.departmentId?.toString() || '');
+    formData.append('studentCourse', this.newStudent.courseId?.toString() || '');
+    formData.append('subjectId', this.newStudent.subjectId.toString())
 
     // Optional file fields
     if (this.newStudent.profileImage) {
@@ -2455,6 +2461,8 @@ export class Dashboard implements OnInit {
           age: null,
           gender: '',
           email: '',
+          courseId: null,
+          subjectId: [],
           phoneNumber: '',
           departmentId: null,
           profileImage: null,

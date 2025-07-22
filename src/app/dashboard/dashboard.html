@@ -340,7 +340,7 @@
             <tr *ngFor="let user of UsersProfile; let i = index">
               <td>{{ i + 1 + (page * size) }}</td>
               <td>{{ user.name || 'N/A'}}</td>
-              <td class="text-start me-2">
+              <td class="text-center m-0 p-0">
                 <span
                   class="badge bg-{{ user.role === 'ROLE_HOD' ? 'success' : user.role === 'ROLE_STAFF' ? 'warning text-dark' : 'danger' }} text-start">
                   {{ user.role?.startsWith('ROLE_') ? user.role?.substring(5)
@@ -351,7 +351,7 @@
               <td>{{ user.username || 'N/A' }}</td>
               <td>{{ user.phoneNumber || 'N/A' }}</td>
               <td>{{ user.departmentName || 'N/A' }}</td>
-              <td>
+              <td class="d-flex justify-content-center">
                 <button class="btn btn-outline-info btn-sm me-1" title="View" (click)="viewUsersProfile(user)">
                   <i class="bi bi-eye-fill"></i>
                 </button>
@@ -741,7 +741,7 @@
         <!-- Header and Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="text-primary"> All Students</h2>
-          <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createStudentModal">
+          <button class="btn btn-success" data-bs-toggle="modal" (click)=" createStudentModal()" data-bs-target="#createStudentModal">
             <i class="bi bi-person-plus-fill me-1"></i> Add Student
           </button>
         </div>
@@ -790,13 +790,13 @@
                 <td>{{ student.username || 'N/A' }}</td>
                 <td>{{ student.phoneNumber || 'N/A' }}</td>
                 <td>{{ student.departmentName || 'N/A' }}</td>
-                <td>
+                <td class="text-center m-0 p-0">
                   <span
                     class="badge bg-{{ student.status === 'APPROVED' ? 'success' : student.status === 'PENDING' ? 'warning text-dark' : 'danger' }}">
                     {{ student.status }}
                   </span>
                 </td>
-                <td class="d-flex justify-content-center gap-2">
+                <td class="d-flex justify-content-center gap-2 border-right-0">
                   <button class="btn btn-outline-info btn-sm" title="View" (click)="viewStudentProfile(student)">
                     <i class="bi bi-eye"></i>
                   </button>
@@ -1141,6 +1141,21 @@
                     <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
                   </select>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="editCourse" class="form-label">Course Name</label>
+                    <ng-select class="form-select" name="studentCourse" [items]="Courses" bindLabel="courseName"
+                      bindValue="id" [(ngModel)]="newStudent.courseId" name="courseId" [searchable]="true"
+                      [clearable]="true">
+                    </ng-select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Subjects</label>
+                    <ng-select class="form-select" name="subjectId" [items]="subjects" bindLabel="subjectName"
+                      bindValue="id" [(ngModel)]="newStudent.subjectId" name="subjectIds" [searchable]="true"
+                      [clearable]="true" [multiple]="true"> <!-- ✅ Enables multiple selection -->
+                    </ng-select>
+                  </div>
 
                 <!-- Profile Image -->
                 <div class="col-md-6 mb-3">
@@ -2011,7 +2026,7 @@
 
       <!-- Common Table -->
       <div *ngIf="viewSection === 'pending'">
-        <h5 class="text-primary fw-bold mb-3">Course Students</h5>
+        <h2 class="text-primary fw-bold mb-3">Course Students</h2>
 
         <!-- Filters -->
         <div class="row mb-3">
@@ -2052,9 +2067,9 @@
                 <td>{{student.status}}</td>
                 <td>
                   <button class="btn btn-success btn-sm me-2"
-                    (click)="confirmStudentAction(student.id, 'approveByStaff')"><i
+                    (click)="confirmStudentAction(student.id, 'approveByStaff')" title="Approve"><i
                       class="bi bi-check-circle"></i></button>
-                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'rejectByStaff')"><i
+                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'rejectByStaff')" title="Reject"><i
                       class="bi bi-x-circle"></i></button>
                 </td>
               </tr>
@@ -2083,7 +2098,7 @@
       </div>
 
       <div *ngIf="viewSection === 'subjectStudents'">
-        <h5 class="text-info fw-bold mb-3">Students Under Your Subject</h5>
+        <h2 class="text-info fw-bold mb-3">Students Under Your Subject</h2>
 
         <!-- Filters -->
         <div class="row mb-3">
@@ -2141,7 +2156,7 @@
         </ng-template>
       </div>
 
-      <div *ngIf="viewSection === 'staffInfo'" class="card shadow-sm border-0 mb-4 bg-light p-4">
+      <div *ngIf="viewSection === 'StaffInfo'" class="card shadow-sm border-0 mb-4 bg-light p-4">
         <div class="row g-4 align-items-center">
           <!-- Profile Image & Basic Info -->
           <div class="col-md-4 text-center">
