@@ -26,6 +26,10 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { ReportService } from '../services/report/report-service';
+
+
+
 declare var bootstrap: any;
 
 @Component({
@@ -50,7 +54,7 @@ export class Dashboard implements OnInit {
 
 
 
-  constructor(private route: ActivatedRoute, private toast: ToastService) {
+  constructor(private route: ActivatedRoute, private toast: ToastService, private reportService: ReportService) {
 
   }
   // Chart.js related properties
@@ -1780,6 +1784,7 @@ export class Dashboard implements OnInit {
 
 
 
+
   loadAllStudents() {
     this.http.get<any[]>('http://localhost:8080/admin/gellAllStud', {
       headers: {
@@ -2143,6 +2148,8 @@ export class Dashboard implements OnInit {
   }
 
 
+
+ 
   // Filter parameters
   searchText: string = '';
   filterRole: string = '';
@@ -2155,6 +2162,27 @@ export class Dashboard implements OnInit {
   size: number = 10;
   totalPages: number = 0;
   totalElements: number = 0;
+
+  downloadReport(type: 'pdf' | 'excel' | 'csv', fullDownload: boolean = false): void {
+  this.reportService.downloadReport(
+    type,
+    fullDownload,
+    {
+      search: this.searchText,
+      departmentId: this.filterDepartment ?? undefined,
+      status: this.filterStatus
+    },
+    this.page,
+    fullDownload ? 10000 : this.size
+  ).subscribe(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students.${type === 'excel' ? 'xlsx' : type}`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  });
+}
 
 
   fetchUsers(): void {

@@ -741,7 +741,8 @@
         <!-- Header and Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h2 class="text-primary"> All Students</h2>
-          <button class="btn btn-success" data-bs-toggle="modal" (click)=" createStudentModal()" data-bs-target="#createStudentModal">
+          <button class="btn btn-success" data-bs-toggle="modal" (click)=" createStudentModal()"
+            data-bs-target="#createStudentModal">
             <i class="bi bi-person-plus-fill me-1"></i> Add Student
           </button>
         </div>
@@ -829,6 +830,29 @@
             </li>
           </ul>
         </nav>
+
+        <div class="dropdown d-flex justify-content-end align-items-end mt-2">
+          <button class="btn btn-primary  rounded-circle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            style="width: 50px; height: 50px;">
+            <i class="bi bi-download"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li class=" dropdown-header text-center fw-bold">Current Page</li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('pdf')">PDF</a></li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('excel')">Excel</a></li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('csv')">CSV</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li class="dropdown-header text-center fw-bold">Download All</li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('pdf', true)">PDF (All)</a></li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('excel', true)">Excel (All)</a></li>
+            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('csv', true)">CSV (All)</a></li>
+          </ul>
+        </div>
+
+
+
       </div>
 
       <div *ngIf="viewSection === 'adminDepartment'" class="px-3 py-2">
@@ -1143,19 +1167,19 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="editCourse" class="form-label">Course Name</label>
-                    <ng-select class="form-select" name="studentCourse" [items]="Courses" bindLabel="courseName"
-                      bindValue="id" [(ngModel)]="newStudent.courseId" name="courseId" [searchable]="true"
-                      [clearable]="true">
-                    </ng-select>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Subjects</label>
-                    <ng-select class="form-select" name="subjectId" [items]="subjects" bindLabel="subjectName"
-                      bindValue="id" [(ngModel)]="newStudent.subjectId" name="subjectIds" [searchable]="true"
-                      [clearable]="true" [multiple]="true"> <!-- ✅ Enables multiple selection -->
-                    </ng-select>
-                  </div>
+                  <label for="editCourse" class="form-label">Course Name</label>
+                  <ng-select class="form-select" name="studentCourse" [items]="Courses" bindLabel="courseName"
+                    bindValue="id" [(ngModel)]="newStudent.courseId" name="courseId" [searchable]="true"
+                    [clearable]="true">
+                  </ng-select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Subjects</label>
+                  <ng-select class="form-select" name="subjectId" [items]="subjects" bindLabel="subjectName"
+                    bindValue="id" [(ngModel)]="newStudent.subjectId" name="subjectIds" [searchable]="true"
+                    [clearable]="true" [multiple]="true"> <!-- ✅ Enables multiple selection -->
+                  </ng-select>
+                </div>
 
                 <!-- Profile Image -->
                 <div class="col-md-6 mb-3">
@@ -1393,7 +1417,8 @@
                 <div class="row g-3">
                   <div class="col-md-6 	sm-col-md-2 mb-3">
                     <label class="form-label">Name</label>
-                    <input type="text" class="form-control" [(ngModel)]="studentEdit.name" name="studentName" required />
+                    <input type="text" class="form-control" [(ngModel)]="studentEdit.name" name="studentName"
+                      required />
                   </div>
                   <div class="col-md-6 sm-col-md-2 mb-3">
                     <label class="form-label">Age</label>
@@ -1417,23 +1442,23 @@
                     <input type="text" class="form-control" [(ngModel)]="studentEdit.phoneNumber" name="studentPhone" />
                   </div>
 
-                   <!-- Subject -->
-                <div class="col-md-6">
-                  <label class="form-label">Subjects</label>
-                  <ng-select class="form-select" [items]="hodSubjects" bindLabel="subjectName" bindValue="id"
-                    [(ngModel)]="studentEdit.subjectId" name="subjectIds" [searchable]="true" [clearable]="true"
-                    [multiple]="true"> <!-- ✅ Enables multiple selection -->
-                  </ng-select>
-                </div>
+                  <!-- Subject -->
+                  <div class="col-md-6">
+                    <label class="form-label">Subjects</label>
+                    <ng-select class="form-select" [items]="hodSubjects" bindLabel="subjectName" bindValue="id"
+                      [(ngModel)]="studentEdit.subjectId" name="subjectIds" [searchable]="true" [clearable]="true"
+                      [multiple]="true"> <!-- ✅ Enables multiple selection -->
+                    </ng-select>
+                  </div>
 
 
-                <!-- Course -->
-                <div class="col-md-6">
-                  <label for="editCourse" class="form-label">Course</label>
-                  <ng-select class="form-select" [items]="hodCourses" bindLabel="courseName" bindValue="id"
-                    [(ngModel)]="studentEdit.courseId" name="courseId" [searchable]="true" [clearable]="true">
-                  </ng-select>
-                </div>
+                  <!-- Course -->
+                  <div class="col-md-6">
+                    <label for="editCourse" class="form-label">Course</label>
+                    <ng-select class="form-select" [items]="hodCourses" bindLabel="courseName" bindValue="id"
+                      [(ngModel)]="studentEdit.courseId" name="courseId" [searchable]="true" [clearable]="true">
+                    </ng-select>
+                  </div>
 
                   <div class="col-md-6 sm-col-md-2 mb-3">
                     <label class="form-label">Profile Image</label>
@@ -2069,8 +2094,8 @@
                   <button class="btn btn-success btn-sm me-2"
                     (click)="confirmStudentAction(student.id, 'approveByStaff')" title="Approve"><i
                       class="bi bi-check-circle"></i></button>
-                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'rejectByStaff')" title="Reject"><i
-                      class="bi bi-x-circle"></i></button>
+                  <button class="btn btn-danger btn-sm" (click)="confirmStudentAction(student.id, 'rejectByStaff')"
+                    title="Reject"><i class="bi bi-x-circle"></i></button>
                 </td>
               </tr>
             </tbody>

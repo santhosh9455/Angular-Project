@@ -403,3 +403,6 @@ input.form-control:focus {
   background-color: #4a148c;
   border-color: #4a148c;
 }
+.list-bg:hover{
+  background-color: #007bff;
+}

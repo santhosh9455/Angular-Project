@@ -18,7 +18,7 @@ export class AuthService {
   private baseUrl = 'http://localhost:8080/auth';
   router = inject(Router);
 
-  constructor(private toast:ToastService){}
+  constructor(private toast: ToastService) { }
 
   login(credentials: { username: string; password: string }): Observable<LoginResponse> {
     const headers = new HttpHeaders({
@@ -35,7 +35,7 @@ export class AuthService {
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Login failed. Please try again.';
-    
+
     // Try to get server error message if available
     if (error.error instanceof ErrorEvent) {
       // Client-side error
@@ -47,62 +47,62 @@ export class AuthService {
         errorMessage = error.error.message;
       }
     }
-    
+
     return throwError(() => new Error(errorMessage));
   }
 
-getUserRole(): string[] {
-  const token = this.getToken();
-  if (!token) return [];
+  getUserRole(): string[] {
+    const token = this.getToken();
+    if (!token) return [];
 
-  try {
-    const decoded: any = jwtDecode(token);
-    // console.log('Decoded JWT:', decoded);
-    return decoded.authorities || []; // Your token has authorities field
-  } catch (error) {
-    console.error('JWT decode failed', error);
-    return [];
-  }
-}
-
-getUsername(): string | null {
-  const token = this.getToken();
-  if (!token) return null;
-
-  try {
-    const decodedToken: any = jwtDecode(token);
-    return decodedToken.sub || null;  // 'sub' usually holds the username
-  } catch (error) {
-    console.error('JWT decode failed', error);
-    return null;
-  }
-}
-
-getAuthHeaders() {
-  const token = this.getToken();
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`
+    try {
+      const decoded: any = jwtDecode(token);
+      // console.log('Decoded JWT:', decoded);
+      return decoded.authorities || []; // Your token has authorities field
+    } catch (error) {
+      console.error('JWT decode failed', error);
+      return [];
     }
-  };
-}
+  }
+
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.sub || null;  // 'sub' usually holds the username
+    } catch (error) {
+      console.error('JWT decode failed', error);
+      return null;
+    }
+  }
+
+  getAuthHeaders() {
+    const token = this.getToken();
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+  }
 
 
-getWithAuth<T>(url: string) {
-  return this.http.get<T>(url, {
-    headers: new HttpHeaders({
-      Authorization: `Bearer ${this.getToken()}`
-    })
-  });
-}
+  getWithAuth<T>(url: string) {
+    return this.http.get<T>(url, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.getToken()}`
+      })
+    });
+  }
 
-postWithAuth<T>(url: string, body: any) {
-  return this.http.post<T>(url, body, {
-    headers: new HttpHeaders({
-      Authorization: `Bearer ${this.getToken()}`
-    })
-  });
-}
+  postWithAuth<T>(url: string, body: any) {
+    return this.http.post<T>(url, body, {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.getToken()}`
+      })
+    });
+  }
 
 
   storeToken(token: string): void {
@@ -121,7 +121,7 @@ postWithAuth<T>(url: string, body: any) {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
-    
+
   }
 }
 
