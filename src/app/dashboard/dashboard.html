@@ -740,12 +740,42 @@
       <div *ngIf="viewSection === 'adminAllStudents'" class="px-3 py-2">
         <!-- Header and Add Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="text-primary"> All Students</h2>
-          <button class="btn btn-success" data-bs-toggle="modal" (click)=" createStudentModal()"
-            data-bs-target="#createStudentModal">
-            <i class="bi bi-person-plus-fill me-1"></i> Add Student
-          </button>
+          <!-- Title on the left -->
+          <h2 class="text-primary m-0">All Students</h2>
+
+          <!-- Buttons on the right -->
+          <div class="d-flex align-items-center gap-2">
+            <!-- Add Student Button -->
+            <button class="btn btn-success" data-bs-toggle="modal" (click)="createStudentModal()"
+              data-bs-target="#createStudentModal">
+              <i class="bi bi-person-plus-fill me-1"></i> Add Student
+            </button>
+
+            <!-- Download Dropdown Button -->
+            <div class="dropdown">
+              <button class="btn btn-primary rounded-circle dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                style="width: 50px; height: 50px;">
+                <i class="bi bi-download"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li class="dropdown-header text-center fw-bold">Current Page</li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('pdf')">PDF</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('excel')">Excel</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('csv')">CSV</a></li>
+                <li>
+                  <hr class="list-bg  dropdown-divider">
+                </li>
+                <li class="list-bg  dropdown-header text-center fw-bold">Download All</li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('pdf', true)">PDF (All)</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('excel', true)">Excel (All)</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('csv', true)">CSV (All)</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
+
+
+
 
         <!-- Filters -->
         <div class="row g-2 mb-3">
@@ -830,29 +860,6 @@
             </li>
           </ul>
         </nav>
-
-        <div class="dropdown d-flex justify-content-end align-items-end mt-2">
-          <button class="btn btn-primary  rounded-circle dropdown-toggle" type="button" data-bs-toggle="dropdown"
-            style="width: 50px; height: 50px;">
-            <i class="bi bi-download"></i>
-          </button>
-          <ul class="dropdown-menu">
-            <li class=" dropdown-header text-center fw-bold">Current Page</li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('pdf')">PDF</a></li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('excel')">Excel</a></li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('csv')">CSV</a></li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li class="dropdown-header text-center fw-bold">Download All</li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('pdf', true)">PDF (All)</a></li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('excel', true)">Excel (All)</a></li>
-            <li><a class="list-bg dropdown-item" role="button" (click)="downloadReport('csv', true)">CSV (All)</a></li>
-          </ul>
-        </div>
-
-
-
       </div>
 
       <div *ngIf="viewSection === 'adminDepartment'" class="px-3 py-2">

@@ -2149,7 +2149,7 @@ export class Dashboard implements OnInit {
 
 
 
- 
+
   // Filter parameters
   searchText: string = '';
   filterRole: string = '';
@@ -2163,7 +2163,7 @@ export class Dashboard implements OnInit {
   totalPages: number = 0;
   totalElements: number = 0;
 
-  downloadReport(type: 'pdf' | 'excel' | 'csv', fullDownload: boolean = false): void {
+ downloadReport(type: 'pdf' | 'excel' | 'csv', fullDownload: boolean = false): void {
   this.reportService.downloadReport(
     type,
     fullDownload,
@@ -2174,15 +2174,22 @@ export class Dashboard implements OnInit {
     },
     this.page,
     fullDownload ? 10000 : this.size
-  ).subscribe(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `students.${type === 'excel' ? 'xlsx' : type}`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  ).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `students.${type === 'excel' ? 'xlsx' : type}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => {
+      this.toast.showError("Download Failed");
+      console.error("Report download error:", err);
+    }
   });
 }
+
 
 
   fetchUsers(): void {
