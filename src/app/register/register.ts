@@ -20,16 +20,22 @@ export class RegistrationComponent {
   http = inject(HttpClient);
   router = inject(Router);
 
-  registrationForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
-    age: ['', [Validators.required, Validators.min(18)]],
-    gender: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    departmentId: ['', Validators.required], // must match backend
-    profileImage: [null, Validators.required],
-    marksheetImage: [null, Validators.required]
-  });
+ registrationForm: FormGroup = this.fb.group({
+  name: ['', Validators.required],
+  dateOfBirth: ['', [Validators.required, Validators.min(18)]],
+  gender: ['', Validators.required],
+  email: [
+    '',
+    [
+      Validators.required,
+      Validators.pattern(/^[\w-\.]+@([\w-]+\.)+(com|in|edu)$/i)
+    ]
+  ],
+  phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+  departmentId: ['', Validators.required],
+  profileImage: [null, [Validators.required, imageFileValidator]],
+  marksheetImage: [null, [Validators.required, imageFileValidator]]
+});
 
   departments: any[] = []; // Load from backend
   successMessage = '';
@@ -46,11 +52,22 @@ showSwal(typeIcon: 'success' | 'error' | 'warning' | 'info' | 'question' = 'succ
   }
 
   onFileChange(event: any, field: 'profileImage' | 'marksheetImage') {
-    const file = event.target.files[0];
-    if (file) {
-      this.registrationForm.patchValue({ [field]: file });
+  const file: File = event.target.files[0];
+
+  if (file) {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Only PNG, JPG or JPEG image files are allowed.');
+      this.registrationForm.patchValue({ [field]: null });
+      event.target.value = ''; // Clear the input
+      return;
     }
+
+    this.registrationForm.patchValue({ [field]: file });
   }
+}
+
   constructor(private toast:ToastService) {
     // Initialize form and load departments
   }
@@ -72,7 +89,7 @@ ngOnInit(): void {
       const values = this.registrationForm.value;
 
       formData.append('name', values.name);
-      formData.append('age', values.age);
+      formData.append('dateOfBirth', values.dateOfBirth);
       formData.append('gender', values.gender);
       formData.append('email', values.email);
       formData.append('phoneNumber', values.phoneNumber);
@@ -95,4 +112,23 @@ ngOnInit(): void {
       });
     }
   }
+}
+
+import { AbstractControl, ValidationErrors } from '@angular/forms';
+
+export function imageFileValidator(control: AbstractControl): ValidationErrors | null {
+  const file = control.value;
+
+  if (file) {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+    if (!(file instanceof File)) {
+      return { invalidType: true };
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      return { invalidType: true };
+    }
+  }
+  return null;
 }

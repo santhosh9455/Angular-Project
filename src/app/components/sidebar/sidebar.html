@@ -34,6 +34,9 @@
       <li (click)="selectSection('hodSubjects')" [class.selected]="activeSection === 'hodSubjects'">
         <i class="bi bi-journal-text me-2 fs-5"></i>Subjects
       </li>
+       <li (click)="selectSection('hodprofile')" [class.selected]="activeSection === 'hodprofile'">
+        <i class="bi bi-person-badge-fill me-2 fs-5"></i> My Profile
+      </li>
     </ng-container>
 
     <!-- Staff View -->
@@ -47,6 +50,7 @@
       <li (click)="selectSection('StaffInfo')" [class.selected]="activeSection === 'StaffInfo'">
         <i class="bi bi-person-circle me-2 fs-5"></i> My Profile
       </li>
+      
     </ng-container>
 
     <!-- Student View -->

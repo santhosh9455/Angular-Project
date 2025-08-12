@@ -27,6 +27,8 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { ReportService } from '../services/report/report-service';
+import { LoadingService } from '../services/loading-service';
+import { ProfileService, StaffProfile } from '../StaffProfile/services';
 
 
 
@@ -53,8 +55,9 @@ declare var bootstrap: any;
 export class Dashboard implements OnInit {
 
 
-
-  constructor(private route: ActivatedRoute, private toast: ToastService, private reportService: ReportService) {
+  constructor(private route: ActivatedRoute, private toast: ToastService, private reportService: ReportService,
+          private loading : LoadingService, private profileService: ProfileService
+  ) {
 
   }
   // Chart.js related properties
@@ -189,9 +192,10 @@ export class Dashboard implements OnInit {
   updatedStaff: any = {
     name: '',
     email: '',
-    age: '',
+    dateOfBirth: '',
     gender: '',
     phoneNumber: '',
+    subjectId: [],
     subjectNme: '',
     courseName: ''
   };
@@ -204,6 +208,7 @@ export class Dashboard implements OnInit {
     departmentId: number | null;
     courseStatus: string;
     name: string;
+    dateOfBirth:string;
     age: number | null;
     gender: string;
     email: string;
@@ -216,6 +221,7 @@ export class Dashboard implements OnInit {
       age: null,
       gender: '',
       email: '',
+      dateOfBirth:'',
       phoneNumber: '',
       profileImage: null,
       marksheetImage: null,
@@ -279,6 +285,9 @@ export class Dashboard implements OnInit {
     });
   }
   // Confirm action for student approval/rejection
+
+  
+
   confirmCourseEnroll(courseId: number) {
     Swal.fire({
       title: 'Enroll this Course?',
@@ -502,6 +511,8 @@ export class Dashboard implements OnInit {
 
     } else if (this.viewSection === 'hodCourses') {
       this.fetchHodFilterCourses();
+    }else if (this.viewSection === 'hodprofile') {
+      this.hodProfile();
     }
     else if (this.viewSection === 'hodCreateStaff') {
       this.fetchHodCourses();
@@ -997,7 +1008,7 @@ export class Dashboard implements OnInit {
     const modalElement = document.getElementById('editStaffModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
-      this.fetchCourses();
+      
       this.fetchHodSubjects();
       modal.show();
     } else {
@@ -1020,7 +1031,7 @@ export class Dashboard implements OnInit {
         },
         error: (err) => {
           console.error('Staff update failed:', err);
-          this.showSwal('error', 'Failed to update staff', err.message || 'Unknown error');
+          this.showSwal('error', 'Failed to update staff', err.error.message || 'Unknown error');
         }
       });
   }
@@ -1073,6 +1084,7 @@ export class Dashboard implements OnInit {
   openEditStudentModal(student: any) {
     this.onSubjectSearch();
     this.fetchSubjects();
+    this.fetchHodSubjects();
     console.log('Editing student:', student); // Debug log
 
     if (!student || !student.id) {
@@ -1093,6 +1105,7 @@ export class Dashboard implements OnInit {
       age: student.age || null,
       gender: student.gender || '',
       email: '',
+      dateOfBirth:'',
       phoneNumber: student.phoneNumber || '',
       profileImage: student.profileImage || null,
       marksheetImage: student.marksheetImage || null,
@@ -1151,8 +1164,8 @@ export class Dashboard implements OnInit {
         this.page = response.number;            // current page
         this.size = response.size;              // current page size
         console.log('Subjects', this.subjects);
-      },
-      () => this.toast.showError('Failed to load subjects')
+      }
+      // () => this.toast.showError('Failed to load subjects')
     );
   }
 
@@ -1372,7 +1385,7 @@ export class Dashboard implements OnInit {
 
     // Append only fields that are present and non-empty
     if (this.studentEdit.name) formData.append('name', this.studentEdit.name);
-    if (this.studentEdit.age) formData.append('age', this.studentEdit.age.toString());
+    if (this.studentEdit.age) formData.append('dateOfBirth', this.studentEdit.dateOfBirth);
     if (this.studentEdit.gender) formData.append('gender', this.studentEdit.gender);
     if (this.studentEdit.email) formData.append('email', this.studentEdit.email);
     if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
@@ -1566,10 +1579,10 @@ export class Dashboard implements OnInit {
   }
 
   HoddeleteStudent(studentId: number) {
-    this.http.delete(`http://localhost:8080/admin/deleteStudent/${studentId}`).subscribe({
+    this.http.delete(`http://localhost:8080/hod/deleteStudent/${studentId}`).subscribe({
       next: (res) => {
         Swal.fire('Success', 'Student deleted successfully.', 'success');
-        this.fetchAllStudents(); // Refresh the student list
+        this.fetchRequestedStudents(); // Refresh the student list
       },
       error: (err) => {
         Swal.fire('Error', err.error?.message || 'Failed to delete student', 'error');
@@ -1673,6 +1686,24 @@ export class Dashboard implements OnInit {
     }
   }
 
+
+  profileData!: StaffProfile;
+  isLoading = true;
+  
+  hodProfile(){
+    this.profileService.getProfile().subscribe({
+      next: (data) => {
+        this.profileData = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching profile', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+
   //----------------------------------------------------HOD Completed--------------------------------------------------------//
   //Student API's
   fetchStudentProfile() {
@@ -1703,12 +1734,16 @@ export class Dashboard implements OnInit {
       });
   }
 
+   loader = false;
   registerCourse(courseId: number) {
+     this.loader = true;
     this.http.get<any>('http://localhost:8080/api/students/getStudent', this.authService.getAuthHeaders())
       .subscribe({
         next: (studentProfile) => {
           if (studentProfile && (studentProfile.courseStatus === "APPROVED" || studentProfile.courseStatus === "PENDING")) {
-            this.showSwal('warning', 'Warning', 'You have already requested this course');
+            this.loading.hide();
+            this.showSwal('warning', 'Warning', 'You have already requested the course');
+            this.loader = false;
             return;
           }
           this.http.post(`http://localhost:8080/api/students/registerCourse/${courseId}`, {}, {
@@ -1717,16 +1752,20 @@ export class Dashboard implements OnInit {
             }
           }).subscribe({
             next: () => {
+              this.loader = false;
               this.toast.showSuccess('Your course registration was successful.')
+
             },
             error: (err) => {
               console.error('Enrollment failed:', err);
+              this.loader = false;
               this.toast.showError('Your course registration enrollment was failed.')
             }
           });
         },
         error: (err) => {
           console.error('Failed to fetch student profile:', err);
+          this.loader = false;
           this.toast.showError('Could not verify course status.');
         }
       });
@@ -1834,7 +1873,7 @@ export class Dashboard implements OnInit {
 
     // Append only fields that are present and non-empty
     if (this.studentEdit.name) formData.append('name', this.studentEdit.name);
-    if (this.studentEdit.age) formData.append('age', this.studentEdit.age.toString());
+    if (this.studentEdit.age) formData.append('dateOfBirth', this.studentEdit.dateOfBirth);
     if (this.studentEdit.gender) formData.append('gender', this.studentEdit.gender);
     if (this.studentEdit.email) formData.append('email', this.studentEdit.email);
     if (this.studentEdit.phoneNumber) formData.append('phoneNumber', this.studentEdit.phoneNumber);
@@ -1948,6 +1987,7 @@ export class Dashboard implements OnInit {
       next: (res: any) => {
         this.closeModal('createUserModal', true); // close modal and reset form
         Swal.fire('Success', 'User created successfully.', 'success');
+        this.fetchAllUsers();
         this.newUser = { username: '', password: '', roleId: null }; // reset form if needed
       },
       error: err => {

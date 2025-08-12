@@ -1,6 +1,7 @@
 <app-navbar></app-navbar>
 
-<div class="container d-flex justify-content-center align-items-center mb-5 animate__animated animate__fadeIn" style="margin-top: 5%;">
+<div class="container d-flex justify-content-center align-items-center mb-5 animate__animated animate__fadeIn"
+  style="margin-top: 5%;">
   <div class="card shadow p-4" style="width: 100%; max-width: 650px; border-radius: 15px;">
     <h1 class="text-center mb-4 text-primary fw-bold">
       <i class="material-icons align-middle me-2">person_add</i> Student Registration
@@ -27,20 +28,20 @@
             <span class="input-group-text"><i class="material-icons">person</i></span>
             <input type="text" class="form-control" formControlName="name" />
           </div>
-          <div class="text-danger" *ngIf="registrationForm.get('name')?.touched && registrationForm.get('name')?.hasError('required')">
+          <div class="text-danger"
+            *ngIf="registrationForm.get('name')?.touched && registrationForm.get('name')?.hasError('required')">
             Name is required
           </div>
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Age</label>
+          <label class="form-label">Date Of Birth</label>
           <div class="input-group">
             <span class="input-group-text"><i class="material-icons">calendar_today</i></span>
-            <input type="number" class="form-control" formControlName="age" />
+            <input type="date" class="form-control" formControlName="dateOfBirth" />
           </div>
-          <div class="text-danger" *ngIf="registrationForm.get('age')?.touched">
-            <div *ngIf="registrationForm.get('age')?.hasError('required')">Age is required</div>
-            <div *ngIf="registrationForm.get('age')?.hasError('min')">Minimum age is 18</div>
+          <div class="text-danger" *ngIf="registrationForm.get('dateOfBirth')?.touched">
+            <div *ngIf="registrationForm.get('dateOfBirth')?.hasError('required')">Date Of Birth is required</div>
           </div>
         </div>
 
@@ -51,7 +52,8 @@
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
-          <div class="text-danger" *ngIf="registrationForm.get('gender')?.touched && registrationForm.get('gender')?.hasError('required')">
+          <div class="text-danger"
+            *ngIf="registrationForm.get('gender')?.touched && registrationForm.get('gender')?.hasError('required')">
             Gender is required
           </div>
         </div>
@@ -86,25 +88,44 @@
             <option value="">-- Select Department --</option>
             <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</option>
           </select>
-          <div class="text-danger" *ngIf="registrationForm.get('departmentId')?.touched && registrationForm.get('departmentId')?.hasError('required')">
+          <div class="text-danger"
+            *ngIf="registrationForm.get('departmentId')?.touched && registrationForm.get('departmentId')?.hasError('required')">
             Department is required
           </div>
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Profile Image</label>
+          <label class="form-label">Profile Attachment</label>
           <input type="file" (change)="onFileChange($event, 'profileImage')" class="form-control" />
+          <div *ngIf="registrationForm.get('profileImage')?.touched">
+            <span *ngIf="registrationForm.get('profileImage')?.hasError('required')" class="text-danger mt-2">
+              This field is required.
+            </span>
+            <span *ngIf="registrationForm.get('profileImage')?.hasError('invalidType')" class="text-danger mt-2">
+              Only PNG, JPG or JPEG image files are allowed.
+            </span>
+          </div>
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Marksheet Image</label>
+          <label class="form-label">Marksheet Attachment (12'th)</label>
           <input type="file" (change)="onFileChange($event, 'marksheetImage')" class="form-control" />
+          <div *ngIf="registrationForm.get('marksheetImage')?.touched">
+            <span *ngIf="registrationForm.get('marksheetImage')?.hasError('required')" class="text-danger mt-2">
+              This field is required.
+            </span>
+            <span *ngIf="registrationForm.get('marksheetImage')?.hasError('invalidType')" class="text-danger mt-2">
+              Only PNG, JPG or JPEG image files are allowed.
+            </span>
+          </div>
         </div>
+
 
       </div>
 
       <div class="mt-4">
-        <button class="btn register-btn w-100 text-white animate__animated animate__pulse animate__infinite" [disabled]="!registrationForm.valid" type="submit">
+        <button class="btn register-btn w-100 text-white animate__animated animate__pulse animate__infinite"
+          [disabled]="!registrationForm.valid" type="submit">
           <i class="material-icons me-2">how_to_reg</i> Register
         </button>
       </div>

@@ -4,6 +4,9 @@ import { finalize } from 'rxjs/operators';
 import { LoadingService } from './app/services/loading-service';
 
 export const LoadingInterceptor: HttpInterceptorFn = (req, next) => {
+
+   console.log('Interceptor triggered for:', req.url); // Debug line
+   
   const loadingService = inject(LoadingService);
   loadingService.show(); // start spinner
 

@@ -766,9 +766,12 @@
                   <hr class="list-bg  dropdown-divider">
                 </li>
                 <li class="list-bg  dropdown-header text-center fw-bold">Download All</li>
-                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('pdf', true)">PDF (All)</a></li>
-                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('excel', true)">Excel (All)</a></li>
-                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('csv', true)">CSV (All)</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('pdf', true)">PDF (All)</a>
+                </li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('excel', true)">Excel
+                    (All)</a></li>
+                <li><a class="list-bg  dropdown-item" role="button" (click)="downloadReport('csv', true)">CSV (All)</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -1011,8 +1014,8 @@
                       required />
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label class="form-label">Age</label>
-                    <input type="number" class="form-control" [(ngModel)]="studentEdit.age" name="studentAge" />
+                    <label class="form-label">Date Of Birth</label>
+                    <input type="date" class="form-control" [(ngModel)]="studentEdit.dateOfBirth" name="studentAge" />
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Gender</label>
@@ -1265,7 +1268,11 @@
                       </div>
                       <div class="col-sm-6">
                         <p class="mb-1 text-muted small">Age</p>
-                        <h4>{{ selectedStudent?.age }}</h4>
+                        <h4>{{ selectedStudent?.age || "N/A" }}</h4>
+                      </div>
+                      <div class="col-sm-6">
+                        <p class="mb-1 text-muted small">Date Of Birth</p>
+                        <h4>{{ selectedStudent?.dateOfBirth || "N/A" }}</h4>
                       </div>
                       <div class="col-sm-6">
                         <p class="mb-1 text-muted small">Department</p>
@@ -1323,6 +1330,65 @@
     <!-- HOD View Section -->
     <div *ngIf="hasRole('ROLE_HOD')" class="hod-dashboard py-5">
       <!-- Requested Students Table -->
+      <div *ngIf="viewSection === 'hodprofile'">
+        <div class="container mt-4" *ngIf="!isLoading; else loading">
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+            <!-- Profile Header -->
+            <div class="bg-gradient-primary text-white text-center p-4 position-relative">
+              <img src="https://ui-avatars.com/api/?name={{ profileData.name }}&size=120&background=0D6EFD&color=fff"
+                alt="Profile Avatar" class="rounded-circle border border-3 border-white shadow-sm mb-3" width="120"
+                height="120" />
+              <h4 class="fw-bold mb-1">{{ profileData.name }}</h4>
+              <p class="text-white-300 mb-0">{{ profileData.username }}</p>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-envelope me-2 text-primary"></i> <strong>Email:</strong> {{
+                      profileData.email }}</li>
+                    <li class="mb-2"><i class="bi bi-phone me-2 text-success"></i> <strong>Phone:</strong> {{
+                      profileData.phoneNumber }}</li>
+                    <li class="mb-2"><i class="bi bi-calendar me-2 text-info"></i> <strong>Age:</strong> {{
+                      profileData.age }}</li>
+                    <li class="mb-2"><i class="bi bi-gender-ambiguous me-2 text-warning"></i> <strong>Gender:</strong>
+                      {{ profileData.gender }}</li>
+                  </ul>
+                </div>
+
+                <div class="col-md-6">
+                  <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-building me-2 text-danger"></i> <strong>Department:</strong> {{
+                      profileData.departmentName }}</li>
+                    <li class="mb-2"><i class="bi bi-journal-bookmark me-2 text-secondary"></i> <strong>Course:</strong>
+                      {{ profileData.courseName }} <span class="text-muted">(ID: {{ profileData.courseId }})</span></li>
+                    <li class="mb-2"><i class="bi bi-bookmarks me-2 text-primary"></i> <strong>Subjects:</strong></li>
+                    <div>
+                      <span class="badge rounded-pill bg-light text-dark border me-2 mb-2"
+                        *ngFor="let subject of profileData.subjectNme">
+                        {{ subject }}
+                      </span>
+                    </div>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <ng-template #loading>
+          <div class="d-flex justify-content-center mt-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
       <div *ngIf="viewSection === 'hodRequested'">
         <h2 class="text-primary fw-bold mb-3">Students</h2>
         <div class="mb-3 row g-2 align-items-center">
@@ -1428,8 +1494,9 @@
                       required />
                   </div>
                   <div class="col-md-6 sm-col-md-2 mb-3">
-                    <label class="form-label">Age</label>
-                    <input type="number" class="form-control" [(ngModel)]="studentEdit.age" name="studentAge" />
+                    <label class="form-label">Date Of Birth</label>
+                    <input type="date" class="form-control" [(ngModel)]="studentEdit.dateOfBirth"
+                      name="studentDateOfbirth" />
                   </div>
                   <div class="col-md-6 sm-col-md-2 mb-3">
                     <label class="form-label">Gender</label>
@@ -1761,6 +1828,8 @@
       </div>
     </div>
 
+
+
     <!-- 📘 All Courses -->
     <div *ngIf="viewSection === 'hodCourses'">
       <h2 class="text-primary fw-bold mb-3">All Courses</h2>
@@ -1877,23 +1946,27 @@
                 <div class="row gy-3">
                   <div class="col-md-6">
                     <p><strong><i class="bi bi-person-fill me-2 text-primary"></i>Name:</strong> {{ selectedStaff.name
-                      }}</p>
+                      || 'N/A'}}</p>
                   </div>
                   <div class="col-md-6">
                     <p><strong><i class="bi bi-envelope-fill me-2 text-primary"></i>Email:</strong> {{
-                      selectedStaff.email }}</p>
+                      selectedStaff.email || 'N/A'}}</p>
                   </div>
                   <div class="col-md-6">
                     <p><strong><i class="bi bi-gender-ambiguous me-2 text-primary"></i>Gender:</strong> {{
-                      selectedStaff.gender }}</p>
+                      selectedStaff.gender || 'N/A'}}</p>
                   </div>
                   <div class="col-md-6">
                     <p><strong><i class="bi bi-calendar2-week-fill me-2 text-primary"></i>Age:</strong> {{
-                      selectedStaff.age }}</p>
+                      selectedStaff.age || 'N/A'}}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong><i class="bi bi-calendar2-week-fill me-2 text-primary"></i>Date Of Birth:</strong> {{
+                      selectedStaff.dateOfBirth || 'N/A'}}</p>
                   </div>
                   <div class="col-md-6">
                     <p><strong><i class="bi bi-telephone-fill me-2 text-primary"></i>Phone:</strong> {{
-                      selectedStaff.phoneNumber }}</p>
+                      selectedStaff.phoneNumber || 'N/A'}}</p>
                   </div>
                 </div>
               </div>
@@ -1962,8 +2035,9 @@
                   <input type="email" class="form-control" [(ngModel)]="updatedStaff.email" name="email" required />
                 </div>
                 <div class="col-md-6 mb-2">
-                  <label>Age</label>
-                  <input type="number" class="form-control" [(ngModel)]="updatedStaff.age" name="age" required />
+                  <label>Date Of Birth</label>
+                  <input type="date" class="form-control" [(ngModel)]="updatedStaff.dateOfBirth" name="dateOfBirth"
+                    required />
                 </div>
                 <div class="col-md-6 mb-2">
                   <label>Gender</label>
@@ -1978,21 +2052,22 @@
                   <input type="text" class="form-control" [(ngModel)]="updatedStaff.phoneNumber" name="phoneNumber"
                     required />
                 </div>
-                <div class="col-md-6 mb-2">
-                  <label>Subject Name</label>
-                  <select class="form-select" [(ngModel)]="updatedStaff.subjectNme" name="subjectNme">
-                    <option value="">-- Select Subject --</option>
-                    <option *ngFor="let subject of hodSubjects" [value]="subject.id">{{ subject.subjectName
-                      }}</option>
-                  </select>
+                <!-- Subject -->
+                <div class="col-md-6">
+                  <label class="form-label">Subjects</label>
+                  <ng-select class="form-select" [items]="hodSubjects" bindLabel="subjectName" bindValue="id"
+                    [(ngModel)]="updatedStaff.subjectId" name="subjectIds" [searchable]="true" [clearable]="true"
+                    [multiple]="true"> <!-- ✅ Enables multiple selection -->
+                  </ng-select>
                 </div>
-                <div class="col-md-6 mb-2">
-                  <label>Course Name</label>
-                  <select class="form-select" [(ngModel)]="updatedStaff.courseName" name="courseName">
-                    <option value="">-- Select Subject --</option>
-                    <option *ngFor="let course of hodCourses" [value]="course.id">{{ course.courseName }}
-                    </option>
-                  </select>
+
+
+                <!-- Course -->
+                <div class="col-md-6">
+                  <label for="editCourse" class="form-label">Course</label>
+                  <ng-select class="form-select" [items]="hodCourses" bindLabel="courseName" bindValue="id"
+                    [(ngModel)]="updatedStaff.courseId" name="courseId" [searchable]="true" [clearable]="true">
+                  </ng-select>
                 </div>
               </div>
             </div>
@@ -2053,7 +2128,9 @@
       </ng-template>
     </div>
 
-    <!-- Staff View -->
+
+
+    <!-- Staff View ------------------------------------------------------>
     <div *ngIf="hasRole('ROLE_STAFF')" class="student-dashboard py-5">
 
       <!-- Common Table -->
@@ -2309,6 +2386,9 @@
         </div>
 
         <ng-container *ngIf="courseList?.length && courseList.length > 0; else noCourses">
+          <div *ngIf="loader" class="backdrop">
+            <div class="spinner"></div>
+          </div>
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             <div *ngFor="let course of courseList; let i = index" class="col-12 col-sm-6 col-md-4 col-lg-3">
               <div class="card course-card h-100 shadow-sm border-0 p-3">
@@ -2388,7 +2468,6 @@
             </ul>
           </div>
         </ng-container>
-
         <ng-template #loadingDept>
           <div class="alert alert-info mt-3">
             <i class="bi bi-info-circle me-2"></i> No department info available...
